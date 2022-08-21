@@ -3,9 +3,7 @@
 A dart package to integrate Cloudinary API in Dart and Flutter.
 
 [![pub package](https://img.shields.io/pub/v/cloudinary.svg)][pub]
-[![popularity](https://badges.bar/cloudinary/popularity)](https://pub.dev/packages/cloudinary/score)
-[![likes](https://badges.bar/cloudinary/likes)](https://pub.dev/packages/cloudinary/score)
-[![pub points](https://badges.bar/cloudinary/pub%20points)](https://pub.dev/packages/cloudinary/score)
+![GitHub license](https://img.shields.io/badge/license-BSD-3.0-blue.svg?style=flat)
 
 ## Installation
 The first thing is to add **cloudinary** as a dependency of your project, for this you can use the command:
@@ -121,7 +119,7 @@ The `cloudinary.destroy(...)` function is fully documented, you can check the de
 
 [<img align="left" alt="nixrajput | LinkedIn" width="24px" src="https://raw.githubusercontent.com/nixrajput/nixlab-files/master/images/icons/linkedin-in-brands.svg" />][linkedin]
 
-[pub]: https://pub.dev/packages/get_time_ago
+[pub]: https://pub.dev/packages/cloudinary
 [github]: https://github.com/nixrajput
 [website]: https://nixlab.co.in
 [facebook]: https://facebook.com/nixrajput07
