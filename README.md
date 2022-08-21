@@ -1,17 +1,17 @@
 # cloudinary_dart
 
-A dart package to integrate Cloudinary API.
+A dart package to integrate Cloudinary API in Dart and Flutter.
 
 ## Installation
-The first thing is to add **cloudinary_sdk** as a dependency of your project, for this you can use the command:
+The first thing is to add **cloudinary** as a dependency of your project, for this you can use the command:
 
 **For purely Dart projects**
 ```shell
-dart pub add cloudinary_sdk
+dart pub add cloudinary
 ```
 **For Flutter projects**
 ```shell
-flutter pub add cloudinary_sdk
+flutter pub add cloudinary
 ```
 This command will add **cloudinary_sdk** to the **pubspec.yaml** of your project.
 Finally you just have to run:
@@ -39,7 +39,7 @@ final cloudinary = Cloudinary.unsignedConfig(
 );
 ```
 
-### Do a single file signed upload
+### Do a signed file upload
 Recommended only for server side apps.
 ```dart
   final response = await cloudinary.upload(
@@ -62,7 +62,7 @@ Recommended only for server side apps.
 You can upload a file from path or byte array representation, you can also pass an `optParams` map to do a more elaborated upload according to https://cloudinary.com/documentation/image_upload_api_reference
 The `cloudinary.upload(...)` function is fully documented, you can check the description to know what other options you have.
 
-### Do a single file unsigned upload
+### Do a unsigned file upload
 Recommended for server client side apps.
 The way to do this request is almost the same as above, the only difference is the `uploadPreset` which is required for unsigned uploads.
 ```dart
@@ -87,7 +87,7 @@ The way to do this request is almost the same as above, the only difference is t
 You can upload a file from path or byte array representation, you can also pass an `optParams` map to do a more elaborated upload according to https://cloudinary.com/documentation/image_upload_api_reference
 The `cloudinary.unsignedUpload(...)` function is fully documented, you can check the description to know what other options you have.
 
-### Do a single file delete *(this will use the cloudinary destroy method)*
+### Do a file delete *(this will use the cloudinary destroy method)*
 ```dart
     final response = await cloudinary.destroy('public_id',
       url: url,
