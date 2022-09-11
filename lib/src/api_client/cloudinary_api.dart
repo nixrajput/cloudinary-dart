@@ -3,12 +3,21 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 
-/// Cloudinary API abstraction class
+/// Cloudinary API abstraction class for making requests to the Cloudinary API
+/// It uses the [Dio] to make the requests
 abstract class CloudinaryApi {
+  /// The [defaultUrl] is the base url for the cloudinary api
   static const defaultUrl = 'https://api.cloudinary.com/v1_1/';
+
+  /// The [Dio] object used to make the upload requests
   final Dio _dio;
+
+  /// The [Dio] object used to make the delete requests
   final Dio _deleteDio;
 
+  /// CloudinaryApi constructor used to initialize the [Dio] objects
+  /// It takes the [apiKey], [apiSecret] and [cloudName] as parameters
+  /// to build the [defaultUrl]
   CloudinaryApi({String? apiKey, String? apiSecret})
       : _dio = Dio(BaseOptions(baseUrl: '$defaultUrl/')),
         _deleteDio = Dio(
@@ -20,6 +29,7 @@ abstract class CloudinaryApi {
           ),
         );
 
+  /// Post request to the cloudinary api
   Future<Response<T>> post<T>(
     String path, {
     data,
@@ -40,6 +50,7 @@ abstract class CloudinaryApi {
     );
   }
 
+  /// Delete request to the cloudinary api
   Future<Response<T>> delete<T>(
     String path, {
     data,

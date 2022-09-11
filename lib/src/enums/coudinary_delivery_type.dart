@@ -1,14 +1,17 @@
-/// Cloudinary delivery type enum
+/// CloudinaryDeliveryType enum is used to specify the delivery type of the image.
 enum CloudinaryDeliveryType {
+  /// The [upload] type
   upload,
+
+  /// The [private] type
   private,
+
+  /// The [fetch] type
   fetch,
+
+  /// The [authenticated] type
   authenticated,
-  facebook,
-  twitter,
-  gravatar,
-  youtube,
-  hulu,
-  vimeo,
-  dailymotion
+
+  /// The [auto] type
+  auto,
 }

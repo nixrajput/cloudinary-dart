@@ -3,6 +3,12 @@ import 'package:cloudinary/src/enums/cloudinary_resource_type.dart';
 import 'package:cloudinary/src/models/cloudinary_response.dart';
 import 'package:dio/dio.dart';
 
+/// Cloudinary Base class
+/// This class is used to upload and delete resources from cloudinary
+/// It uses the [CloudinaryApiClient] to make the requests
+/// It uses the [CloudinaryResponse] to parse the response
+/// It uses the [CloudinaryResourceType] to define the resource type
+/// It uses the [Dio] to make the requests
 class Cloudinary {
   late final CloudinaryApiClient _client;
 
@@ -29,7 +35,10 @@ class Cloudinary {
         'None of `apiKey`, `apiSecret`, or `cloudName` '
         'must be empty.');
     return Cloudinary._(
-        apiKey: apiKey, apiSecret: apiSecret, cloudName: cloudName);
+      apiKey: apiKey,
+      apiSecret: apiSecret,
+      cloudName: cloudName,
+    );
   }
 
   /// Use this constructor when you don't need to make authorized requests
@@ -46,14 +55,8 @@ class Cloudinary {
 
   /// Uploads a file of [resourceType] with [fileName] to a [folder]
   /// in your specified [cloudName]
-  ///
-  /// [resource] A [CloudinaryUploadResource] object with all necessary data
-  ///
   /// Response:
-  /// Check all the attributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
-  /// See also:
-  ///
-  ///  * [CloudinaryUploadResource], to know which data to set
+  /// [CloudinaryResponse], to know which data to get from the response
   Future<CloudinaryResponse> upload({
     String? file,
     List<int>? fileBytes,
@@ -81,14 +84,8 @@ class Cloudinary {
   /// specify an [apiKey] nor [apiSecret].
   ///
   /// Make sure you set a [uploadPreset] in your resource.
-  ///
-  /// [resource] A [CloudinaryUploadResource] object with all necessary data
-  ///
   /// Response:
-  /// Check all the attributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
-  /// See also:
-  ///
-  ///  * [CloudinaryUploadResource], to know which data to set
+  /// [CloudinaryResponse], to know which data to get from the response
   Future<CloudinaryResponse> unsignedUpload({
     String? file,
     required String? uploadPreset,
@@ -117,17 +114,24 @@ class Cloudinary {
 
   /// Deletes a file of [resourceType] with [publicId]
   /// from your specified [cloudName]
-  /// By using the Destroy method of cloudinary api. Check here https://cloudinary.com/documentation/image_upload_api_reference#destroy_method
+  /// By using the Destroy method of cloudinary api. Check here
+  /// https://cloudinary.com/documentation/image_upload_api_reference#destroy_method
   ///
-  /// [publicId] the asset id in your [cloudName], if not provided then [url] would be used. Note: The public ID value for images and videos should not include a file extension. Include the file extension for raw files only.
-  /// [url] the url to the asset in your [cloudName], the publicId will be taken from here
-  /// [cloudinaryImage] a Cloudinary Image to be deleted,  the publicId will be taken from here
+  /// [publicId] the asset id in your [cloudName], if not provided then [url]
+  /// would be used. Note: The public ID value for images and videos should not
+  /// include a file extension. Include the file extension for raw files only.
+  /// [url] the url to the asset in your [cloudName], the publicId will be taken
+  /// from here
+  /// [cloudinaryImage] a Cloudinary Image to be deleted,  the publicId will
+  /// be taken from here
   /// [resourceType] defaults to [CloudinaryResourceType.image]
-  /// [invalidate] If true, invalidates CDN cached copies of the asset (and all its transformed versions). Default: false.
-  /// [optParams] a Map of optional parameters as defined in https://cloudinary.com/documentation/image_upload_api_reference#destroy_method
+  /// [invalidate] If true, invalidates CDN cached copies of the asset (and all
+  /// its transformed versions). Default: false.
+  /// [optParams] a Map of optional parameters as defined in
+  /// https://cloudinary.com/documentation/image_upload_api_reference#destroy_method
   ///
   /// Response:
-  /// Check response.isResultOk to know if the file was successfully deleted.
+  /// Check [CloudinaryResponse.isResultOk] to know if the file was successfully deleted.
   Future<CloudinaryResponse> destroy(
     String? publicId, {
     String? url,
