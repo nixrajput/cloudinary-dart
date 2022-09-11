@@ -5,7 +5,7 @@ A dart package for to integrate [Cloudinary](https://cloudinary.com/) API into y
 [![pub package](https://img.shields.io/pub/v/cloudinary.svg)][pub]
 [![Flutter](https://img.shields.io/badge/Flutter-3.3.0-blue.svg)](https://flutter.io/)
 [![Dart](https://img.shields.io/badge/Dart-2.18.0-blue.svg)](https://www.dartlang.org/)
-[![Gem Version](https://badge.fury.io/rb/cloudinary.svg)](http://badge.fury.io/rb/cloudinary)
+[![Gem Version](https://badge.fury.io/rb/cloudinary.svg)](https://badge.fury.io/rb/cloudinary)
 [![Code Climate](https://codeclimate.com/github/nixrajput/cloudinary-dart/badges/gpa.svg)](https://codeclimate.com/github/nixrajput/cloudinary-dart)
 [![Test Coverage](https://codeclimate.com/github/nixrajput/cloudinary-dart/badges/coverage.svg)](https://codeclimate.com/github/nixrajput/cloudinary-dart/coverage)
 
