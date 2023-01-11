@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0
+
+- **Documentation**: Updated documentation for the package.
+- **Fix**: All known bugs fixed.
+
 ## 1.0.3
 
 - Code cleanup and refactoring for better readability and maintainability.
