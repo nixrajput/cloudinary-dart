@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1
+
+- **Update**: All dependencies are updated to latest version.
+- **Fix**: All known bugs fixed.
+
 ## 1.1.0
 
 - **Documentation**: Updated documentation for the package.

@@ -388,6 +388,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (resource.isEmpty) return [];
     switch (resource['status']) {
       case 'SUCCESS':
+        // ignore: use_build_context_synchronously
         Navigator.pop(context);
         return resource['data'];
       default:
