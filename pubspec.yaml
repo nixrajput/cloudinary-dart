@@ -1,20 +1,20 @@
 name: cloudinary
 description: A dart package to integrate Cloudinary API in Dart and Flutter.
 
-version: 1.1.1
+version: 1.1.2
 
 homepage: https://github.com/nixrajput
 repository: https://github.com/nixrajput/cloudinary-dart
 issue_tracker: https://github.com/nixrajput/cloudinary-dart/issues
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
+  sdk: ">=2.18.0 <4.0.0"
 
 dependencies:
-  dio: ^5.0.3
-  crypto: ^3.0.2
+  dio: ^5.2.1
+  crypto: ^3.0.3
 
 dev_dependencies:
-  lints: ^2.0.1
-  test: ^1.23.1
+  flutter_lints: ^2.0.1
+  test: ^1.24.3
   path: ^1.8.3
