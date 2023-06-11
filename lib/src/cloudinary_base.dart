@@ -50,7 +50,9 @@ class Cloudinary {
       Cloudinary._(cloudName: cloudName);
 
   String get apiKey => _client.apiKey;
+
   String get apiSecret => _client.apiSecret;
+
   String get cloudName => _client.cloudName;
 
   /// Uploads a file of [resourceType] with [fileName] to a [folder]

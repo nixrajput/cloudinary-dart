@@ -85,13 +85,15 @@ class CloudinaryApiClient extends CloudinaryApi {
     params['file'] = fileBytes != null
         ? MultipartFile.fromBytes(
             fileBytes,
-            filename: fileName ?? DateTime.now().millisecondsSinceEpoch.toString(),
+            filename:
+                fileName ?? DateTime.now().millisecondsSinceEpoch.toString(),
           )
         : (file!.startsWith('http://') || file.startsWith('https://'))
             ? file
             : await MultipartFile.fromFile(file, filename: fileName);
     params['timestamp'] = timeStamp;
-    params['signature'] = getSignature(secret: apiSecret, timeStamp: timeStamp, params: params);
+    params['signature'] =
+        getSignature(secret: apiSecret, timeStamp: timeStamp, params: params);
 
     var formData = FormData.fromMap(params);
 
@@ -154,7 +156,8 @@ class CloudinaryApiClient extends CloudinaryApi {
 
     final params = <String, dynamic>{
       'upload_preset': uploadPreset,
-      if (publicId != null || fileName != null) 'public_id': publicId ?? fileName,
+      if (publicId != null || fileName != null)
+        'public_id': publicId ?? fileName,
       if (folder != null) 'folder': folder,
 
       /// Setting the optParams... this would override the public_id and folder
@@ -164,7 +167,8 @@ class CloudinaryApiClient extends CloudinaryApi {
 
     params['file'] = fileBytes != null
         ? MultipartFile.fromBytes(fileBytes,
-            filename: fileName ?? DateTime.now().millisecondsSinceEpoch.toString())
+            filename:
+                fileName ?? DateTime.now().millisecondsSinceEpoch.toString())
         : (file!.startsWith('http://') || file.startsWith('https://'))
             ? file
             : await MultipartFile.fromFile(file, filename: fileName);
@@ -223,7 +227,8 @@ class CloudinaryApiClient extends CloudinaryApi {
     params['public_id'] = publicId;
     params['api_key'] = apiKey;
     params['timestamp'] = timeStamp;
-    params['signature'] = getSignature(secret: apiSecret, timeStamp: timeStamp, params: params);
+    params['signature'] =
+        getSignature(secret: apiSecret, timeStamp: timeStamp, params: params);
 
     var formData = FormData.fromMap(params);
 
@@ -231,7 +236,8 @@ class CloudinaryApiClient extends CloudinaryApi {
     CloudinaryResponse cloudinaryResponse;
     int? statusCode;
     try {
-      response = await post('$cloudName/${resourceType.name}/destroy', data: formData);
+      response =
+          await post('$cloudName/${resourceType.name}/destroy', data: formData);
       statusCode = response.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
     } catch (error, stacktrace) {
