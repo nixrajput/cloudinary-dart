@@ -20,10 +20,9 @@ the [Cloudinary API](https://cloudinary.com/documentation/image_upload_api_refer
 
 Add `cloudinary` as a dependency in your `pubspec.yaml` file:
 
-```dart
-dependencies:cloudinary: "
-latest_version
-"
+```yaml
+dependencies:
+  cloudinary: "latest_version"
 ```
 
 Finally you just have to run: `dart pub get` **or** `flutter pub get` depending on the project type
