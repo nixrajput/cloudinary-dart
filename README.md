@@ -29,6 +29,7 @@ A dart package for to integrate [Cloudinary](https://cloudinary.com/) API into y
   - [License](#license)
   - [Sponsor Me](#sponsor-me)
   - [Connect With Me](#connect-with-me)
+  - [Activities](#activities)
 
 ## Installation
 
@@ -167,6 +168,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 [![Telegram: nixrajput](https://img.shields.io/badge/nixrajput-EFF7F6?logo=Telegram&link=https://telegram.me/nixrajput)][telegram]
 [![Gmail: nkr.nikhi.nkr@gmail.com](https://img.shields.io/badge/nkr.nikhil.nkr@gmail.com-EFF7F6?logo=Gmail&link=mailto:nkr.nikhil.nkr@gmail.com)][gmail]
 
+## Activities
+
+![Alt](https://repobeats.axiom.co/api/embed/4b8f4a901f0f01f16cb60ed04cd43079ec9438f4.svg "Repobeats analytics image")
+
 [pub]: https://pub.dev/packages/cloudinary
 [github]: https://github.com/nixrajput
 [telegram]: https://telegram.me/nixrajput
@@ -177,5 +182,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 [releases]: https://github.com/nixrajput/cloudinary-dart/releases
 [repo]: https://github.com/nixrajput/cloudinary-dart
 [issues]: https://github.com/nixrajput/cloudinary-dart/issues
-[license]: https://github.com/nixrajput/cloudinary-dart/blob/master/LICENSE.md
+[license]: https://github.com/nixrajput/cloudinary-dart/blob/master/LICENSE
 [pulls]: https://github.com/nixrajput/cloudinary-dart/pulls
