@@ -17,10 +17,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          fetch-depth: 0 # need the base branch to diff the version
           persist-credentials: false
       - name: Read versions
         id: v
         run: |
+          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
           read_ver() { grep -E '^version:' "$1" | head -1 | awk '{print $2}' | tr -d '\r'; }
           pr=$(read_ver pubspec.yaml)
           git show "origin/${{ github.base_ref }}:pubspec.yaml" > /tmp/base_pubspec.yaml
