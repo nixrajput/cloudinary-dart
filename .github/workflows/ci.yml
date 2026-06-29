@@ -34,4 +34,8 @@ jobs:
         run: dart analyze
       - name: Test
         run: |
-          if [ -d test ]; then flutter test; else echo "no test/ dir — skipping"; fi
+          if [ -d test ] && grep -rqlE 'test\(|testWidgets\(' test; then
+            dart test
+          else
+            echo "no test cases found — skipping"
+          fi
