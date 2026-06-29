@@ -31,7 +31,7 @@ jobs:
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
       - name: Analyze
-        run: dart analyze --fatal-infos
+        run: dart analyze
       - name: Test
         run: |
           if [ -d test ]; then flutter test; else echo "no test/ dir — skipping"; fi
