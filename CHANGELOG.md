@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.2
+
+- **Chore**: Added automated pub.dev release pipeline (version check, tag, publish); no API changes.
+
 ## 1.2.0
 
 - **Update**: `LICENSE` changed to MIT.
