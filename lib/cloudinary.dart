@@ -14,3 +14,4 @@ export 'src/config/url_config.dart';
 export 'src/enums/cloudinary_delivery_type.dart';
 export 'src/enums/cloudinary_resource_type.dart';
 export 'src/exceptions.dart';
+export 'src/http/retry_policy.dart';
