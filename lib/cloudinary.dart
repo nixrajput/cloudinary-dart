@@ -9,6 +9,8 @@ export 'src/auth/auth_token.dart';
 export 'src/auth/notification.dart';
 export 'src/auth/signature.dart';
 export 'src/auth/signature_algorithm.dart';
+export 'src/auth/signature_provider.dart';
+export 'src/cloudinary.dart';
 export 'src/config/cloudinary_config.dart';
 export 'src/config/url_config.dart';
 export 'src/enums/cloudinary_delivery_type.dart';
