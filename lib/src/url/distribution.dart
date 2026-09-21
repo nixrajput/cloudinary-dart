@@ -1,4 +1,5 @@
 import '../config/url_config.dart';
+import '../exceptions.dart';
 import 'crc32.dart';
 
 /// Cloudinary's shared delivery hostname.
@@ -52,7 +53,22 @@ List<String> resolveTypeSegments({
   required String resourceType,
   required String deliveryType,
   required UrlConfig config,
+  String? urlSuffix,
 }) {
+  if (urlSuffix != null) {
+    // An SEO suffix replaces the two type segments with a single plural,
+    // rather than being appended to them. Cloudinary serves no other shape.
+    final seo = _seoSegments[(resourceType, deliveryType)];
+    if (seo == null) {
+      throw CloudinaryConfigException(
+        'A URL suffix is not supported for $resourceType/$deliveryType. '
+        'Cloudinary allows it on image/upload, image/private, '
+        'image/authenticated, raw/upload and video/upload.',
+      );
+    }
+    return [seo];
+  }
+
   if (config.useRootPath) return const [];
 
   if (config.shorten && resourceType == 'image' && deliveryType == 'upload') {
@@ -61,5 +77,15 @@ List<String> resolveTypeSegments({
 
   return [resourceType, deliveryType];
 }
+
+/// The single segment Cloudinary uses in place of `<type>/<delivery>` when a
+/// URL suffix is present.
+const Map<(String, String), String> _seoSegments = {
+  ('image', 'upload'): 'images',
+  ('image', 'private'): 'private_images',
+  ('image', 'authenticated'): 'authenticated_images',
+  ('raw', 'upload'): 'files',
+  ('video', 'upload'): 'videos',
+};
 
 int _shard(String source) => (crc32(source) % 5) + 1;

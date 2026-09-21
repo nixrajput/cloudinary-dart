@@ -84,9 +84,12 @@ class CloudinaryUrlBuilder {
   bool _longSignature = false;
   AuthToken? _authToken;
 
-  /// Applies a single transformation.
+  /// Adds a transformation stage.
+  ///
+  /// Repeated calls chain, so each stage feeds the next. Earlier stages are
+  /// kept rather than replaced.
   CloudinaryUrlBuilder transform(Transformation transformation) {
-    _chain = TransformationChain([transformation]);
+    (_chain ??= TransformationChain([])).transformations.add(transformation);
     return this;
   }
 
@@ -143,15 +146,36 @@ class CloudinaryUrlBuilder {
   }
 
   /// Builds the URL.
+  ///
+  /// Throws [CloudinaryConfigException] when the public ID is an absolute URL
+  /// and the delivery type cannot carry one, or when signing was requested
+  /// for a source this builder would otherwise pass through unsigned.
   String build() {
-    // An absolute source is already a URL; Cloudinary returns it untouched.
-    if (_publicId.startsWith('http://') || _publicId.startsWith('https://')) {
+    final isRemote =
+        _publicId.startsWith('http://') || _publicId.startsWith('https://');
+
+    if (isRemote && !_remoteCapableTypes.contains(_deliveryType)) {
+      // Returning the input unchanged would silently discard a requested
+      // signature or auth token, and hand back a third-party origin from a
+      // call that looks like it produces a Cloudinary URL.
+      if (_signed || _authToken != null) {
+        throw const CloudinaryConfigException(
+          'Cannot sign a delivery URL whose public ID is an absolute URL. '
+          'Use CloudinaryDeliveryType.fetch to deliver a remote source, or '
+          'pass a public ID rather than a URL.',
+        );
+      }
       return _publicId;
     }
 
     final transformation = _chain?.serialize() ?? '';
     final source = _format == null ? _publicId : '$_publicId.$_format';
-    final sourceToSign = _urlSuffix == null ? source : '$source/$_urlSuffix';
+    final withSuffix = _urlSuffix == null ? source : '$source/$_urlSuffix';
+
+    // Cloudinary signs the escaped path, so escaping has to happen first.
+    // Signing the raw source and emitting an escaped one produces a URL the
+    // server cannot verify.
+    final sourceToSign = _escapeSource(withSuffix);
 
     final signature = _signed
         ? _signatureFor(transformation, sourceToSign)
@@ -170,6 +194,7 @@ class CloudinaryUrlBuilder {
         resourceType: _resourceType.name,
         deliveryType: _deliveryType.wireName,
         config: _urlConfig,
+        urlSuffix: _urlSuffix,
       ),
       signature,
       transformation,
@@ -177,12 +202,32 @@ class CloudinaryUrlBuilder {
       sourceToSign,
     ].where((part) => part.isNotEmpty);
 
-    final url = parts.join('/').replaceAll(' ', '%20');
+    final url = parts.join('/');
 
     final token = _authToken;
     if (token == null) return url;
     return '$url?${token.generate()}';
   }
+
+  /// Delivery types that take a remote URL as their source.
+  static const Set<CloudinaryDeliveryType> _remoteCapableTypes = {
+    CloudinaryDeliveryType.fetch,
+    CloudinaryDeliveryType.facebook,
+    CloudinaryDeliveryType.twitter,
+    CloudinaryDeliveryType.gravatar,
+    CloudinaryDeliveryType.youtube,
+    CloudinaryDeliveryType.vimeo,
+    CloudinaryDeliveryType.animoto,
+    CloudinaryDeliveryType.dailymotion,
+  };
+
+  /// Percent-escapes the characters that would otherwise change the URL's
+  /// structure, leaving `/` as a real separator.
+  static String _escapeSource(String source) => source
+      .replaceAll('%', '%25')
+      .replaceAll(' ', '%20')
+      .replaceAll('?', '%3F')
+      .replaceAll('#', '%23');
 
   /// Cloudinary forces `v1` when the source has a folder path and no explicit
   /// version, so overwriting an asset busts CDN caches.
@@ -191,6 +236,9 @@ class CloudinaryUrlBuilder {
     if (!_urlConfig.forceVersion) return '';
     if (!sourceToSign.contains('/')) return '';
     if (RegExp(r'^v\d+').hasMatch(sourceToSign)) return '';
+    // A remote source is a URL, not a stored asset, so it has no version to
+    // force. Cloudinary excludes it for the same reason.
+    if (RegExp(r'^https?:').hasMatch(sourceToSign)) return '';
     return 'v1';
   }
 
