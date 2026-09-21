@@ -40,8 +40,14 @@ void main() {
     expect(r.raw['a_field_cloudinary_added_last_week'], 42);
   });
 
+  /// Copies the fixture with one field overridden. A spread-and-override map
+  /// literal cannot be const, because const evaluation rejects the duplicate
+  /// key even though the later value wins at runtime.
+  Map<String, dynamic> withField(String key, Object? value) =>
+      Map<String, dynamic>.from(json)..[key] = value;
+
   test('a malformed date degrades to null without losing the rest', () {
-    final r = UploadResult.fromJson({...json, 'created_at': 'not-a-date'});
+    final r = UploadResult.fromJson(withField('created_at', 'not-a-date'));
 
     expect(r.createdAt, isNull);
     expect(r.publicId, 'sample');
@@ -49,7 +55,7 @@ void main() {
   });
 
   test('an unknown resource type does not throw', () {
-    final r = UploadResult.fromJson({...json, 'resource_type': 'hologram'});
+    final r = UploadResult.fromJson(withField('resource_type', 'hologram'));
 
     expect(r.resourceType, isNull);
     expect(r.raw['resource_type'], 'hologram');

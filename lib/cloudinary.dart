@@ -22,3 +22,4 @@ export 'src/http/progress.dart';
 export 'src/http/retry_policy.dart';
 export 'src/models/model_base.dart';
 export 'src/models/upload_result.dart';
+export 'src/models/upload_results.dart';
