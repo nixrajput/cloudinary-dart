@@ -30,6 +30,17 @@ A rewrite. See [MIGRATION.md](MIGRATION.md) for a call-by-call mapping from 1.x.
 
 ### Fixed
 
+- **Array parameters are sent as repeated `key[]` pairs**, matching Cloudinary's own encoder. They were comma-joined, so `admin.resources.delete(['a', 'b'])` asked Cloudinary to delete one asset literally named `a,b` and silently removed nothing.
+- Endpoints that take JSON bodies (`restore`, related assets, folder rename) were form-encoded.
+- `transform()` replaced the transformation chain instead of adding to it, silently dropping earlier stages.
+- Delivery URLs were signed before escaping, so the signature did not match the emitted path; `?` and `#` were not escaped at all.
+- A URL suffix was appended to the delivery-type segments rather than replacing them with Cloudinary's plural form.
+- `fetch` and the other remote-source delivery types could not build a URL.
+- `crc32` hashed UTF-16 code units, so a non-ASCII public ID picked a different CDN shard from every other SDK.
+- Context encoding escaped backslashes, which Cloudinary does not, corrupting any value containing one.
+- A form whose values were all null crashed on a null check instead of sending an empty body.
+- Transport failures replayed POST and DELETE requests that may already have been applied.
+
 - Signature timestamps were sent in milliseconds; Cloudinary expects UNIX seconds.
 - Signature parameters were sorted by the joined `key=value` string instead of by key, which produces a different digest whenever one parameter name is a prefix of another.
 - `destroy` had an inverted null check that threw a null-check error instead of its intended message.
@@ -39,6 +50,12 @@ A rewrite. See [MIGRATION.md](MIGRATION.md) for a call-by-call mapping from 1.x.
 - The analyzer `errors:` block in `analysis_options.yaml` sat at the top level instead of under `analyzer:`, so none of its escalations had ever taken effect.
 
 ### Security
+
+- **Delivery URL paths reject `.` and `..` segments.** Dart's `Uri` collapses dot segments, so a `..` inside a caller-supplied public ID or folder path walked out of the `/v1_1/<cloud>` scope and re-aimed an authenticated Admin request at a different endpoint, with the API key and secret still attached.
+- **The web secret guard now detects both web compilers.** It used `identical(0, 0.0)`, which is true only under dart2js; under dart2wasm it read false and the guard never fired, so an API secret shipped in the bundle. It now uses `bool.fromEnvironment('dart.library.js_interop')` and lives in the private constructor that every factory routes through, so `Cloudinary.fromUrl` and `Cloudinary.fromEnvironment` are covered too.
+- **Auth tokens escape `!` and the client IP.** `!` separates ACL entries, so a `!` inside a caller-supplied identifier split one entry into several and could widen a token to every asset in the environment. A `~` in `ip` could splice an extra field into the signed token.
+- **Signed delivery URLs no longer fall back silently.** A public ID that was an absolute URL was returned untouched, discarding a requested signature and auth token and handing back a third-party origin; that now throws.
+
 
 - **Signature version 2 is now the default.** Version 1 does not escape `&` inside parameter values, so a value containing `&` is absorbed into the signed string as additional parameters. Version 1 remains selectable for compatibility.
 - **Validation guards no longer use `assert`.** Dart strips asserts from release builds, so in a release Flutter build 1.x sent an unauthenticated request instead of failing when a signed method was called on an unsigned client.
