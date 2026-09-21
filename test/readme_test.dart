@@ -55,7 +55,7 @@ void main() {
   });
 
   test('no em-dashes', () {
-    expect(raw.contains('—'), isFalse);
+    expect(raw.contains('\u2014'), isFalse); // em-dash
   });
 
   test('the claim row counts match reality', () {
