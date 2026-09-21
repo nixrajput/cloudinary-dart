@@ -6,7 +6,10 @@ import 'package:http/http.dart' as http;
 import '../auth/signature.dart';
 import '../config/cloudinary_config.dart';
 import '../exceptions.dart';
+import 'file_source.dart';
 import 'http_date.dart';
+import 'multipart.dart';
+import 'progress.dart';
 import 'retry_policy.dart';
 
 /// Which Cloudinary API version a request targets.
@@ -138,6 +141,85 @@ class CloudinaryTransport {
       }
       return request;
     });
+
+    return _decode(response);
+  }
+
+  /// Sends a multipart upload and returns the decoded JSON body.
+  ///
+  /// A [CloudinaryUrlSource] is sent as a plain `file` field rather than a
+  /// file part, because Cloudinary fetches it server-side.
+  ///
+  /// Multipart uploads are never retried: the body is a one-shot stream, and
+  /// replaying a partially-sent upload risks a duplicate asset.
+  Future<Map<String, dynamic>> sendMultipart({
+    required List<String> segments,
+    required Map<String, dynamic> fields,
+    CloudinaryFileSource? file,
+    CloudinaryProgressCallback? onProgress,
+    bool signed = false,
+    ApiVersion version = ApiVersion.v1_1,
+  }) async {
+    config.validate();
+
+    final formFields = <String, dynamic>{...fields};
+    if (file is CloudinaryUrlSource) formFields['file'] = file.url;
+
+    final prepared = signed ? signParams(formFields) : formFields;
+    final uri = buildUri(segments, version: version);
+
+    final request =
+        ProgressMultipartRequest('POST', uri, onProgress: onProgress);
+    prepared.forEach((key, value) {
+      if (value == null) return;
+      request.fields[key] =
+          value is Iterable ? value.join(',') : value.toString();
+    });
+
+    switch (file) {
+      case CloudinaryBytesSource(:final bytes, :final filename):
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'file',
+            bytes,
+            filename:
+                filename ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          ),
+        );
+      case CloudinaryPathSource(:final path, :final filename):
+        try {
+          request.files.add(
+            await http.MultipartFile.fromPath('file', path, filename: filename),
+          );
+        } on UnsupportedError {
+          throw const CloudinaryConfigException(
+            'Uploading from a file path needs dart:io, which is unavailable '
+            'on this platform. Use CloudinaryFileSource.bytes instead.',
+          );
+        }
+      case CloudinaryUrlSource():
+      case null:
+        break;
+    }
+
+    http.Response response;
+    try {
+      response = await http.Response.fromStream(
+        await _client.send(request).timeout(timeout),
+      );
+    } on CloudinaryException {
+      rethrow;
+    } on TimeoutException catch (e) {
+      throw CloudinaryTransportException(
+        'Upload timed out after $timeout.',
+        cause: e,
+      );
+    } catch (e) {
+      throw CloudinaryTransportException(
+        'Could not reach Cloudinary: $e',
+        cause: e,
+      );
+    }
 
     return _decode(response);
   }
