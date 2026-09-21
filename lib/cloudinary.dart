@@ -5,6 +5,7 @@
 /// well as apps.
 library;
 
+export 'src/api/upload_api.dart';
 export 'src/auth/auth_token.dart';
 export 'src/auth/notification.dart';
 export 'src/auth/signature.dart';
@@ -19,3 +20,5 @@ export 'src/exceptions.dart';
 export 'src/http/file_source.dart';
 export 'src/http/progress.dart';
 export 'src/http/retry_policy.dart';
+export 'src/models/model_base.dart';
+export 'src/models/upload_result.dart';
