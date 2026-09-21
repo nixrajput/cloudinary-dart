@@ -18,16 +18,23 @@ const String folder =
 const String uploadPreset =
     String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET', defaultValue: '');
 
-final cloudinary = Cloudinary.unsignedConfig(
-  cloudName: cloudName,
-);
+/// A signed client needs an API secret, which must never ship in a real
+/// mobile or web build. This example only builds one when credentials are
+/// passed with --dart-define, so the default run stays unsigned.
+final cloudinary = apiKey.isNotEmpty && apiSecret.isNotEmpty
+    ? Cloudinary.signed(
+        cloudName: cloudName,
+        apiKey: apiKey,
+        apiSecret: apiSecret,
+      )
+    : Cloudinary.unsigned(cloudName: cloudName);
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +52,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({super.key, required this.title});
 
   final String title;
 
@@ -60,10 +67,11 @@ enum FileSource {
 
 class DataTransmitNotifier {
   final String? path;
-  late final ProgressCallback? progressCallback;
+  late final CloudinaryProgressCallback? progressCallback;
   final notifier = ValueNotifier<double>(0);
 
-  DataTransmitNotifier({this.path, ProgressCallback? progressCallback}) {
+  DataTransmitNotifier(
+      {this.path, CloudinaryProgressCallback? progressCallback}) {
     this.progressCallback = progressCallback ??
         (count, total) {
           notifier.value = count.toDouble() / total.toDouble();
@@ -76,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
   static const int doSignedUpload = 2;
   static const int doUnsignedUpload = 3;
   DataTransmitNotifier dataImages = DataTransmitNotifier();
-  CloudinaryResponse cloudinaryResponses = CloudinaryResponse();
+  UploadResult? uploadResult;
   bool loading = false;
   String? errorMessage;
   FileSource fileSource = FileSource.path;
@@ -87,24 +95,26 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget get uploadSourceView => Column(
         children: [
           const Text("File source"),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: RadioListTile<FileSource>(
-                    title: const Text("Path"),
+          RadioGroup<FileSource>(
+            groupValue: fileSource,
+            onChanged: onUploadSourceChanged,
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: RadioListTile<FileSource>(
+                    title: Text("Path"),
                     value: FileSource.path,
-                    groupValue: fileSource,
-                    onChanged: onUploadSourceChanged),
-              ),
-              Expanded(
-                child: RadioListTile<FileSource>(
-                    title: const Text("Bytes"),
+                  ),
+                ),
+                Expanded(
+                  child: RadioListTile<FileSource>(
+                    title: Text("Bytes"),
                     value: FileSource.bytes,
-                    groupValue: fileSource,
-                    onChanged: onUploadSourceChanged),
-              ),
-            ],
+                  ),
+                ),
+              ],
+            ),
           )
         ],
       );
@@ -170,7 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   : ElevatedButton(
                       onPressed: () => onClick(loadImage),
                       style: ButtonStyle(
-                        padding: MaterialStateProperty.all(
+                        padding: WidgetStateProperty.all(
                           const EdgeInsets.all(8.0),
                         ),
                       ),
@@ -184,14 +194,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
               const Divider(height: 32.0),
-              if (cloudinaryResponses.secureUrl != null)
+              if (uploadResult?.secureUrl != null)
                 const Text(
                   'Cloudinary URL',
                 ),
               const SizedBox(
                 height: 16.0,
               ),
-              if (cloudinaryResponses.secureUrl != null)
+              if (uploadResult?.secureUrl != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16.0,
@@ -204,7 +214,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     padding: const EdgeInsets.all(16.0),
                     child: RichText(
                       text: TextSpan(
-                        text: cloudinaryResponses.secureUrl ?? '',
+                        text: uploadResult?.secureUrl ?? '',
                       ),
                     ),
                   ),
@@ -238,7 +248,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: ElevatedButton(
                     onPressed: loading ? null : () => onClick(doSignedUpload),
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all(
+                      padding: WidgetStateProperty.all(
                         const EdgeInsets.all(16.0),
                       ),
                     ),
@@ -262,7 +272,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: loading ? null : () => onClick(doUnsignedUpload),
                     style: ButtonStyle(
                       padding:
-                          MaterialStateProperty.all(const EdgeInsets.all(16.0)),
+                          WidgetStateProperty.all(const EdgeInsets.all(16.0)),
                     ),
                     child: const Text(
                       'Unsigned upload',
@@ -294,53 +304,61 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<List<int>> getFileBytes(String path) async {
-    return await File(path).readAsBytes();
+  Future<CloudinaryFileSource> buildFileSource(String path) async {
+    if (fileSource == FileSource.bytes) {
+      return CloudinaryFileSource.bytes(
+        await File(path).readAsBytes(),
+        filename: path.split(Platform.pathSeparator).last,
+      );
+    }
+    return CloudinaryFileSource.path(path);
   }
 
   Future<void> doSingleUpload({bool signed = true}) async {
+    final data = dataImages;
     try {
-      final data = dataImages;
-      List<int>? fileBytes;
+      final source = await buildFileSource(data.path!);
 
-      if (fileSource == FileSource.bytes) {
-        fileBytes = await getFileBytes(data.path!);
-      }
-
-      CloudinaryResponse response = signed
-          ? await cloudinary.upload(
-              file: data.path,
-              fileBytes: fileBytes,
+      final result = signed
+          ? await cloudinary.upload.upload(
+              file: source,
               resourceType: CloudinaryResourceType.image,
               folder: folder,
-              progressCallback: data.progressCallback,
+              onProgress: data.progressCallback,
             )
-          : await cloudinary.unsignedUpload(
-              file: data.path,
-              fileBytes: fileBytes,
+          : await cloudinary.upload.unsignedUpload(
+              file: source,
               resourceType: CloudinaryResourceType.image,
               folder: folder,
-              progressCallback: data.progressCallback,
               uploadPreset: uploadPreset,
+              onProgress: data.progressCallback,
             );
 
-      if (response.isSuccessful && response.secureUrl!.isNotEmpty) {
-        setState(() {
-          cloudinaryResponses = response;
-        });
-      } else {
-        setState(() {
-          errorMessage = response.error;
-        });
-      }
-    } catch (e) {
       setState(() {
-        errorMessage = e.toString();
+        uploadResult = result;
+        errorMessage = null;
       });
-      if (kDebugMode) {
-        print(e);
-      }
+    } on CloudinaryException catch (e) {
+      // v2 throws instead of returning a response carrying an error string.
+      setState(() => errorMessage = e.message);
+      if (kDebugMode) print(e);
     }
+  }
+
+  /// Shows what the URL builder produces for the asset just uploaded.
+  String? get transformedPreviewUrl {
+    final publicId = uploadResult?.publicId;
+    if (publicId == null) return null;
+    return cloudinary.url
+        .image(publicId)
+        .transform(Transformation()
+          ..width(400)
+          ..height(300)
+          ..crop(CropMode.fill)
+          ..gravity(Gravity.auto)
+          ..quality(Quality.auto)
+          ..format(DeliveryFormat.auto))
+        .build();
   }
 
   void onClick(int id) async {
