@@ -524,4 +524,4 @@ String encodeContext(Map<String, String> context) => context.entries
     .join('|');
 
 String _escapeContext(String value) =>
-    value.replaceAll(r'\', r'\\').replaceAll('=', r'\=').replaceAll('|', r'\|');
+    value.replaceAll('=', r'\=').replaceAll('|', r'\|');

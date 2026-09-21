@@ -5,7 +5,7 @@ import 'package:crypto/crypto.dart';
 import '../exceptions.dart';
 
 /// Characters Cloudinary percent-escapes when building an auth token.
-final RegExp _unsafe = RegExp('[ "#%&\'/:;<=>?@\\[\\]^`{|}~]+');
+final RegExp _unsafe = RegExp('[ "#%&\'/:;<=>?@\\[\\]^`{|}~!]+');
 
 /// Percent-escapes [value] the way Cloudinary's token signer does, using
 /// lowercase hex escapes.
@@ -90,10 +90,10 @@ class AuthToken {
     final exp = _resolveExpiration();
 
     final parts = <String>[
-      if (ip != null) 'ip=$ip',
+      if (ip != null) 'ip=${escapeTokenComponent(ip!)}',
       if (startTime != null) 'st=$startTime',
       'exp=$exp',
-      if (effectiveAcl != null) 'acl=${escapeTokenComponent(effectiveAcl)}',
+      if (effectiveAcl != null) 'acl=$effectiveAcl',
     ];
 
     // The URL is signed but never emitted: the server already knows which URL
@@ -112,10 +112,14 @@ class AuthToken {
     return '$tokenName=${[...parts, 'hmac=$digest'].join('~')}';
   }
 
+  /// Escapes each ACL entry before joining, so a `!` inside one entry cannot
+  /// split it into several and widen what the token grants.
   String? _effectiveAcl() {
     final list = aclList;
-    if (list != null && list.isNotEmpty) return list.join('!');
-    if (acl != null && acl!.isNotEmpty) return acl;
+    if (list != null && list.isNotEmpty) {
+      return list.map(escapeTokenComponent).join('!');
+    }
+    if (acl != null && acl!.isNotEmpty) return escapeTokenComponent(acl!);
     return null;
   }
 

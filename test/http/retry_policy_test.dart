@@ -53,4 +53,30 @@ void main() {
       expect(parseHttpDate('Wed, 03 Xxx 2026 09:00:00 GMT'), isNull);
     });
   });
+
+  group('retry safety', () {
+    test('a server Retry-After is capped', () {
+      const p = RetryPolicy(maxDelay: Duration(seconds: 30));
+      expect(
+        p.delayFor(1, retryAfter: const Duration(hours: 24)),
+        const Duration(seconds: 30),
+      );
+    });
+
+    test('computed backoff is capped too', () {
+      const p = RetryPolicy(
+        baseDelay: Duration(seconds: 10),
+        maxDelay: Duration(seconds: 15),
+      );
+      expect(p.delayFor(5), const Duration(seconds: 15));
+    });
+
+    test('a short Retry-After is honoured as given', () {
+      const p = RetryPolicy();
+      expect(
+        p.delayFor(1, retryAfter: const Duration(seconds: 2)),
+        const Duration(seconds: 2),
+      );
+    });
+  });
 }

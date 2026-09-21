@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:cloudinary/cloudinary.dart';
-import 'package:cloudinary/src/http/transport.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:test/test.dart';
@@ -303,6 +302,70 @@ void main() {
       // A closed MockClient throws on use; this must still work.
       final response = await injected.get(Uri.https('example.com', '/'));
       expect(response.statusCode, 200);
+    });
+  });
+
+  group('replay safety', () {
+    test('a transport failure does not replay a POST', () async {
+      var calls = 0;
+      final t = CloudinaryTransport(
+        config: _signed,
+        client: MockClient((_) async {
+          calls++;
+          throw const _Boom();
+        }),
+        retry: const RetryPolicy(
+          maxAttempts: 3,
+          baseDelay: Duration(milliseconds: 1),
+        ),
+      );
+
+      await expectLater(
+        t.send(method: 'POST', segments: ['image', 'destroy']),
+        throwsA(isA<CloudinaryTransportException>()),
+      );
+      expect(calls, 1, reason: 'a POST may already have been applied');
+    });
+
+    test('a transport failure still retries a GET', () async {
+      var calls = 0;
+      final t = CloudinaryTransport(
+        config: _signed,
+        client: MockClient((_) async {
+          calls++;
+          throw const _Boom();
+        }),
+        retry: const RetryPolicy(
+          maxAttempts: 3,
+          baseDelay: Duration(milliseconds: 1),
+        ),
+      );
+
+      await expectLater(
+        t.send(method: 'GET', segments: ['ping']),
+        throwsA(isA<CloudinaryTransportException>()),
+      );
+      expect(calls, 3);
+    });
+
+    test('a 503 still retries a POST, since the server answered', () async {
+      var calls = 0;
+      final t = CloudinaryTransport(
+        config: _signed,
+        client: MockClient((_) async {
+          calls++;
+          return calls < 2
+              ? http.Response('{}', 503)
+              : http.Response('{"ok":true}', 200);
+        }),
+        retry: const RetryPolicy(
+          maxAttempts: 3,
+          baseDelay: Duration(milliseconds: 1),
+        ),
+      );
+
+      expect((await t.send(method: 'POST', segments: ['x']))['ok'], isTrue);
+      expect(calls, 2);
     });
   });
 }

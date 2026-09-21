@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../auth/signature.dart';
+import '../auth/signature_provider.dart';
 import '../config/cloudinary_config.dart';
 import '../exceptions.dart';
 import 'file_source.dart';
@@ -39,6 +40,7 @@ class CloudinaryTransport {
   CloudinaryTransport({
     required this.config,
     http.Client? client,
+    this.signatureProvider,
     this.retry = const RetryPolicy(),
     this.timeout = const Duration(seconds: 60),
     this.host = 'api.cloudinary.com',
@@ -47,6 +49,9 @@ class CloudinaryTransport {
 
   /// Credentials and signing options.
   final CloudinaryConfig config;
+
+  /// Signs requests remotely when the client holds no API secret.
+  final SignatureProvider? signatureProvider;
 
   /// Retry behaviour for transient failures.
   final RetryPolicy retry;
@@ -95,12 +100,26 @@ class CloudinaryTransport {
   /// Adds `timestamp`, `signature` and `api_key` to a copy of [params].
   ///
   /// Requires local signing capability, checked before the request leaves.
-  Map<String, dynamic> signParams(Map<String, dynamic> params) {
-    config.requireSigning();
+  Future<Map<String, dynamic>> signParams(Map<String, dynamic> params) async {
+    final provider = signatureProvider;
 
     final signable = stripUnsignedParams(params)
-      ..removeWhere((_, v) => v == null)
-      ..['timestamp'] = cloudinaryTimestamp();
+      ..removeWhere((_, v) => v == null);
+
+    // A provider signs on a server that holds the secret, so it also owns the
+    // timestamp: signing one value and sending another would not verify.
+    if (provider != null) {
+      final remote = await provider.sign(Map.unmodifiable(signable));
+      return {
+        ...params,
+        'timestamp': remote.timestamp,
+        'signature': remote.signature,
+        'api_key': remote.apiKey,
+      };
+    }
+
+    config.requireSigning();
+    signable['timestamp'] = cloudinaryTimestamp();
 
     return {
       ...params,
@@ -129,7 +148,7 @@ class CloudinaryTransport {
     config.validate();
     if (basicAuth) config.requireSigning();
 
-    final body = signed ? signParams(form ?? const {}) : form;
+    final body = signed ? await signParams(form ?? const {}) : form;
     final uri = buildUri(segments, query: query, version: version);
 
     final response = await _sendWithRetry(() {
@@ -176,7 +195,7 @@ class CloudinaryTransport {
     final formFields = <String, dynamic>{...fields};
     if (file is CloudinaryUrlSource) formFields['file'] = file.url;
 
-    final prepared = signed ? signParams(formFields) : formFields;
+    final prepared = signed ? await signParams(formFields) : formFields;
     final uri = buildUri(segments, version: version);
 
     final request = ProgressMultipartRequest(
@@ -240,6 +259,14 @@ class CloudinaryTransport {
     return _decode(response);
   }
 
+  /// HTTP methods safe to replay after a transport failure.
+  ///
+  /// A POST or DELETE may already have been applied when the connection
+  /// dropped, so replaying it could rename twice or bill a second archive.
+  /// A status-code retry is still allowed for those, because the server
+  /// answered and told us it did not act.
+  static const Set<String> _replayableMethods = {'GET', 'HEAD', 'OPTIONS'};
+
   Future<http.Response> _sendWithRetry(http.Request Function() build) async {
     var attempt = 0;
     while (true) {
@@ -251,7 +278,8 @@ class CloudinaryTransport {
       } on CloudinaryException {
         rethrow;
       } on TimeoutException catch (e) {
-        if (attempt >= retry.maxAttempts) {
+        if (attempt >= retry.maxAttempts ||
+            !_replayableMethods.contains(build().method.toUpperCase())) {
           throw CloudinaryTransportException(
             'Request timed out after $timeout.',
             cause: e,
@@ -260,7 +288,8 @@ class CloudinaryTransport {
         await Future<void>.delayed(retry.delayFor(attempt));
         continue;
       } catch (e) {
-        if (attempt >= retry.maxAttempts) {
+        if (attempt >= retry.maxAttempts ||
+            !_replayableMethods.contains(build().method.toUpperCase())) {
           throw CloudinaryTransportException(
             'Could not reach Cloudinary: $e',
             cause: e,

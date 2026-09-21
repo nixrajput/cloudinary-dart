@@ -47,6 +47,7 @@ class Cloudinary {
   }) : transport = CloudinaryTransport(
          config: config,
          client: client,
+         signatureProvider: signatureProvider,
          retry: retry,
          timeout: timeout,
        ) {

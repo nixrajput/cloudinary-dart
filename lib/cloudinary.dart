@@ -63,6 +63,7 @@ export 'src/exceptions.dart';
 export 'src/http/file_source.dart';
 export 'src/http/progress.dart';
 export 'src/http/retry_policy.dart';
+export 'src/http/transport.dart';
 export 'src/models/admin_config_models.dart';
 export 'src/models/admin_models.dart';
 export 'src/models/model_base.dart';
