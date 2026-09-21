@@ -38,3 +38,6 @@ export 'src/models/model_base.dart';
 export 'src/models/search_result.dart';
 export 'src/models/upload_result.dart';
 export 'src/models/upload_results.dart';
+export 'src/url/cloudinary_url.dart';
+export 'src/url/transformation.dart';
+export 'src/url/transformation_enums.dart';

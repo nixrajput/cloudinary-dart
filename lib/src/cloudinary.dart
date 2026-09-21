@@ -10,6 +10,7 @@ import 'config/url_config.dart';
 import 'exceptions.dart';
 import 'http/retry_policy.dart';
 import 'http/transport.dart';
+import 'url/cloudinary_url.dart';
 
 /// True on a JavaScript runtime, where `0` and `0.0` are the same value.
 bool get _isWebRuntime => identical(0, 0.0);
@@ -160,6 +161,7 @@ class Cloudinary {
 
   AdminApi? _admin;
   SearchApi? _search;
+  UrlApi? _url;
   UploadApi? _upload;
 
   /// The Upload API: uploading, renaming, tagging and destroying assets.
@@ -171,6 +173,9 @@ class Cloudinary {
 
   /// The Search API: expression-based asset and folder search.
   SearchApi get search => _search ??= SearchApi(transport, config);
+
+  /// Delivery URL construction, including transformations and signing.
+  UrlApi get url => _url ??= UrlApi(config, urlConfig);
 
   /// Whether signing is delegated to a [SignatureProvider].
   bool get canSignRemotely => signatureProvider != null;
