@@ -12,7 +12,7 @@ import 'http/retry_policy.dart';
 import 'http/transport.dart';
 import 'url/cloudinary_url.dart';
 
-/// True on a JavaScript runtime, where `0` and `0.0` are the same value.
+// True only on a JavaScript runtime, where `0` and `0.0` are one value.
 bool get _isWebRuntime => identical(0, 0.0);
 
 /// Entry point for the Cloudinary API.

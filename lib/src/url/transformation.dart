@@ -128,7 +128,6 @@ class Transformation {
     ].join(',');
   }
 
-  /// A leading `#` means a hex colour, which Cloudinary writes as `rgb:`.
   static String _color(String value) =>
       value.startsWith('#') ? 'rgb:${value.substring(1)}' : value;
 

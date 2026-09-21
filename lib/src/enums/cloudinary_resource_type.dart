@@ -1,14 +1,17 @@
-/// CloudinaryResponseType enum is used to specify the type of the resource
+/// The kind of asset an operation acts on.
+///
+/// This is the first path segment of an API call and of a delivery URL, so it
+/// routes the request as well as describing the asset.
 enum CloudinaryResourceType {
-  /// The [image] type
+  /// Images, including animated formats and PDFs.
   image,
 
-  /// The [raw] type
+  /// Files stored and delivered without media processing.
   raw,
 
-  /// The [video] type
+  /// Video and audio.
   video,
 
-  /// The [auto] type
+  /// Let Cloudinary detect the type from the file. Valid for uploads only.
   auto,
 }

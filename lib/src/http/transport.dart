@@ -268,7 +268,6 @@ class CloudinaryTransport {
     }
   }
 
-  /// Decodes a response, mapping any non-2xx status to a typed exception.
   Map<String, dynamic> _decode(http.Response response) {
     final status = response.statusCode;
     Map<String, dynamic> parsed;
@@ -345,7 +344,6 @@ class CloudinaryTransport {
     return delta.isNegative ? Duration.zero : delta;
   }
 
-  /// Renders values as the strings Cloudinary expects on the wire.
   static Map<String, String>? _stringifyQuery(Map<String, dynamic>? input) {
     if (input == null) return null;
     final out = <String, String>{};

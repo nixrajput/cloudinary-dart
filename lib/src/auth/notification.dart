@@ -34,10 +34,8 @@ bool verifyNotificationSignature({
   return _constantTimeEquals(expected, signature);
 }
 
-/// Compares two hex digests without leaking their contents through timing.
-///
-/// The length check is not a leak worth closing: digest length is fixed and
-/// public.
+// Constant-time compare. The early length return is not a leak worth
+// closing: digest length is fixed and public.
 bool _constantTimeEquals(String a, String b) {
   if (a.length != b.length) return false;
   var diff = 0;

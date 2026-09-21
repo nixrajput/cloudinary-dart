@@ -7,9 +7,7 @@ import 'progress.dart';
 /// A multipart request that reports how many bytes have been written.
 ///
 /// `package:http` exposes no send-progress hook, so the encoded body stream
-/// from [finalize] is wrapped in a counting transformer. [contentLength] is
-/// captured before wrapping because reading it afterwards would consume the
-/// already-finalized request state.
+/// from [finalize] is wrapped in a counting transformer.
 class ProgressMultipartRequest extends http.MultipartRequest {
   /// Creates a multipart request reporting progress to [onProgress].
   ProgressMultipartRequest(super.method, super.url, {this.onProgress});
