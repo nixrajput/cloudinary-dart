@@ -34,6 +34,7 @@
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Overview](#overview)
 - [Quick start](#quick-start)
   - [Prerequisites](#prerequisites)
@@ -50,7 +51,7 @@
 - [Is this for you](#is-this-for-you)
 - [Compared to](#compared-to)
 - [FAQ](#faq)
-- [Scope](#scope)
+- [What is not covered](#what-is-not-covered)
 - [About Cloudinary](#about-cloudinary)
 - [Contributing](#contributing)
 - [License](#license)
@@ -354,12 +355,12 @@ Yes, pass any `http.Client` to the constructor. That is also how the test suite 
 **Cloudinary added a response field. Do I have to wait for a release?**
 No. Every model exposes `raw`, the complete decoded response, so the new field is available immediately as `result.raw['new_field']`.
 
-**What do the numbers in the header mean?**
-They are the things this package controls and can prove: how much of Cloudinary's API is covered, and how much of that is pinned by tests. Request time belongs to Cloudinary and the network, so coverage and correctness are what gets measured here.
+**Why is there no benchmark in the header?**
+Because there is nothing honest to measure. The time in any call here is Cloudinary's and the network's. Coverage and correctness are the claims worth making, so those are the ones made.
 
-## Scope
+## What is not covered
 
-Version 2.0 covers the Upload, Admin and Search APIs in full, plus delivery URL construction. The Provisioning API (sub-accounts, users, user groups and access keys) and the v2 Analysis API are planned for a later release.
+Version 2.0 does not include the Provisioning API (sub-accounts, users, user groups and access keys) or the v2 Analysis API. Both are candidates for a later release. Everything else in Upload, Admin and Search is here.
 
 ## About Cloudinary
 

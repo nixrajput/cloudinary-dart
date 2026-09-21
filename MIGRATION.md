@@ -40,11 +40,11 @@ v1's barrel re-exported `package:dio/dio.dart`, so Dio's `Response`, `Options` a
 
 v2 uses `package:http` internally and exports nothing from it. If you referenced Dio types through this package, import Dio yourself or switch to the equivalents:
 
-| v1 | v2 |
-| --- | --- |
-| `ProgressCallback` (from Dio) | `CloudinaryProgressCallback` |
-| `Response` (from Dio) | not exposed; methods return typed models |
-| passing Dio options | pass your own `http.Client` to the constructor |
+| v1                            | v2                                             |
+| ----------------------------- | ---------------------------------------------- |
+| `ProgressCallback` (from Dio) | `CloudinaryProgressCallback`                   |
+| `Response` (from Dio)         | not exposed; methods return typed models       |
+| passing Dio options           | pass your own `http.Client` to the constructor |
 
 ### 3. One response type became several
 
@@ -54,17 +54,17 @@ Every one of them exposes `raw`, the complete decoded response, so anything not 
 
 ## Method mapping
 
-| v1 | v2 |
-| --- | --- |
-| `Cloudinary.signedConfig(apiKey:, apiSecret:, cloudName:)` | `Cloudinary.signed(cloudName:, apiKey:, apiSecret:)` |
-| `Cloudinary.unsignedConfig(cloudName:)` | `Cloudinary.unsigned(cloudName:)` |
-| `cloudinary.upload(file: path, fileBytes: bytes, ...)` | `cloudinary.upload.upload(file: CloudinaryFileSource.path(path))` or `.bytes(bytes)` |
-| `cloudinary.unsignedUpload(uploadPreset:, file:, ...)` | `cloudinary.upload.unsignedUpload(uploadPreset:, file:)` |
-| `cloudinary.destroy(publicId, resourceType:, invalidate:)` | `cloudinary.upload.destroy(publicId:, resourceType:, invalidate:)` |
-| `optParams: {...}` | `extraParams: {...}` |
-| `progressCallback:` | `onProgress:` |
-| `response.isSuccessful` | the call either returns or throws |
-| `response.error` | the thrown exception's `message` |
+| v1                                                         | v2                                                                                   |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `Cloudinary.signedConfig(apiKey:, apiSecret:, cloudName:)` | `Cloudinary.signed(cloudName:, apiKey:, apiSecret:)`                                 |
+| `Cloudinary.unsignedConfig(cloudName:)`                    | `Cloudinary.unsigned(cloudName:)`                                                    |
+| `cloudinary.upload(file: path, fileBytes: bytes, ...)`     | `cloudinary.upload.upload(file: CloudinaryFileSource.path(path))` or `.bytes(bytes)` |
+| `cloudinary.unsignedUpload(uploadPreset:, file:, ...)`     | `cloudinary.upload.unsignedUpload(uploadPreset:, file:)`                             |
+| `cloudinary.destroy(publicId, resourceType:, invalidate:)` | `cloudinary.upload.destroy(publicId:, resourceType:, invalidate:)`                   |
+| `optParams: {...}`                                         | `extraParams: {...}`                                                                 |
+| `progressCallback:`                                        | `onProgress:`                                                                        |
+| `response.isSuccessful`                                    | the call either returns or throws                                                    |
+| `response.error`                                           | the thrown exception's `message`                                                     |
 
 The `file` and `fileBytes` pair is now one `CloudinaryFileSource`:
 

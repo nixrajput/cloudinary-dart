@@ -2,9 +2,9 @@
 
 ## Supported versions
 
-| Version | Supported |
-| ------- | --------- |
-| 2.0.x   | Yes, actively |
+| Version | Supported           |
+| ------- | ------------------- |
+| 2.0.x   | Yes, actively       |
 | 1.x     | Security fixes only |
 
 ## Reporting a vulnerability
