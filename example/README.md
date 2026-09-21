@@ -33,6 +33,10 @@ Do not ship an API secret in a real mobile or web build. The app only builds a
 signed client because credentials were passed explicitly here; in production
 use an unsigned preset or a `SignatureProvider` that signs on your server.
 
+On the web `Cloudinary.signed` refuses to construct at all, so passing a secret
+there makes the demo fall back to an unsigned client. That fallback is left in
+deliberately, to show the guard working rather than to work around it.
+
 ## What it shows
 
 - `upload.upload` and `upload.unsignedUpload`, from a file path or from bytes,
@@ -44,3 +48,12 @@ use an unsigned preset or a `SignatureProvider` that signs on your server.
 - `search.expression(...)` listing what is in the upload folder.
 - Catching `CloudinaryException` instead of inspecting a response for an error
   string, which is the main change from 1.x.
+
+## Layout
+
+```
+lib/main.dart              app shell and widgets
+lib/src/demo_controller.dart   every call into the SDK, the part worth reading
+lib/src/demo_config.dart       credentials from --dart-define, client creation
+lib/src/image_picking.dart     typed wrapper over image_picker
+```
