@@ -147,7 +147,7 @@ class CloudinaryTransport {
         } else {
           request.headers['content-type'] =
               'application/x-www-form-urlencoded; charset=utf-8';
-          request.bodyFields = _stringifyQuery(body)!;
+          request.body = encodeForm(body);
         }
       }
       return request;
@@ -184,12 +184,13 @@ class CloudinaryTransport {
       uri,
       onProgress: onProgress,
     );
-    prepared.forEach((key, value) {
-      if (value == null) return;
-      request.fields[key] = value is Iterable
-          ? value.join(',')
-          : value.toString();
-    });
+    // MultipartRequest.fields is a Map, so a repeated key would overwrite.
+    // No Upload API parameter needs repeats today; the array ones are
+    // flattened to `key[]` and any genuine duplicate would be a bug worth
+    // surfacing rather than silently dropping.
+    for (final entry in CloudinaryTransport.flattenParams(prepared)) {
+      request.fields[entry.key] = entry.value;
+    }
 
     switch (file) {
       case CloudinaryBytesSource(:final bytes, :final filename):
@@ -356,16 +357,61 @@ class CloudinaryTransport {
     return delta.isNegative ? Duration.zero : delta;
   }
 
-  static Map<String, String>? _stringifyQuery(Map<String, dynamic>? input) {
-    if (input == null) return null;
-    final out = <String, String>{};
+  /// Flattens parameters the way Cloudinary's own encoder does.
+  ///
+  /// An iterable becomes repeated `key[]=a&key[]=b` pairs, matching
+  /// `hashToParameters` in Cloudinary's SDKs. Comma-joining instead would
+  /// make the server read one value literally named `a,b`. A parameter that
+  /// must be comma-joined, such as an upload's `tags`, is joined by its
+  /// caller and arrives here as a string.
+  static List<MapEntry<String, String>> flattenParams(
+    Map<String, dynamic>? input,
+  ) {
+    if (input == null) return const [];
+    final out = <MapEntry<String, String>>[];
     for (final entry in input.entries) {
       final value = entry.value;
       if (value == null) continue;
-      out[entry.key] = value is Iterable ? value.join(',') : '$value';
+      if (value is Iterable) {
+        final key = entry.key.endsWith('[]') ? entry.key : '${entry.key}[]';
+        for (final item in value) {
+          out.add(MapEntry(key, '$item'));
+        }
+      } else {
+        out.add(MapEntry(entry.key, '$value'));
+      }
     }
-    return out.isEmpty ? null : out;
+    return out;
   }
+
+  /// Query parameters for [Uri.https], which emits repeated keys for a list
+  /// value.
+  static Map<String, dynamic>? _stringifyQuery(Map<String, dynamic>? input) {
+    final flat = flattenParams(input);
+    if (flat.isEmpty) return null;
+
+    final out = <String, dynamic>{};
+    for (final entry in flat) {
+      final existing = out[entry.key];
+      if (existing == null) {
+        out[entry.key] = entry.value;
+      } else if (existing is List<String>) {
+        existing.add(entry.value);
+      } else {
+        out[entry.key] = <String>[existing as String, entry.value];
+      }
+    }
+    return out;
+  }
+
+  /// Form body, percent-encoded, preserving repeated keys.
+  static String encodeForm(Map<String, dynamic>? input) => flattenParams(input)
+      .map(
+        (e) =>
+            '${Uri.encodeQueryComponent(e.key)}='
+            '${Uri.encodeQueryComponent(e.value)}',
+      )
+      .join('&');
 
   static Map<String, dynamic> _jsonSafe(Map<String, dynamic> input) => {
     for (final e in input.entries)

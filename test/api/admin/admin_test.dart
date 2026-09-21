@@ -5,6 +5,20 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:test/test.dart';
 
+/// Parses a form body preserving repeated `key[]` pairs.
+Map<String, List<String>> parseForm(String body) {
+  final out = <String, List<String>>{};
+  if (body.isEmpty) return out;
+  for (final pair in body.split('&')) {
+    final i = pair.indexOf('=');
+    if (i < 0) continue;
+    final k = Uri.decodeQueryComponent(pair.substring(0, i));
+    final v = Uri.decodeQueryComponent(pair.substring(i + 1));
+    out.putIfAbsent(k, () => <String>[]).add(v);
+  }
+  return out;
+}
+
 class Captured {
   late http.Request request;
 
@@ -12,6 +26,7 @@ class Captured {
   String get method => request.method;
   Map<String, String> get query => request.url.queryParameters;
   Map<String, String> get form => Uri.splitQueryString(request.body);
+  Map<String, List<String>> get forms => parseForm(request.body);
   Map<String, dynamic> get jsonBody =>
       jsonDecode(request.body) as Map<String, dynamic>;
 }
@@ -144,12 +159,12 @@ void main() {
       expect(cap.query['asset_folder'], 'trips');
     });
 
-    test('listByAssetIds comma-joins', () async {
+    test('listByAssetIds sends a repeated array key', () async {
       final (c, cap) = clientReturning({'resources': <Object>[]});
       await c.admin.resources.listByAssetIds(['a', 'b']);
 
       expect(cap.path, '/v1_1/demo/resources/by_asset_ids');
-      expect(cap.query['asset_ids'], 'a,b');
+      expect(cap.request.url.queryParametersAll['asset_ids[]'], ['a', 'b']);
     });
 
     test('get by public id', () async {
@@ -171,13 +186,14 @@ void main() {
       await c.admin.resources.update('p', tags: ['a', 'b']);
 
       expect(cap.method, 'POST');
-      expect(cap.form['tags'], 'a,b');
+      expect(cap.form['tags'], 'a,b'); // tags are comma-joined, not an array
     });
 
     test('restore', () async {
       final (c, cap) = clientReturning({});
       await c.admin.resources.restore(['a']);
       expect(cap.path, '/v1_1/demo/resources/image/upload/restore');
+      expect(cap.request.headers['content-type'], contains('application/json'));
     });
 
     test('delete by public ids', () async {
@@ -187,7 +203,7 @@ void main() {
       final r = await c.admin.resources.delete(['a']);
 
       expect(cap.method, 'DELETE');
-      expect(cap.form['public_ids'], 'a');
+      expect(cap.forms['public_ids[]'], ['a']);
       expect(r.deleted['a'], 'deleted');
     });
 
@@ -282,7 +298,7 @@ void main() {
 
       expect(cap.method, 'PUT');
       expect(cap.path, '/v1_1/demo/folders/old');
-      expect(cap.form['to_folder'], 'new');
+      expect(jsonDecode(cap.request.body), {'to_folder': 'new'});
     });
 
     test('delete', () async {

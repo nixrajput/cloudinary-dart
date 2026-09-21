@@ -38,27 +38,31 @@ void main() {
       expect(seen.scheme, 'https');
     });
 
-    test('query parameters are rendered and lists comma-joined', () async {
-      late Uri seen;
-      final t = transportReturning((req) {
-        seen = req.url;
-        return http.Response('{}', 200);
-      });
+    test(
+      'query parameters are rendered and lists become repeated keys',
+      () async {
+        late Uri seen;
+        final t = transportReturning((req) {
+          seen = req.url;
+          return http.Response('{}', 200);
+        });
 
-      await t.send(
-        method: 'GET',
-        segments: ['resources', 'image'],
-        query: {
-          'max_results': 10,
-          'tags': ['a', 'b'],
-          'skipped': null,
-        },
-      );
+        await t.send(
+          method: 'GET',
+          segments: ['resources', 'image'],
+          query: {
+            'max_results': 10,
+            'tags': ['a', 'b'],
+            'skipped': null,
+          },
+        );
 
-      expect(seen.queryParameters['max_results'], '10');
-      expect(seen.queryParameters['tags'], 'a,b');
-      expect(seen.queryParameters.containsKey('skipped'), isFalse);
-    });
+        expect(seen.queryParameters['max_results'], '10');
+        // Cloudinary's own encoder appends [] to an array key and repeats it.
+        expect(seen.queryParametersAll['tags[]'], ['a', 'b']);
+        expect(seen.queryParameters.containsKey('skipped'), isFalse);
+      },
+    );
   });
 
   group('authentication', () {

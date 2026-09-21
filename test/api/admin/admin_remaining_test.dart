@@ -8,6 +8,20 @@ import 'package:test/test.dart';
 /// Request-shape coverage for the Admin methods the focused suites do not
 /// already exercise. Each asserts verb and path, which is what a typo in a
 /// segment array actually breaks.
+/// Parses a form body preserving repeated `key[]` pairs.
+Map<String, List<String>> parseForm(String body) {
+  final out = <String, List<String>>{};
+  if (body.isEmpty) return out;
+  for (final pair in body.split('&')) {
+    final i = pair.indexOf('=');
+    if (i < 0) continue;
+    final k = Uri.decodeQueryComponent(pair.substring(0, i));
+    final v = Uri.decodeQueryComponent(pair.substring(i + 1));
+    out.putIfAbsent(k, () => <String>[]).add(v);
+  }
+  return out;
+}
+
 class Captured {
   late http.Request request;
 
@@ -15,6 +29,7 @@ class Captured {
   String get method => request.method;
   Map<String, String> get query => request.url.queryParameters;
   Map<String, String> get form => Uri.splitQueryString(request.body);
+  Map<String, List<String>> get forms => parseForm(request.body);
 }
 
 (Cloudinary, Captured) client([Map<String, dynamic> body = const {}]) {
@@ -38,7 +53,7 @@ void main() {
       await c.admin.resources.listByPublicIds(['a', 'b']);
 
       expect(cap.path, '/v1_1/demo/resources/image/upload');
-      expect(cap.query['public_ids'], 'a,b');
+      expect(cap.request.url.queryParametersAll['public_ids[]'], ['a', 'b']);
     });
 
     test('list passes through every filter', () async {
@@ -62,7 +77,7 @@ void main() {
       expect(cap.query['metadata'], 'true');
       expect(cap.query['direction'], 'desc');
       expect(cap.query['start_at'], '2026-01-01');
-      expect(cap.query['fields'], 'public_id');
+      expect(cap.request.url.queryParametersAll['fields[]'], ['public_id']);
       expect(cap.query['next_cursor'], 'C');
     });
 
@@ -114,8 +129,9 @@ void main() {
       await c.admin.resources.restoreByAssetIds(['a'], versions: ['v']);
 
       expect(cap.path, '/v1_1/demo/resources/restore');
-      expect(cap.form['asset_ids'], 'a');
-      expect(cap.form['versions'], 'v');
+      final body = jsonDecode(cap.request.body) as Map<String, dynamic>;
+      expect(body['asset_ids'], ['a']);
+      expect(body['versions'], ['v']);
     });
 
     test('deleteByAssetIds', () async {
@@ -124,6 +140,7 @@ void main() {
 
       expect(cap.method, 'DELETE');
       expect(cap.path, '/v1_1/demo/resources');
+      expect(cap.forms['asset_ids[]'], ['a']);
       expect(cap.form['invalidate'], 'true');
     });
 
@@ -135,7 +152,7 @@ void main() {
       );
 
       expect(cap.path, '/v1_1/demo/resources/backup/aid');
-      expect(cap.form['versions'], 'v1');
+      expect(cap.forms['version_ids[]'], ['v1']);
     });
 
     test('deleteDerivedByTransformation', () async {
@@ -148,6 +165,7 @@ void main() {
       expect(cap.method, 'DELETE');
       expect(cap.form['transformations'], 'w_100');
       expect(cap.form['keep_original'], 'true');
+      expect(cap.forms['public_ids[]'], ['a']);
     });
 
     test('addRelatedByAssetId', () async {
@@ -157,6 +175,7 @@ void main() {
         assetsToRelate: ['b'],
       );
       expect(cap.path, '/v1_1/demo/resources/related_assets/aid');
+      expect(cap.request.headers['content-type'], contains('application/json'));
     });
 
     test('deleteRelated', () async {

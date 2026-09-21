@@ -230,7 +230,7 @@ class ResourcesApi {
       method: 'POST',
       segments: ['resources', resourceType.name, type, publicId],
       form: {
-        'tags': ?tags,
+        'tags': ?tags?.join(','),
         'context': ?context,
         'metadata': ?metadata,
         'moderation_status': ?moderationStatus,
@@ -251,6 +251,7 @@ class ResourcesApi {
   }) => _transport.send(
     method: 'POST',
     segments: ['resources', resourceType.name, type, 'restore'],
+    json: true,
     form: {'public_ids': publicIds, 'versions': ?versions},
     basicAuth: true,
   );
@@ -262,6 +263,7 @@ class ResourcesApi {
   }) => _transport.send(
     method: 'POST',
     segments: ['resources', 'restore'],
+    json: true,
     form: {'asset_ids': assetIds, 'versions': ?versions},
     basicAuth: true,
   );
@@ -373,7 +375,7 @@ class ResourcesApi {
   }) => _transport.send(
     method: 'DELETE',
     segments: ['resources', 'backup', assetId],
-    form: {'versions': versionIds},
+    form: {'version_ids': versionIds},
     basicAuth: true,
   );
 
@@ -421,6 +423,7 @@ class ResourcesApi {
       type,
       publicId,
     ],
+    json: true,
     form: {'assets_to_relate': assetsToRelate},
     basicAuth: true,
   );
@@ -432,6 +435,7 @@ class ResourcesApi {
   }) => _transport.send(
     method: 'POST',
     segments: ['resources', 'related_assets', assetId],
+    json: true,
     form: {'assets_to_relate': assetsToRelate},
     basicAuth: true,
   );
@@ -451,6 +455,7 @@ class ResourcesApi {
       type,
       publicId,
     ],
+    json: true,
     form: {'assets_to_unrelate': assetsToUnrelate},
     basicAuth: true,
   );
@@ -462,6 +467,7 @@ class ResourcesApi {
   }) => _transport.send(
     method: 'DELETE',
     segments: ['resources', 'related_assets', assetId],
+    json: true,
     form: {'assets_to_unrelate': assetsToUnrelate},
     basicAuth: true,
   );

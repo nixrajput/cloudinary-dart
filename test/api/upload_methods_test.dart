@@ -6,10 +6,25 @@ import 'package:http/testing.dart';
 import 'package:test/test.dart';
 
 /// Captures the single request an API call makes.
+/// Parses a form body preserving repeated `key[]` pairs.
+Map<String, List<String>> parseForm(String body) {
+  final out = <String, List<String>>{};
+  if (body.isEmpty) return out;
+  for (final pair in body.split('&')) {
+    final i = pair.indexOf('=');
+    if (i < 0) continue;
+    final k = Uri.decodeQueryComponent(pair.substring(0, i));
+    final v = Uri.decodeQueryComponent(pair.substring(i + 1));
+    out.putIfAbsent(k, () => <String>[]).add(v);
+  }
+  return out;
+}
+
 class Captured {
   late http.Request request;
 
   Map<String, String> get form => Uri.splitQueryString(request.body);
+  Map<String, List<String>> get forms => parseForm(request.body);
   String get path => request.url.path;
   String get method => request.method;
 }
@@ -93,7 +108,7 @@ void main() {
       expect(cap.path, '/v1_1/demo/image/tags');
       expect(cap.form['command'], 'add');
       expect(cap.form['tag'], 't');
-      expect(cap.form['public_ids'], 'a,b');
+      expect(cap.forms['public_ids[]'], ['a', 'b']);
       expect(r.publicIds, ['a']);
     });
 

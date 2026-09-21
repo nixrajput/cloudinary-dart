@@ -57,6 +57,7 @@ class FoldersApi {
         await _transport.send(
           method: 'PUT',
           segments: ['folders', ...splitFolderPath(fromPath)],
+          json: true,
           form: {'to_folder': toPath},
           basicAuth: true,
         ),
