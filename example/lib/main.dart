@@ -83,8 +83,11 @@ class _MyHomePageState extends State<MyHomePage> {
   static const int loadImage = 1;
   static const int doSignedUpload = 2;
   static const int doUnsignedUpload = 3;
+  static const int doDelete = 4;
+  static const int doSearch = 5;
   DataTransmitNotifier dataImages = DataTransmitNotifier();
   UploadResult? uploadResult;
+  String? statusMessage;
   bool loading = false;
   String? errorMessage;
   FileSource fileSource = FileSource.path;
@@ -219,6 +222,45 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
+              if (transformedPreviewUrl != null) ...[
+                const SizedBox(height: 24.0),
+                const Text('Transformed delivery URL'),
+                const SizedBox(height: 8.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: SelectableText(transformedPreviewUrl!),
+                ),
+                const SizedBox(height: 8.0),
+                // Built by the SDK without a network call, so it renders
+                // straight from the URL.
+                Image.network(
+                  transformedPreviewUrl!,
+                  height: 150,
+                  errorBuilder: (_, __, ___) => const Text('preview failed'),
+                ),
+              ],
+              if (uploadResult != null) ...[
+                const SizedBox(height: 16.0),
+                Wrap(
+                  spacing: 12,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    OutlinedButton(
+                      onPressed: loading ? null : () => onClick(doDelete),
+                      child: const Text('Delete it'),
+                    ),
+                    if (cloudinary.config.canSign)
+                      OutlinedButton(
+                        onPressed: loading ? null : () => onClick(doSearch),
+                        child: const Text('Search folder'),
+                      ),
+                  ],
+                ),
+              ],
+              if (statusMessage != null) ...[
+                const SizedBox(height: 12.0),
+                Text(statusMessage!, textAlign: TextAlign.center),
+              ],
               const SizedBox(height: 16.0),
               Visibility(
                 visible: errorMessage?.isNotEmpty ?? false,
@@ -337,11 +379,51 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         uploadResult = result;
         errorMessage = null;
+        statusMessage = null;
       });
     } on CloudinaryException catch (e) {
       // v2 throws instead of returning a response carrying an error string.
       setState(() => errorMessage = e.message);
       if (kDebugMode) print(e);
+    }
+  }
+
+  /// Deletes the asset that was just uploaded.
+  ///
+  /// Destroy answers `not found` with a 200, so the result is checked rather
+  /// than relying on an exception.
+  Future<void> deleteUpload() async {
+    final publicId = uploadResult?.publicId;
+    if (publicId == null) return;
+
+    try {
+      final result = await cloudinary.upload.destroy(publicId: publicId);
+      setState(() {
+        statusMessage =
+            result.isDeleted ? 'Deleted $publicId' : 'Not found: $publicId';
+        if (result.isDeleted) uploadResult = null;
+      });
+    } on CloudinaryException catch (e) {
+      setState(() => errorMessage = e.message);
+    }
+  }
+
+  /// Lists what is in the upload folder, using the Search API.
+  Future<void> searchFolder() async {
+    try {
+      final results = await cloudinary.search
+          .expression('folder:$folder')
+          .sortBy('created_at', SortDirection.desc)
+          .maxResults(10)
+          .execute();
+
+      setState(() {
+        statusMessage =
+            'Search found ${results.totalCount ?? results.resources.length} '
+            'asset(s) in "$folder"';
+      });
+    } on CloudinaryException catch (e) {
+      setState(() => errorMessage = e.message);
     }
   }
 
@@ -383,6 +465,12 @@ class _MyHomePageState extends State<MyHomePage> {
           break;
         case doUnsignedUpload:
           await doSingleUpload(signed: false);
+          break;
+        case doDelete:
+          await deleteUpload();
+          break;
+        case doSearch:
+          await searchFolder();
           break;
       }
     } catch (e) {
