@@ -75,6 +75,18 @@ class CloudinaryTransport {
     Map<String, dynamic>? query,
     ApiVersion version = ApiVersion.v1_1,
   }) {
+    // Uri collapses dot segments, so a `..` reaching here would walk out of
+    // the cloud-name scope and re-aim an authenticated request at another
+    // endpoint. Public IDs and folder paths are caller data, so reject it.
+    for (final part in segments.expand((s) => s.split('/'))) {
+      if (part == '.' || part == '..') {
+        throw CloudinaryConfigException(
+          'Path segments must not contain "$part": it would change which '
+          'Cloudinary endpoint the request reaches.',
+        );
+      }
+    }
+
     final path = [version.segment, config.cloudName, ...segments].join('/');
 
     return Uri.https(host, '/$path', _stringifyQuery(query));

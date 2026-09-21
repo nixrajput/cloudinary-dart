@@ -12,8 +12,10 @@ import 'http/retry_policy.dart';
 import 'http/transport.dart';
 import 'url/cloudinary_url.dart';
 
-// True only on a JavaScript runtime, where `0` and `0.0` are one value.
-bool get _isWebRuntime => identical(0, 0.0);
+// True on both web compilers. `identical(0, 0.0)` detects only dart2js: under
+// dart2wasm int and double have distinct representations, so it reads false
+// and the secret guard below would never fire.
+const bool _isWebRuntime = bool.fromEnvironment('dart.library.js_interop');
 
 /// Entry point for the Cloudinary API.
 ///
@@ -41,6 +43,7 @@ class Cloudinary {
     http.Client? client,
     RetryPolicy retry = const RetryPolicy(),
     Duration timeout = const Duration(seconds: 60),
+    bool allowSecretOnWeb = false,
   }) : transport = CloudinaryTransport(
          config: config,
          client: client,
@@ -48,6 +51,17 @@ class Cloudinary {
          timeout: timeout,
        ) {
     config.validate();
+    // Every factory converges here, so no constructor can hold a secret on
+    // the web by skipping the check.
+    if (_isWebRuntime && config.canSign && !allowSecretOnWeb) {
+      throw const CloudinaryConfigException(
+        'Refusing to hold an API secret on the web: it would ship in your '
+        'bundle and be readable by anyone. Use Cloudinary.unsigned with an '
+        'upload preset, or pass a SignatureProvider that signs on your '
+        'server. Set allowSecretOnWeb: true only if this code never reaches '
+        'a browser.',
+      );
+    }
   }
 
   /// Creates a client that can sign requests locally.
@@ -83,16 +97,6 @@ class Cloudinary {
         'Cloudinary.unsigned for preset-based uploads without credentials.',
       );
     }
-    if (_isWebRuntime && !allowSecretOnWeb) {
-      throw const CloudinaryConfigException(
-        'Refusing to hold an API secret on the web: it would ship in your '
-        'bundle and be readable by anyone. Use Cloudinary.unsigned with an '
-        'upload preset, or pass a SignatureProvider that signs on your '
-        'server. Set allowSecretOnWeb: true only if this code never reaches '
-        'a browser.',
-      );
-    }
-
     return Cloudinary._(
       config: CloudinaryConfig(
         cloudName: cloudName,
@@ -105,6 +109,7 @@ class Cloudinary {
       client: client,
       retry: retry,
       timeout: timeout,
+      allowSecretOnWeb: allowSecretOnWeb,
     );
   }
 
@@ -147,13 +152,15 @@ class Cloudinary {
   /// The value takes the form `cloudinary://<api_key>:<api_secret>@<cloud>`.
   ///
   /// Throws [CloudinaryConfigException] when the string is not a well-formed
-  /// Cloudinary URL.
+  /// Cloudinary URL, or when it carries a secret on a web runtime and
+  /// [allowSecretOnWeb] is not set.
   factory Cloudinary.fromUrl(
     String cloudinaryUrl, {
     UrlConfig urlConfig = const UrlConfig(),
     http.Client? client,
     RetryPolicy retry = const RetryPolicy(),
     Duration timeout = const Duration(seconds: 60),
+    bool allowSecretOnWeb = false,
   }) => Cloudinary._(
     config: CloudinaryConfig.parse(cloudinaryUrl),
     urlConfig: urlConfig,
@@ -161,6 +168,7 @@ class Cloudinary {
     client: client,
     retry: retry,
     timeout: timeout,
+    allowSecretOnWeb: allowSecretOnWeb,
   );
 
   /// Creates a client from the `CLOUDINARY_URL` environment variable.
@@ -172,6 +180,7 @@ class Cloudinary {
     http.Client? client,
     RetryPolicy retry = const RetryPolicy(),
     Duration timeout = const Duration(seconds: 60),
+    bool allowSecretOnWeb = false,
   }) {
     final value = readCloudinaryUrl();
     if (value == null || value.isEmpty) {
@@ -183,6 +192,7 @@ class Cloudinary {
       value,
       urlConfig: urlConfig,
       client: client,
+      allowSecretOnWeb: allowSecretOnWeb,
       retry: retry,
       timeout: timeout,
     );
