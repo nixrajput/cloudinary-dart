@@ -6,6 +6,18 @@ import 'search_query.dart';
 ///
 /// Reached as `cloudinary.search`. Each builder method starts a fresh query,
 /// so two searches never share accumulated state.
+///
+/// ```dart
+/// final results = await cloudinary.search
+///     .expression('resource_type:image AND tags=holiday')
+///     .sortBy('created_at', SortDirection.desc)
+///     .maxResults(50)
+///     .execute();
+///
+/// for (final asset in results.resources) {
+///   print(asset.publicId);
+/// }
+/// ```
 class SearchApi {
   /// Creates a search API bound to [_transport].
   SearchApi(this._transport, this._config);

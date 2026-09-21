@@ -4,7 +4,8 @@ import 'package:crypto/crypto.dart';
 
 import 'signature_algorithm.dart';
 
-/// Current UNIX time in **seconds**, which is what Cloudinary expects.
+/// Returns the current UNIX time in seconds, which is what Cloudinary
+/// expects.
 ///
 /// Cloudinary rejects a request whose timestamp sits too far from its own
 /// clock, so sending milliseconds here makes every signed request fail.

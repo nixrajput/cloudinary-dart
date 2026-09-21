@@ -17,10 +17,10 @@ enum SortDirection {
 
 /// Which collection a search runs against.
 enum SearchTarget {
-  /// Search assets.
+  /// Assets in the media library.
   assets(['resources', 'search']),
 
-  /// Search folders.
+  /// Folders in the media library.
   folders(['folders', 'search']);
 
   const SearchTarget(this.segments);
@@ -32,8 +32,18 @@ enum SearchTarget {
 /// A chainable Cloudinary search query.
 ///
 /// Every builder method returns this same instance, so calls can be chained
-/// or applied one at a time. `sortBy`, `aggregate`, `withField` and `fields`
+/// or applied one at a time. [sortBy], [aggregate], [withField] and [fields]
 /// accumulate rather than replace, and the last three de-duplicate.
+///
+/// ```dart
+/// final query = cloudinary.search
+///     .expression('tags=holiday')
+///     .aggregate('format')
+///     .maxResults(20);
+///
+/// final page = await query.execute();
+/// final more = await query.nextCursor(page.nextCursor!).execute();
+/// ```
 class SearchQuery {
   /// Creates a query bound to a transport and target.
   SearchQuery({

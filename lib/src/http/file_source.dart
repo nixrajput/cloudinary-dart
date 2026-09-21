@@ -1,6 +1,12 @@
 import 'dart:typed_data';
 
 /// Where the bytes of an upload come from.
+///
+/// ```dart
+/// CloudinaryFileSource.path('/path/to/photo.jpg');   // needs dart:io
+/// CloudinaryFileSource.bytes(bytes, filename: 'photo.jpg');
+/// CloudinaryFileSource.url('https://example.com/photo.jpg');
+/// ```
 sealed class CloudinaryFileSource {
   const CloudinaryFileSource();
 

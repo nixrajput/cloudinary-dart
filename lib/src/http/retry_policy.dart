@@ -23,7 +23,7 @@ class RetryPolicy {
   /// Status codes worth retrying.
   final Set<int> retryOn;
 
-  /// Backoff before the next attempt after [attempt] failures.
+  /// Returns the backoff to wait after [attempt] failures.
   ///
   /// A server-supplied [retryAfter] always wins over the computed backoff.
   Duration delayFor(int attempt, {Duration? retryAfter}) =>

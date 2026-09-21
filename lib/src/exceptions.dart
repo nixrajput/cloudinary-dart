@@ -2,6 +2,16 @@
 ///
 /// Sealed so callers can `switch` over the failure modes exhaustively and have
 /// the analyzer tell them when a new one is added.
+///
+/// ```dart
+/// try {
+///   await cloudinary.upload.upload(file: source);
+/// } on CloudinaryRateLimitException catch (e) {
+///   print('Retry after ${e.resetAt}');
+/// } on CloudinaryApiException catch (e) {
+///   print('${e.statusCode}: ${e.message}');
+/// }
+/// ```
 sealed class CloudinaryException implements Exception {
   /// Creates a Cloudinary exception with a human-readable [message].
   const CloudinaryException(this.message);

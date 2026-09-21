@@ -12,7 +12,18 @@ import 'upload_presets_api.dart';
 /// The Cloudinary Admin API, grouped by resource family.
 ///
 /// Reached as `cloudinary.admin`. Every call authenticates with HTTP basic
-/// auth and therefore needs an API key and secret.
+/// auth and therefore needs an API key and secret, so an unsigned client
+/// throws [CloudinaryConfigException].
+///
+/// ```dart
+/// await cloudinary.admin.account.ping();
+///
+/// final page = await cloudinary.admin.resources.list(maxResults: 50);
+/// await cloudinary.admin.folders.create('trips/2026');
+/// ```
+///
+/// Cloudinary rate-limits this API per hour and answers 429 with reset
+/// headers, surfaced as [CloudinaryRateLimitException].
 class AdminApi {
   /// Creates an admin API bound to [_transport].
   AdminApi(this._transport);
@@ -39,18 +50,18 @@ class AdminApi {
   /// Creating, renaming and deleting folders.
   FoldersApi get folders => _folders ??= FoldersApi(_transport);
 
-  /// Listing tags.
+  /// Tags in use across the environment.
   TagsApi get tags => _tags ??= TagsApi(_transport);
 
   /// Managing stored transformations.
   TransformationsApi get transformations =>
       _transformations ??= TransformationsApi(_transport);
 
-  /// Managing upload presets.
+  /// Saved sets of upload options, signed or unsigned.
   UploadPresetsApi get uploadPresets =>
       _uploadPresets ??= UploadPresetsApi(_transport);
 
-  /// Managing upload mappings.
+  /// Folder-to-remote-origin mappings for fetched assets.
   UploadMappingsApi get uploadMappings =>
       _uploadMappings ??= UploadMappingsApi(_transport);
 

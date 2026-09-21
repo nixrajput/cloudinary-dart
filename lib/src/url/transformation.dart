@@ -5,6 +5,16 @@ import 'transformation_enums.dart';
 /// Components are held by their Cloudinary short key and emitted in
 /// alphabetical key order, which is what Cloudinary's own SDKs produce.
 /// Anything without a typed setter goes through [raw].
+///
+/// ```dart
+/// final t = Transformation()
+///   ..width(600)
+///   ..height(400)
+///   ..crop(CropMode.fill)
+///   ..gravity(Gravity.auto);
+///
+/// print(t.serialize()); // c_fill,g_auto,h_400,w_600
+/// ```
 class Transformation {
   /// Creates an empty transformation.
   Transformation();
@@ -114,6 +124,10 @@ class Transformation {
   /// Appends a component verbatim, for anything without a typed setter.
   ///
   /// Raw components are emitted last, in the order added.
+  ///
+  /// ```dart
+  /// Transformation()..raw('e_custom:42');
+  /// ```
   void raw(String component) => _raw.add(component);
 
   /// Whether nothing has been set.

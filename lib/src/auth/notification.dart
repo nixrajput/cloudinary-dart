@@ -14,6 +14,16 @@ import 'signature_algorithm.dart';
 /// Returns false rather than throwing, so a handler can reject a request
 /// without exception handling. Payloads older than [validFor] are rejected
 /// even when correctly signed, which limits replay.
+///
+/// ```dart
+/// final ok = verifyNotificationSignature(
+///   body: rawRequestBody,
+///   timestamp: int.parse(headers['x-cld-timestamp']!),
+///   signature: headers['x-cld-signature']!,
+///   apiSecret: 'your-secret',
+/// );
+/// if (!ok) return Response.forbidden('bad signature');
+/// ```
 bool verifyNotificationSignature({
   required String body,
   required int timestamp,

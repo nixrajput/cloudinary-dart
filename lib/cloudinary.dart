@@ -1,8 +1,39 @@
 /// A complete Cloudinary SDK for Dart and Flutter.
 ///
 /// Covers the Upload, Admin and Search APIs plus signed delivery URL
-/// construction, with no Flutter dependency so it runs in servers and CLIs as
-/// well as apps.
+/// construction, with no Flutter dependency, so the same package serves a
+/// Flutter app, a Dart backend and a CLI.
+///
+/// Create a client, then reach an API family through [Cloudinary.upload],
+/// [Cloudinary.admin], [Cloudinary.search] or [Cloudinary.url]:
+///
+/// ```dart
+/// import 'package:cloudinary/cloudinary.dart';
+///
+/// Future<void> main() async {
+///   final cloudinary = Cloudinary.signed(
+///     cloudName: 'your-cloud',
+///     apiKey: 'your-key',
+///     apiSecret: 'your-secret',
+///   );
+///
+///   final result = await cloudinary.upload.upload(
+///     file: CloudinaryFileSource.path('photo.jpg'),
+///     folder: 'trips',
+///   );
+///   print(result.secureUrl);
+///
+///   cloudinary.close();
+/// }
+/// ```
+///
+/// Calls return typed models and throw a [CloudinaryException] subtype on
+/// failure. Every model also exposes `raw`, the complete decoded response, so
+/// a field this package does not model is still reachable.
+///
+/// In a Flutter or web app an API secret must not be present at all. Use
+/// [Cloudinary.unsigned] with an upload preset, or supply a
+/// [SignatureProvider] that signs on your own server.
 library;
 
 export 'src/api/admin/account_api.dart';

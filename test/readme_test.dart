@@ -78,6 +78,26 @@ void main() {
     expect(int.parse(claimed!.group(1)!), methodCount);
   });
 
+  test('the claimed test count matches the suite', () {
+    // The claim row is the only place this number lives, and it silently
+    // drifted once already.
+    final declared = Directory('test')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.dart'))
+        .map(
+          (f) => RegExp(
+            r'^\s+test\(',
+            multiLine: true,
+          ).allMatches(f.readAsStringSync()).length,
+        )
+        .fold<int>(0, (a, b) => a + b);
+
+    final claimed = RegExp(r'<b>(\d+) tests</b>').firstMatch(raw);
+    expect(claimed, isNotNull, reason: 'claim row lost its test count');
+    expect(int.parse(claimed!.group(1)!), declared);
+  });
+
   test('the migration guide it links to exists', () {
     expect(File('MIGRATION.md').existsSync(), isTrue);
   });

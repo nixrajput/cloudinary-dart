@@ -8,7 +8,17 @@ import '../models/upload_results.dart';
 
 /// The Cloudinary Upload API.
 ///
-/// Reached as `cloudinary.upload`.
+/// Reached as `cloudinary.upload`. Every method throws a
+/// [CloudinaryException] subtype on failure rather than returning an error.
+///
+/// ```dart
+/// final result = await cloudinary.upload.upload(
+///   file: CloudinaryFileSource.path('photo.jpg'),
+///   folder: 'trips/2026',
+///   tags: ['holiday'],
+/// );
+/// print(result.secureUrl);
+/// ```
 class UploadApi {
   /// Creates an upload API bound to [_transport].
   UploadApi(this._transport);
@@ -22,6 +32,17 @@ class UploadApi {
   ///
   /// [extraParams] passes any Upload API parameter this signature does not
   /// name, and is merged last so it can override the others.
+  ///
+  /// ```dart
+  /// final result = await cloudinary.upload.upload(
+  ///   file: CloudinaryFileSource.path('photo.jpg'),
+  ///   folder: 'trips/2026',
+  ///   onProgress: (sent, total) => print('$sent / $total'),
+  /// );
+  /// ```
+  ///
+  /// Throws [CloudinaryConfigException] when the client cannot sign, and a
+  /// [CloudinaryApiException] subtype when Cloudinary rejects the upload.
   Future<UploadResult> upload({
     required CloudinaryFileSource file,
     CloudinaryResourceType resourceType = CloudinaryResourceType.auto,
@@ -73,6 +94,15 @@ class UploadApi {
   ///
   /// Needs no API key or secret, which is what makes it safe in a client app.
   /// Configure the preset as unsigned in your Cloudinary settings first.
+  ///
+  /// ```dart
+  /// final result = await cloudinary.upload.unsignedUpload(
+  ///   file: CloudinaryFileSource.bytes(bytes, filename: 'photo.jpg'),
+  ///   uploadPreset: 'my_unsigned_preset',
+  /// );
+  /// ```
+  ///
+  /// Throws [CloudinaryConfigException] when [uploadPreset] is empty.
   Future<UploadResult> unsignedUpload({
     required CloudinaryFileSource file,
     required String uploadPreset,
@@ -167,6 +197,11 @@ class UploadApi {
   ///
   /// Set [invalidate] to also purge CDN copies of the asset and everything
   /// derived from it.
+  ///
+  /// Check [DestroyResult.isDeleted]: Cloudinary answers `not found` with a
+  /// 200, so a missing asset is a successful call, not an exception.
+  ///
+  /// Throws [CloudinaryConfigException] when [publicId] is empty.
   Future<DestroyResult> destroy({
     required String publicId,
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,

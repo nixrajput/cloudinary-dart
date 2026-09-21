@@ -19,6 +19,20 @@ bool get _isWebRuntime => identical(0, 0.0);
 ///
 /// Construct with [Cloudinary.signed] on a server, or [Cloudinary.unsigned]
 /// in a client app where an API secret must not be present.
+///
+/// ```dart
+/// final cloudinary = Cloudinary.signed(
+///   cloudName: 'your-cloud',
+///   apiKey: 'your-key',
+///   apiSecret: 'your-secret',
+/// );
+///
+/// await cloudinary.admin.account.ping();
+/// cloudinary.close();
+/// ```
+///
+/// Call [close] when finished, unless you supplied your own client, which
+/// this object does not own and will not close.
 class Cloudinary {
   Cloudinary._({
     required this.config,
@@ -38,9 +52,20 @@ class Cloudinary {
 
   /// Creates a client that can sign requests locally.
   ///
-  /// Recommended for servers and CLIs. Throws [CloudinaryConfigException] on
-  /// a JavaScript runtime unless [allowSecretOnWeb] is set, because an API
-  /// secret in a browser bundle is readable by anyone.
+  /// Recommended for servers and CLIs, where holding [apiSecret] is safe.
+  ///
+  /// ```dart
+  /// final cloudinary = Cloudinary.signed(
+  ///   cloudName: 'your-cloud',
+  ///   apiKey: 'your-key',
+  ///   apiSecret: 'your-secret',
+  /// );
+  /// ```
+  ///
+  /// Throws [CloudinaryConfigException] when [apiKey] or [apiSecret] is
+  /// empty, when [cloudName] is empty, or on a JavaScript runtime unless
+  /// [allowSecretOnWeb] is set, because an API secret in a browser bundle is
+  /// readable by anyone who opens developer tools.
   factory Cloudinary.signed({
     required String cloudName,
     required String apiKey,
@@ -86,8 +111,21 @@ class Cloudinary {
   /// Creates a client that holds no API secret.
   ///
   /// Recommended for Flutter and web apps. Unsigned uploads need an upload
-  /// preset. Supply a [signatureProvider] to perform signed operations with
-  /// the secret kept on your own server.
+  /// preset configured as unsigned in your Cloudinary settings.
+  ///
+  /// ```dart
+  /// final cloudinary = Cloudinary.unsigned(cloudName: 'your-cloud');
+  ///
+  /// await cloudinary.upload.unsignedUpload(
+  ///   file: CloudinaryFileSource.bytes(bytes, filename: 'photo.jpg'),
+  ///   uploadPreset: 'my_unsigned_preset',
+  /// );
+  /// ```
+  ///
+  /// Supply a [signatureProvider] to perform signed operations with the
+  /// secret kept on your own server.
+  ///
+  /// Throws [CloudinaryConfigException] when [cloudName] is empty.
   factory Cloudinary.unsigned({
     required String cloudName,
     UrlConfig urlConfig = const UrlConfig(),
@@ -105,6 +143,11 @@ class Cloudinary {
   );
 
   /// Creates a client from a `CLOUDINARY_URL` string.
+  ///
+  /// The value takes the form `cloudinary://<api_key>:<api_secret>@<cloud>`.
+  ///
+  /// Throws [CloudinaryConfigException] when the string is not a well-formed
+  /// Cloudinary URL.
   factory Cloudinary.fromUrl(
     String cloudinaryUrl, {
     UrlConfig urlConfig = const UrlConfig(),

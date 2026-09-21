@@ -15,7 +15,16 @@ import 'transformation.dart';
 /// Builds delivery URLs.
 ///
 /// Reached as `cloudinary.url`. Pure and synchronous, so a widget can call it
-/// during a build.
+/// during a build, and it never touches the network.
+///
+/// ```dart
+/// final url = cloudinary.url.image('trips/photo.jpg')
+///     .transform(Transformation()
+///       ..width(600)
+///       ..crop(CropMode.fill)
+///       ..quality(Quality.auto))
+///     .build();
+/// ```
 class UrlApi {
   /// Creates a URL API bound to a configuration.
   const UrlApi(this._config, this._urlConfig);
@@ -115,6 +124,12 @@ class CloudinaryUrlBuilder {
   ///
   /// [longSignature] switches to a 32-character SHA-256 signature instead of
   /// the 8-character SHA-1 default.
+  ///
+  /// The signature covers the transformation and the source together, so
+  /// editing either invalidates the URL.
+  ///
+  /// [build] then throws [CloudinaryConfigException] if the client holds no
+  /// API secret.
   CloudinaryUrlBuilder signed({bool longSignature = false}) {
     _signed = true;
     _longSignature = longSignature;

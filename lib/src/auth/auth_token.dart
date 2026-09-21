@@ -27,6 +27,12 @@ String escapeTokenComponent(String value) =>
 ///
 /// Supply either [acl] (a path pattern, or several joined internally with
 /// `!`) or [url] (one exact path), and either [expiration] or [duration].
+///
+/// ```dart
+/// final url = cloudinary.url.image('private.jpg').authToken(
+///   AuthToken(key: 'your-token-key', acl: '/image/*', duration: 3600),
+/// ).build();
+/// ```
 class AuthToken {
   /// Creates an auth token description.
   const AuthToken({
@@ -62,7 +68,7 @@ class AuthToken {
   /// Validity window in seconds, measured from [startTime] or from now.
   final int? duration;
 
-  /// Restricts the token to one client IP address.
+  /// The single client IP address the token is restricted to.
   final String? ip;
 
   /// The query parameter name. Cloudinary's default is `__cld_token__`.
