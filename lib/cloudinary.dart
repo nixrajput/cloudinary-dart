@@ -5,6 +5,7 @@
 /// well as apps.
 library;
 
+export 'src/auth/auth_token.dart';
 export 'src/auth/signature.dart';
 export 'src/auth/signature_algorithm.dart';
 export 'src/config/cloudinary_config.dart';
