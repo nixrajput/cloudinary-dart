@@ -151,7 +151,7 @@ class CloudinaryTransport {
     final body = signed ? await signParams(form ?? const {}) : form;
     final uri = buildUri(segments, query: query, version: version);
 
-    final response = await _sendWithRetry(() {
+    final response = await _sendWithRetry(method, () {
       final request = http.Request(method, uri);
       if (basicAuth) {
         final creds = base64.encode(
@@ -231,6 +231,14 @@ class CloudinaryTransport {
             'Uploading from a file path needs dart:io, which is unavailable '
             'on this platform. Use CloudinaryFileSource.bytes instead.',
           );
+        } on Exception catch (e) {
+          // A missing or unreadable file would otherwise escape as a raw
+          // dart:io error, breaking the promise that every failure is a
+          // CloudinaryException.
+          throw CloudinaryTransportException(
+            'Could not read the file at "$path": $e',
+            cause: e,
+          );
         }
       case CloudinaryUrlSource():
       case null:
@@ -239,9 +247,10 @@ class CloudinaryTransport {
 
     http.Response response;
     try {
-      response = await http.Response.fromStream(
-        await _client.send(request).timeout(timeout),
-      );
+      response = await _client
+          .send(request)
+          .then(http.Response.fromStream)
+          .timeout(timeout);
     } on CloudinaryException {
       rethrow;
     } on TimeoutException catch (e) {
@@ -267,19 +276,24 @@ class CloudinaryTransport {
   /// answered and told us it did not act.
   static const Set<String> _replayableMethods = {'GET', 'HEAD', 'OPTIONS'};
 
-  Future<http.Response> _sendWithRetry(http.Request Function() build) async {
+  Future<http.Response> _sendWithRetry(
+    String method,
+    http.Request Function() build,
+  ) async {
+    final replayable = _replayableMethods.contains(method.toUpperCase());
     var attempt = 0;
     while (true) {
       attempt++;
       http.Response response;
       try {
-        final streamed = await _client.send(build()).timeout(timeout);
-        response = await http.Response.fromStream(streamed);
+        response = await _client
+            .send(build())
+            .then(http.Response.fromStream)
+            .timeout(timeout);
       } on CloudinaryException {
         rethrow;
       } on TimeoutException catch (e) {
-        if (attempt >= retry.maxAttempts ||
-            !_replayableMethods.contains(build().method.toUpperCase())) {
+        if (attempt >= retry.maxAttempts || !replayable) {
           throw CloudinaryTransportException(
             'Request timed out after $timeout.',
             cause: e,
@@ -288,8 +302,7 @@ class CloudinaryTransport {
         await Future<void>.delayed(retry.delayFor(attempt));
         continue;
       } catch (e) {
-        if (attempt >= retry.maxAttempts ||
-            !_replayableMethods.contains(build().method.toUpperCase())) {
+        if (attempt >= retry.maxAttempts || !replayable) {
           throw CloudinaryTransportException(
             'Could not reach Cloudinary: $e',
             cause: e,
@@ -299,10 +312,13 @@ class CloudinaryTransport {
         continue;
       }
 
+      final rateLimited =
+          response.statusCode == 429 || response.statusCode == 420;
       if (attempt < retry.maxAttempts &&
-          retry.shouldRetry(response.statusCode)) {
+          retry.shouldRetry(response.statusCode) &&
+          (replayable || rateLimited)) {
         await Future<void>.delayed(
-          retry.delayFor(attempt, retryAfter: _retryAfter(response)),
+          retry.delayFor(attempt, retryAfter: _retryDelay(response)),
         );
         continue;
       }
@@ -375,6 +391,21 @@ class CloudinaryTransport {
     return parseHttpDate(raw) ?? DateTime.tryParse(raw);
   }
 
+  /// How long to wait before repeating a throttled request.
+  ///
+  /// Cloudinary's Admin API signals feature rate limits with
+  /// `X-FeatureRateLimit-Reset` rather than `Retry-After`, so retrying on the
+  /// plain backoff would burn the remaining attempts against an hourly quota.
+  static Duration? _retryDelay(http.Response r) {
+    final after = _retryAfter(r);
+    if (after != null) return after;
+
+    final reset = _dateHeader(r, 'x-featureratelimit-reset');
+    if (reset == null) return null;
+    final delta = reset.difference(DateTime.now());
+    return delta.isNegative ? Duration.zero : delta;
+  }
+
   static Duration? _retryAfter(http.Response r) {
     final raw = r.headers['retry-after'];
     if (raw == null) return null;
@@ -406,6 +437,14 @@ class CloudinaryTransport {
         for (final item in value) {
           out.add(MapEntry(key, '$item'));
         }
+      } else if (value is Map) {
+        // Dart's toString would emit `{a: b}` and the signature would be
+        // computed over that, so say so rather than sending nonsense.
+        throw CloudinaryConfigException(
+          'Parameter "${entry.key}" is a Map. Cloudinary takes structured '
+          'values as strings, so encode it yourself (JSON, or the '
+          'key=value|key=value form for context and metadata).',
+        );
       } else {
         out.add(MapEntry(entry.key, '$value'));
       }

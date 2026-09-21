@@ -44,13 +44,9 @@ class Cloudinary {
     RetryPolicy retry = const RetryPolicy(),
     Duration timeout = const Duration(seconds: 60),
     bool allowSecretOnWeb = false,
-  }) : transport = CloudinaryTransport(
-         config: config,
-         client: client,
-         signatureProvider: signatureProvider,
-         retry: retry,
-         timeout: timeout,
-       ) {
+  }) {
+    // Validate before allocating: the transport creates an http.Client, and a
+    // throw from here would leave it open with no object to close it on.
     config.validate();
     // Every factory converges here, so no constructor can hold a secret on
     // the web by skipping the check.
@@ -63,6 +59,14 @@ class Cloudinary {
         'a browser.',
       );
     }
+
+    transport = CloudinaryTransport(
+      config: config,
+      client: client,
+      signatureProvider: signatureProvider,
+      retry: retry,
+      timeout: timeout,
+    );
   }
 
   /// Creates a client that can sign requests locally.
@@ -209,7 +213,7 @@ class Cloudinary {
   final SignatureProvider? signatureProvider;
 
   /// The transport this client sends through.
-  final CloudinaryTransport transport;
+  late final CloudinaryTransport transport;
 
   AdminApi? _admin;
   SearchApi? _search;
@@ -224,7 +228,7 @@ class Cloudinary {
   AdminApi get admin => _admin ??= AdminApi(transport);
 
   /// The Search API: expression-based asset and folder search.
-  SearchApi get search => _search ??= SearchApi(transport, config);
+  SearchApi get search => _search ??= SearchApi(transport, config, urlConfig);
 
   /// Delivery URL construction, including transformations and signing.
   UrlApi get url => _url ??= UrlApi(config, urlConfig);

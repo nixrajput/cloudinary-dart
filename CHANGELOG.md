@@ -39,7 +39,16 @@ A rewrite. See [MIGRATION.md](MIGRATION.md) for a call-by-call mapping from 1.x.
 - `crc32` hashed UTF-16 code units, so a non-ASCII public ID picked a different CDN shard from every other SDK.
 - Context encoding escaped backslashes, which Cloudinary does not, corrupting any value containing one.
 - A form whose values were all null crashed on a null check instead of sending an empty body.
-- Transport failures replayed POST and DELETE requests that may already have been applied.
+- Retries replayed POST and DELETE requests that may already have been applied. Only a 429, where the server states it did not act, repeats a non-idempotent request now.
+- The per-attempt timeout covered only the response headers, so a peer that stalled mid-body hung the call indefinitely.
+- A throttled Admin request ignored `X-FeatureRateLimit-Reset`, burning its retries in milliseconds against an hourly quota.
+- A missing or unreadable upload file escaped as a raw `dart:io` error rather than a `CloudinaryException`.
+- A `Map` passed through `extraParams` was serialized with Dart's `toString` and signed in that form; it is now rejected with an explanation.
+- A failed constructor left an HTTP client open with no object to close it on.
+- A SEO URL suffix was included in the delivery signature payload, which Cloudinary excludes, so every signed SEO URL was rejected. The format extension now trails the suffix, and a suffix containing `.` or `/` is rejected.
+- A transformation value containing a space produced a syntactically invalid URL.
+- `transformChain` stored the caller's chain by reference, so a later `transform()` mutated a chain they still held.
+- Signed search URLs ignored `UrlConfig`, pointing private-CDN and CNAME accounts at a host they do not serve from.
 
 - Signature timestamps were sent in milliseconds; Cloudinary expects UNIX seconds.
 - Signature parameters were sorted by the joined `key=value` string instead of by key, which produces a different digest whenever one parameter name is a prefix of another.

@@ -348,7 +348,48 @@ void main() {
       expect(calls, 3);
     });
 
-    test('a 503 still retries a POST, since the server answered', () async {
+    test('a 503 does not retry a POST: the origin may have acted', () async {
+      var calls = 0;
+      final t = CloudinaryTransport(
+        config: _signed,
+        client: MockClient((_) async {
+          calls++;
+          return http.Response('{}', 503);
+        }),
+        retry: const RetryPolicy(
+          maxAttempts: 3,
+          baseDelay: Duration(milliseconds: 1),
+        ),
+      );
+
+      await expectLater(
+        t.send(method: 'POST', segments: ['x']),
+        throwsA(isA<CloudinaryApiException>()),
+      );
+      expect(calls, 1);
+    });
+
+    test('a 429 does retry a POST: the server states it did not act', () async {
+      var calls = 0;
+      final t = CloudinaryTransport(
+        config: _signed,
+        client: MockClient((_) async {
+          calls++;
+          return calls < 2
+              ? http.Response('{}', 429)
+              : http.Response('{"ok":true}', 200);
+        }),
+        retry: const RetryPolicy(
+          maxAttempts: 3,
+          baseDelay: Duration(milliseconds: 1),
+        ),
+      );
+
+      expect((await t.send(method: 'POST', segments: ['x']))['ok'], isTrue);
+      expect(calls, 2);
+    });
+
+    test('a 503 still retries a GET', () async {
       var calls = 0;
       final t = CloudinaryTransport(
         config: _signed,
@@ -364,7 +405,7 @@ void main() {
         ),
       );
 
-      expect((await t.send(method: 'POST', segments: ['x']))['ok'], isTrue);
+      expect((await t.send(method: 'GET', segments: ['x']))['ok'], isTrue);
       expect(calls, 2);
     });
   });

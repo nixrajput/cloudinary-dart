@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
 import '../../config/cloudinary_config.dart';
+import '../../config/url_config.dart';
 import '../../http/transport.dart';
 import '../../models/search_result.dart';
+import '../../url/distribution.dart';
 
 /// Sort direction for a search ordering.
 enum SortDirection {
@@ -49,12 +51,15 @@ class SearchQuery {
   SearchQuery({
     required CloudinaryTransport transport,
     required CloudinaryConfig config,
+    UrlConfig urlConfig = const UrlConfig(),
     this.target = SearchTarget.assets,
   }) : _transport = transport,
-       _config = config;
+       _config = config,
+       _urlConfig = urlConfig;
 
   final CloudinaryTransport _transport;
   final CloudinaryConfig _config;
+  final UrlConfig _urlConfig;
 
   /// Which collection this query searches.
   final SearchTarget target;
@@ -172,8 +177,15 @@ class SearchQuery {
         .convert(utf8.encode('$effectiveTtl$encoded${_config.apiSecret}'))
         .toString();
 
+    // Reuse the delivery-domain resolver so a private CDN, CNAME or custom
+    // secure distribution produces a host the account actually serves from.
+    final prefix = buildDistributionPrefix(
+      cloudName: _config.cloudName,
+      source: encoded,
+      config: _urlConfig,
+    );
+
     final suffix = nextCursor == null ? '' : '/$nextCursor';
-    return 'https://res.cloudinary.com/${_config.cloudName}/search/'
-        '$signature/$effectiveTtl/$encoded$suffix';
+    return '$prefix/search/$signature/$effectiveTtl/$encoded$suffix';
   }
 }

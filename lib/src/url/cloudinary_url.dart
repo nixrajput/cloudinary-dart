@@ -95,7 +95,9 @@ class CloudinaryUrlBuilder {
 
   /// Applies a chain of transformations, joined with `/`.
   CloudinaryUrlBuilder transformChain(TransformationChain chain) {
-    _chain = chain;
+    // Copy: a caller reusing one chain across builders must not have a later
+    // transform() call append to the chain they still hold.
+    _chain = TransformationChain([...chain.transformations]);
     return this;
   }
 
@@ -169,13 +171,27 @@ class CloudinaryUrlBuilder {
     }
 
     final transformation = _chain?.serialize() ?? '';
-    final source = _format == null ? _publicId : '$_publicId.$_format';
-    final withSuffix = _urlSuffix == null ? source : '$source/$_urlSuffix';
+    final suffix = _urlSuffix;
+    if (suffix != null && RegExp(r'[./]').hasMatch(suffix)) {
+      throw const CloudinaryConfigException(
+        'A URL suffix must not contain "." or "/".',
+      );
+    }
 
-    // Cloudinary signs the escaped path, so escaping has to happen first.
-    // Signing the raw source and emitting an escaped one produces a URL the
-    // server cannot verify.
-    final sourceToSign = _escapeSource(withSuffix);
+    // Cloudinary signs the escaped path, so escaping happens first: signing
+    // the raw source and emitting an escaped one gives the server a digest it
+    // cannot reproduce.
+    final escaped = _escapeSource(_publicId);
+
+    // The suffix is appended to the delivered path but deliberately left out
+    // of the signature payload, and the format extension trails the suffix.
+    final sourceToSign = _format == null ? escaped : '$escaped.$_format';
+    final source = switch ((suffix, _format)) {
+      (null, null) => escaped,
+      (null, final f) => '$escaped.$f',
+      (final s, null) => '$escaped/$s',
+      (final s, final f) => '$escaped/$s.$f',
+    };
 
     final signature = _signed
         ? _signatureFor(transformation, sourceToSign)
@@ -199,10 +215,12 @@ class CloudinaryUrlBuilder {
       signature,
       transformation,
       versionSegment,
-      sourceToSign,
+      source,
     ].where((part) => part.isNotEmpty);
 
-    final url = parts.join('/');
+    // #5: a transformation value may contain a space (a text overlay, say),
+    // which would otherwise land raw in the URL.
+    final url = parts.join('/').replaceAll(' ', '%20');
 
     final token = _authToken;
     if (token == null) return url;

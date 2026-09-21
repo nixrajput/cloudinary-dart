@@ -1,4 +1,5 @@
 import '../../config/cloudinary_config.dart';
+import '../../config/url_config.dart';
 import '../../http/transport.dart';
 import 'search_query.dart';
 
@@ -20,18 +21,24 @@ import 'search_query.dart';
 /// ```
 class SearchApi {
   /// Creates a search API bound to [_transport].
-  SearchApi(this._transport, this._config);
+  SearchApi(this._transport, this._config, this._urlConfig);
 
   final CloudinaryTransport _transport;
   final CloudinaryConfig _config;
+  final UrlConfig _urlConfig;
 
   /// Starts a new asset query.
-  SearchQuery query() => SearchQuery(transport: _transport, config: _config);
+  SearchQuery query() => SearchQuery(
+    transport: _transport,
+    config: _config,
+    urlConfig: _urlConfig,
+  );
 
   /// Starts a new folder query.
   SearchQuery folders() => SearchQuery(
     transport: _transport,
     config: _config,
+    urlConfig: _urlConfig,
     target: SearchTarget.folders,
   );
 
