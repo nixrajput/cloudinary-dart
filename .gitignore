@@ -25,3 +25,6 @@ pubspec.lock
 .buildlog/
 .history
 .svn/
+
+# Claude Code local overrides (not shared)
+.claude/settings.local.json
