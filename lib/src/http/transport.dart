@@ -65,8 +65,11 @@ class CloudinaryTransport {
 
   /// Builds an absolute API URI from path [segments].
   ///
-  /// Each segment is percent-encoded individually, so a segment containing a
-  /// slash keeps it as a real separator only when passed pre-split.
+  /// The path is handed to [Uri.https] unencoded, which escapes what needs
+  /// escaping while leaving `/` as a real separator. Pre-encoding here would
+  /// double-escape, turning a space into `%2520`. A segment may therefore
+  /// contain slashes, which is what nested folder paths and folder-qualified
+  /// public IDs rely on.
   Uri buildUri(
     List<String> segments, {
     Map<String, dynamic>? query,
@@ -76,7 +79,7 @@ class CloudinaryTransport {
       version.segment,
       config.cloudName,
       ...segments,
-    ].map(Uri.encodeComponent).join('/');
+    ].join('/');
 
     return Uri.https(host, '/$path', _stringifyQuery(query));
   }

@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 
+import 'api/admin/admin_api.dart';
 import 'api/upload_api.dart';
 import 'auth/signature_provider.dart';
 import 'config/cloudinary_config.dart';
@@ -156,10 +157,15 @@ class Cloudinary {
   /// The transport this client sends through.
   final CloudinaryTransport transport;
 
+  AdminApi? _admin;
   UploadApi? _upload;
 
   /// The Upload API: uploading, renaming, tagging and destroying assets.
   UploadApi get upload => _upload ??= UploadApi(transport);
+
+  /// The Admin API: assets, folders, tags, transformations, presets,
+  /// streaming profiles and structured metadata.
+  AdminApi get admin => _admin ??= AdminApi(transport);
 
   /// Whether signing is delegated to a [SignatureProvider].
   bool get canSignRemotely => signatureProvider != null;
