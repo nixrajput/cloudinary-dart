@@ -9,18 +9,12 @@ class FoldersApi {
   final CloudinaryTransport _transport;
 
   /// Lists folders at the root of the media library.
-  Future<FolderListResult> root({
-    int? maxResults,
-    String? nextCursor,
-  }) async =>
+  Future<FolderListResult> root({int? maxResults, String? nextCursor}) async =>
       FolderListResult.fromJson(
         await _transport.send(
           method: 'GET',
           segments: ['folders'],
-          query: {
-            if (maxResults != null) 'max_results': maxResults,
-            if (nextCursor != null) 'next_cursor': nextCursor,
-          },
+          query: {'max_results': ?maxResults, 'next_cursor': ?nextCursor},
           basicAuth: true,
         ),
       );
@@ -30,36 +24,32 @@ class FoldersApi {
     String path, {
     int? maxResults,
     String? nextCursor,
-  }) async =>
-      FolderListResult.fromJson(
-        await _transport.send(
-          method: 'GET',
-          segments: ['folders', ...splitFolderPath(path)],
-          query: {
-            if (maxResults != null) 'max_results': maxResults,
-            if (nextCursor != null) 'next_cursor': nextCursor,
-          },
-          basicAuth: true,
-        ),
-      );
+  }) async => FolderListResult.fromJson(
+    await _transport.send(
+      method: 'GET',
+      segments: ['folders', ...splitFolderPath(path)],
+      query: {'max_results': ?maxResults, 'next_cursor': ?nextCursor},
+      basicAuth: true,
+    ),
+  );
 
   /// Creates the folder at [path], including any missing parents.
   Future<AdminAck> create(String path) async => AdminAck.fromJson(
-        await _transport.send(
-          method: 'POST',
-          segments: ['folders', ...splitFolderPath(path)],
-          basicAuth: true,
-        ),
-      );
+    await _transport.send(
+      method: 'POST',
+      segments: ['folders', ...splitFolderPath(path)],
+      basicAuth: true,
+    ),
+  );
 
   /// Deletes the folder at [path]. The folder must already be empty.
   Future<AdminAck> delete(String path) async => AdminAck.fromJson(
-        await _transport.send(
-          method: 'DELETE',
-          segments: ['folders', ...splitFolderPath(path)],
-          basicAuth: true,
-        ),
-      );
+    await _transport.send(
+      method: 'DELETE',
+      segments: ['folders', ...splitFolderPath(path)],
+      basicAuth: true,
+    ),
+  );
 
   /// Moves or renames the folder at [fromPath] to [toPath].
   Future<AdminAck> rename(String fromPath, String toPath) async =>

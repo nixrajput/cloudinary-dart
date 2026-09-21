@@ -35,7 +35,7 @@ void main() {
       statusCode: 400,
       raw: {
         'error': {'message': 'bad'},
-        'unmodelled': 7
+        'unmodelled': 7,
       },
     );
     expect(e.raw['unmodelled'], 7);
@@ -44,20 +44,17 @@ void main() {
 
   test('the hierarchy switches exhaustively', () {
     String describe(CloudinaryException e) => switch (e) {
-          CloudinaryRateLimitException() => 'rate',
-          CloudinaryAuthException() => 'auth',
-          CloudinaryNotFoundException() => 'missing',
-          CloudinaryApiException() => 'api',
-          CloudinaryTransportException() => 'transport',
-          CloudinaryConfigException() => 'config',
-          CloudinarySignatureException() => 'signature',
-        };
+      CloudinaryRateLimitException() => 'rate',
+      CloudinaryAuthException() => 'auth',
+      CloudinaryNotFoundException() => 'missing',
+      CloudinaryApiException() => 'api',
+      CloudinaryTransportException() => 'transport',
+      CloudinaryConfigException() => 'config',
+      CloudinarySignatureException() => 'signature',
+    };
 
     expect(describe(const CloudinaryAuthException(message: 'x')), 'auth');
-    expect(
-      describe(const CloudinaryRateLimitException(message: 'x')),
-      'rate',
-    );
+    expect(describe(const CloudinaryRateLimitException(message: 'x')), 'rate');
     expect(
       describe(const CloudinaryApiException(message: 'x', statusCode: 500)),
       'api',

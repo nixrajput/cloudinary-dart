@@ -10,37 +10,30 @@ class AccountApi {
 
   /// Checks that Cloudinary is reachable and the credentials work.
   Future<PingResult> ping() async => PingResult.fromJson(
-        await _transport.send(
-          method: 'GET',
-          segments: ['ping'],
-          basicAuth: true,
-        ),
-      );
+    await _transport.send(method: 'GET', segments: ['ping'], basicAuth: true),
+  );
 
   /// Returns the usage report for the environment.
   ///
   /// Pass [date] to report on one specific day rather than the current
   /// period.
   Future<UsageReport> usage({DateTime? date}) async => UsageReport.fromJson(
-        await _transport.send(
-          method: 'GET',
-          segments: [
-            'usage',
-            if (date != null) _formatDay(date),
-          ],
-          basicAuth: true,
-        ),
-      );
+    await _transport.send(
+      method: 'GET',
+      segments: ['usage', if (date != null) _formatDay(date)],
+      basicAuth: true,
+    ),
+  );
 
   /// Returns the environment's configuration.
   Future<ConfigResult> config({bool? settings}) async => ConfigResult.fromJson(
-        await _transport.send(
-          method: 'GET',
-          segments: ['config'],
-          query: {if (settings != null) 'settings': settings},
-          basicAuth: true,
-        ),
-      );
+    await _transport.send(
+      method: 'GET',
+      segments: ['config'],
+      query: {'settings': ?settings},
+      basicAuth: true,
+    ),
+  );
 
   /// Lists the resource types that have assets in this environment.
   Future<List<String>> resourceTypes() async {

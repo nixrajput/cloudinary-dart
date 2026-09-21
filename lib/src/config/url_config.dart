@@ -53,15 +53,14 @@ class UrlConfig {
     bool? shorten,
     bool? useRootPath,
     bool? forceVersion,
-  }) =>
-      UrlConfig(
-        secure: secure ?? this.secure,
-        privateCdn: privateCdn ?? this.privateCdn,
-        cname: cname ?? this.cname,
-        secureDistribution: secureDistribution ?? this.secureDistribution,
-        cdnSubdomain: cdnSubdomain ?? this.cdnSubdomain,
-        shorten: shorten ?? this.shorten,
-        useRootPath: useRootPath ?? this.useRootPath,
-        forceVersion: forceVersion ?? this.forceVersion,
-      );
+  }) => UrlConfig(
+    secure: secure ?? this.secure,
+    privateCdn: privateCdn ?? this.privateCdn,
+    cname: cname ?? this.cname,
+    secureDistribution: secureDistribution ?? this.secureDistribution,
+    cdnSubdomain: cdnSubdomain ?? this.cdnSubdomain,
+    shorten: shorten ?? this.shorten,
+    useRootPath: useRootPath ?? this.useRootPath,
+    forceVersion: forceVersion ?? this.forceVersion,
+  );
 }

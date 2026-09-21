@@ -31,10 +31,12 @@ String stringToSign(Map<String, dynamic> params, {int version = 2}) {
   // against digits than it does against letters.
   pairs.sort((a, b) => a.key.compareTo(b.key));
 
-  return pairs.map((p) {
-    final pair = '${p.key}=${p.value}';
-    return version >= 2 ? pair.replaceAll('&', '%26') : pair;
-  }).join('&');
+  return pairs
+      .map((p) {
+        final pair = '${p.key}=${p.value}';
+        return version >= 2 ? pair.replaceAll('&', '%26') : pair;
+      })
+      .join('&');
 }
 
 /// Signs [params] with [apiSecret], returning a lowercase hex digest.
@@ -44,8 +46,9 @@ String signRequest(
   int version = 2,
   CloudinarySignatureAlgorithm algorithm = CloudinarySignatureAlgorithm.sha1,
 }) {
-  final payload =
-      utf8.encode(stringToSign(params, version: version) + apiSecret);
+  final payload = utf8.encode(
+    stringToSign(params, version: version) + apiSecret,
+  );
   final digest = switch (algorithm) {
     CloudinarySignatureAlgorithm.sha1 => sha1.convert(payload),
     CloudinarySignatureAlgorithm.sha256 => sha256.convert(payload),
@@ -67,6 +70,6 @@ const Set<String> unsignedUploadParams = {
 /// Returns a copy of [params] with the parameters Cloudinary never signs
 /// removed.
 Map<String, dynamic> stripUnsignedParams(Map<String, dynamic> params) => {
-      for (final e in params.entries)
-        if (!unsignedUploadParams.contains(e.key)) e.key: e.value,
-    };
+  for (final e in params.entries)
+    if (!unsignedUploadParams.contains(e.key)) e.key: e.value,
+};

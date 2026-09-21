@@ -86,7 +86,7 @@ void main() {
   group('tag commands', () {
     test('add', () async {
       final (c, cap) = clientReturning({
-        'public_ids': ['a']
+        'public_ids': ['a'],
       });
       final r = await c.upload.addTag(tag: 't', publicIds: ['a', 'b']);
 
@@ -120,10 +120,7 @@ void main() {
 
   test('addContext escapes = and | in values', () async {
     final (c, cap) = clientReturning({'public_ids': <String>[]});
-    await c.upload.addContext(
-      context: {'alt': 'a=b|c'},
-      publicIds: ['x'],
-    );
+    await c.upload.addContext(context: {'alt': 'a=b|c'}, publicIds: ['x']);
 
     expect(cap.path, '/v1_1/demo/image/context');
     expect(cap.form['command'], 'add');
@@ -166,10 +163,7 @@ void main() {
 
   test('multi requires a tag or urls', () {
     final (c, _) = clientReturning({});
-    expect(
-      () => c.upload.multi(),
-      throwsA(isA<CloudinaryConfigException>()),
-    );
+    expect(() => c.upload.multi(), throwsA(isA<CloudinaryConfigException>()));
   });
 
   test('text', () async {

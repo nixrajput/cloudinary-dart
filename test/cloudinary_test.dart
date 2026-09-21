@@ -6,11 +6,7 @@ import 'package:test/test.dart';
 class _FakeProvider implements SignatureProvider {
   @override
   Future<RemoteSignature> sign(Map<String, dynamic> params) async =>
-      const RemoteSignature(
-        signature: 'deadbeef',
-        timestamp: 1,
-        apiKey: 'k',
-      );
+      const RemoteSignature(signature: 'deadbeef', timestamp: 1, apiKey: 'k');
 }
 
 void main() {
@@ -56,20 +52,25 @@ void main() {
   });
 
   group('signing capability', () {
-    test('unsigned client refuses a signed operation with a useful message',
-        () {
-      final c = Cloudinary.unsigned(cloudName: 'demo');
-      expect(
-        c.config.requireSigning,
-        throwsA(
-          isA<CloudinaryConfigException>().having(
-            (e) => e.message,
-            'message',
-            allOf(contains('Cloudinary.signed'), contains('SignatureProvider')),
+    test(
+      'unsigned client refuses a signed operation with a useful message',
+      () {
+        final c = Cloudinary.unsigned(cloudName: 'demo');
+        expect(
+          c.config.requireSigning,
+          throwsA(
+            isA<CloudinaryConfigException>().having(
+              (e) => e.message,
+              'message',
+              allOf(
+                contains('Cloudinary.signed'),
+                contains('SignatureProvider'),
+              ),
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
 
     test('a provider client holds no secret but can sign', () {
       final c = Cloudinary.unsigned(

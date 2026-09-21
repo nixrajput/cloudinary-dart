@@ -15,17 +15,16 @@ class TagsApi {
     String? prefix,
     int? maxResults,
     String? nextCursor,
-  }) async =>
-      TagListResult.fromJson(
-        await _transport.send(
-          method: 'GET',
-          segments: ['tags', resourceType.name],
-          query: {
-            if (prefix != null) 'prefix': prefix,
-            if (maxResults != null) 'max_results': maxResults,
-            if (nextCursor != null) 'next_cursor': nextCursor,
-          },
-          basicAuth: true,
-        ),
-      );
+  }) async => TagListResult.fromJson(
+    await _transport.send(
+      method: 'GET',
+      segments: ['tags', resourceType.name],
+      query: {
+        'prefix': ?prefix,
+        'max_results': ?maxResults,
+        'next_cursor': ?nextCursor,
+      },
+      basicAuth: true,
+    ),
+  );
 }

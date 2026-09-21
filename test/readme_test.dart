@@ -14,15 +14,15 @@ void main() {
       .trim()
       .replaceAll(RegExp(r'\s+'), '-');
 
-  final headings = RegExp(r'^##+ (.+)$', multiLine: true)
-      .allMatches(body)
-      .map((m) => slug(m.group(1)!))
-      .toSet();
+  final headings = RegExp(
+    r'^##+ (.+)$',
+    multiLine: true,
+  ).allMatches(body).map((m) => slug(m.group(1)!)).toSet();
 
-  final tocLinks = RegExp(r'^\s*- \[[^\]]+\]\(#([^)]+)\)', multiLine: true)
-      .allMatches(body)
-      .map((m) => m.group(1)!)
-      .toSet();
+  final tocLinks = RegExp(
+    r'^\s*- \[[^\]]+\]\(#([^)]+)\)',
+    multiLine: true,
+  ).allMatches(body).map((m) => m.group(1)!).toSet();
 
   test('every table-of-contents entry points at a real heading', () {
     expect(
@@ -42,14 +42,13 @@ void main() {
   });
 
   test('every link reference is defined and used', () {
-    final defined = RegExp(r'^\[([^\]]+)\]:', multiLine: true)
-        .allMatches(raw)
-        .map((m) => m.group(1)!)
-        .toSet();
-    final used = RegExp(r'\]\[([^\]]+)\]')
-        .allMatches(raw)
-        .map((m) => m.group(1)!)
-        .toSet();
+    final defined = RegExp(
+      r'^\[([^\]]+)\]:',
+      multiLine: true,
+    ).allMatches(raw).map((m) => m.group(1)!).toSet();
+    final used = RegExp(
+      r'\]\[([^\]]+)\]',
+    ).allMatches(raw).map((m) => m.group(1)!).toSet();
 
     expect(used.difference(defined), isEmpty, reason: 'undefined references');
     expect(defined.difference(used), isEmpty, reason: 'unused references');
@@ -66,9 +65,12 @@ void main() {
         .listSync(recursive: true)
         .whereType<File>()
         .where((f) => f.path.endsWith('.dart'))
-        .map((f) => RegExp(r'^  Future<', multiLine: true)
-            .allMatches(f.readAsStringSync())
-            .length)
+        .map(
+          (f) => RegExp(
+            r'^  Future<',
+            multiLine: true,
+          ).allMatches(f.readAsStringSync()).length,
+        )
         .fold<int>(0, (a, b) => a + b);
 
     final claimed = RegExp(r'<b>(\d+) API methods</b>').firstMatch(raw);

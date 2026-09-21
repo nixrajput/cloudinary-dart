@@ -7,19 +7,21 @@ import 'package:http/testing.dart';
 import 'package:test/test.dart';
 
 Cloudinary signedWith(MockClient client) => Cloudinary.signed(
-      cloudName: 'demo',
-      apiKey: 'k',
-      apiSecret: 's',
-      client: client,
-    );
+  cloudName: 'demo',
+  apiKey: 'k',
+  apiSecret: 's',
+  client: client,
+);
 
 void main() {
   test('signed upload posts to the resource-type upload path', () async {
     late Uri seen;
-    final c = signedWith(MockClient((req) async {
-      seen = req.url;
-      return http.Response(jsonEncode({'public_id': 'x'}), 200);
-    }));
+    final c = signedWith(
+      MockClient((req) async {
+        seen = req.url;
+        return http.Response(jsonEncode({'public_id': 'x'}), 200);
+      }),
+    );
 
     await c.upload.upload(
       file: CloudinaryFileSource.bytes(Uint8List.fromList([1, 2, 3])),
@@ -32,10 +34,12 @@ void main() {
 
   test('resource type defaults to auto', () async {
     late Uri seen;
-    final c = signedWith(MockClient((req) async {
-      seen = req.url;
-      return http.Response(jsonEncode({'public_id': 'x'}), 200);
-    }));
+    final c = signedWith(
+      MockClient((req) async {
+        seen = req.url;
+        return http.Response(jsonEncode({'public_id': 'x'}), 200);
+      }),
+    );
 
     await c.upload.upload(
       file: const CloudinaryFileSource.url('https://example.com/a.png'),
@@ -46,10 +50,12 @@ void main() {
 
   test('named options are sent under their Cloudinary names', () async {
     late String body;
-    final c = signedWith(MockClient((req) async {
-      body = req.body;
-      return http.Response(jsonEncode({'public_id': 'x'}), 200);
-    }));
+    final c = signedWith(
+      MockClient((req) async {
+        body = req.body;
+        return http.Response(jsonEncode({'public_id': 'x'}), 200);
+      }),
+    );
 
     await c.upload.upload(
       file: const CloudinaryFileSource.url('https://example.com/a.png'),
@@ -69,10 +75,12 @@ void main() {
 
   test('extraParams can override a named option', () async {
     late String body;
-    final c = signedWith(MockClient((req) async {
-      body = req.body;
-      return http.Response(jsonEncode({'public_id': 'x'}), 200);
-    }));
+    final c = signedWith(
+      MockClient((req) async {
+        body = req.body;
+        return http.Response(jsonEncode({'public_id': 'x'}), 200);
+      }),
+    );
 
     await c.upload.upload(
       file: const CloudinaryFileSource.url('https://example.com/a.png'),
@@ -151,16 +159,23 @@ void main() {
   });
 
   test('an api error surfaces as a typed exception', () async {
-    final c = signedWith(MockClient(
-      (_) async => http.Response('{"error":{"message":"too large"}}', 400),
-    ));
+    final c = signedWith(
+      MockClient(
+        (_) async => http.Response('{"error":{"message":"too large"}}', 400),
+      ),
+    );
 
     await expectLater(
       c.upload.upload(
         file: const CloudinaryFileSource.url('https://example.com/a.png'),
       ),
-      throwsA(isA<CloudinaryApiException>()
-          .having((e) => e.message, 'message', 'too large')),
+      throwsA(
+        isA<CloudinaryApiException>().having(
+          (e) => e.message,
+          'message',
+          'too large',
+        ),
+      ),
     );
   });
 }

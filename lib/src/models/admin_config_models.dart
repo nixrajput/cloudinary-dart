@@ -146,11 +146,11 @@ class MetadataField extends CloudinaryModel {
   /// Allowed values, for enum and set fields.
   List<Map<String, dynamic>>? get datasource =>
       readObject('datasource')?['values'] is List
-          ? (readObject('datasource')!['values'] as List)
-              .whereType<Map<dynamic, dynamic>>()
-              .map(Map<String, dynamic>.from)
-              .toList()
-          : null;
+      ? (readObject('datasource')!['values'] as List)
+            .whereType<Map<dynamic, dynamic>>()
+            .map(Map<String, dynamic>.from)
+            .toList()
+      : null;
 }
 
 /// A dependency rule between structured metadata fields.

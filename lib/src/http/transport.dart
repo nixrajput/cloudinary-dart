@@ -42,8 +42,8 @@ class CloudinaryTransport {
     this.retry = const RetryPolicy(),
     this.timeout = const Duration(seconds: 60),
     this.host = 'api.cloudinary.com',
-  })  : _client = client ?? http.Client(),
-        _ownsClient = client == null;
+  }) : _client = client ?? http.Client(),
+       _ownsClient = client == null;
 
   /// Credentials and signing options.
   final CloudinaryConfig config;
@@ -75,11 +75,7 @@ class CloudinaryTransport {
     Map<String, dynamic>? query,
     ApiVersion version = ApiVersion.v1_1,
   }) {
-    final path = [
-      version.segment,
-      config.cloudName,
-      ...segments,
-    ].join('/');
+    final path = [version.segment, config.cloudName, ...segments].join('/');
 
     return Uri.https(host, '/$path', _stringifyQuery(query));
   }
@@ -171,12 +167,16 @@ class CloudinaryTransport {
     final prepared = signed ? signParams(formFields) : formFields;
     final uri = buildUri(segments, version: version);
 
-    final request =
-        ProgressMultipartRequest('POST', uri, onProgress: onProgress);
+    final request = ProgressMultipartRequest(
+      'POST',
+      uri,
+      onProgress: onProgress,
+    );
     prepared.forEach((key, value) {
       if (value == null) return;
-      request.fields[key] =
-          value is Iterable ? value.join(',') : value.toString();
+      request.fields[key] = value is Iterable
+          ? value.join(',')
+          : value.toString();
     });
 
     switch (file) {
@@ -294,21 +294,24 @@ class CloudinaryTransport {
     final message = _errorMessage(parsed) ?? 'Cloudinary request failed.';
     throw switch (status) {
       401 || 403 => CloudinaryAuthException(
-          message: message, statusCode: status, raw: parsed),
+        message: message,
+        statusCode: status,
+        raw: parsed,
+      ),
       404 => CloudinaryNotFoundException(message: message, raw: parsed),
       420 || 429 => CloudinaryRateLimitException(
-          message: message,
-          statusCode: status,
-          raw: parsed,
-          limit: _intHeader(response, 'x-featureratelimit-limit'),
-          remaining: _intHeader(response, 'x-featureratelimit-remaining'),
-          resetAt: _dateHeader(response, 'x-featureratelimit-reset'),
-        ),
+        message: message,
+        statusCode: status,
+        raw: parsed,
+        limit: _intHeader(response, 'x-featureratelimit-limit'),
+        remaining: _intHeader(response, 'x-featureratelimit-remaining'),
+        resetAt: _dateHeader(response, 'x-featureratelimit-reset'),
+      ),
       _ => CloudinaryApiException(
-          message: message,
-          statusCode: status,
-          raw: parsed,
-        ),
+        message: message,
+        statusCode: status,
+        raw: parsed,
+      ),
     };
   }
 
@@ -355,9 +358,9 @@ class CloudinaryTransport {
   }
 
   static Map<String, dynamic> _jsonSafe(Map<String, dynamic> input) => {
-        for (final e in input.entries)
-          if (e.value != null) e.key: e.value,
-      };
+    for (final e in input.entries)
+      if (e.value != null) e.key: e.value,
+  };
 
   /// Closes the internally created client, if this transport made one.
   void close() {

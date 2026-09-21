@@ -29,8 +29,7 @@ bool verifyNotificationSignature({
   final expected = switch (algorithm) {
     CloudinarySignatureAlgorithm.sha1 => sha1.convert(payload),
     CloudinarySignatureAlgorithm.sha256 => sha256.convert(payload),
-  }
-      .toString();
+  }.toString();
 
   return _constantTimeEquals(expected, signature);
 }

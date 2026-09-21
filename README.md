@@ -54,9 +54,8 @@
 - [About Cloudinary](#about-cloudinary)
 - [Contributing](#contributing)
 - [License](#license)
-- [Sponsor Me](#sponsor-me)
-- [Connect With Me](#connect-with-me)
-- [Activities](#activities)
+- [Support the project](#support-the-project)
+- [Connect](#connect)
 
 ## Overview
 
@@ -68,7 +67,7 @@ Responses come back as typed models, failures throw typed exceptions, and every 
 
 ### Prerequisites
 
-- Dart SDK `>=3.0.0 <4.0.0` (Flutter 3.10 or newer bundles a compatible SDK).
+- Dart SDK `^3.8.0` (Flutter 3.32 or newer bundles a compatible SDK).
 - A Cloudinary account. Your cloud name, API key and API secret are on the dashboard.
 - For client-side uploads, an [unsigned upload preset](https://cloudinary.com/documentation/upload_presets), so the app needs no secret.
 
@@ -374,31 +373,37 @@ Fork the repository, make your changes, and open a pull request. Please read [CO
 
 MIT. See [LICENSE](LICENSE).
 
-## Sponsor Me
+## Support the project
 
-- By sponsoring my efforts, you're not merely contributing to the development of my projects; you're investing in its growth and sustainability.
-- Your support empowers me to dedicate more time and resources to improving the project's features, addressing issues, and ensuring its continued relevance in the rapidly evolving landscape of technology.
-- Your sponsorship directly fuels innovation, fosters a vibrant community, and helps maintain the project's high standards of quality.
-- Thank you for considering sponsoring my work!
+<div align="center">
 
-[![Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/nixrajput)
+cloudinary is MIT licensed and free to use, always. If it saves you writing the signing code twice, sponsorship is welcome.
 
-## Connect With Me
+<br />
 
-[![GitHub: nixrajput](https://img.shields.io/badge/nixrajput-EFF7F6?logo=GitHub&logoColor=333&link=https://www.github.com/nixrajput)][github]
-[![Linkedin: nixrajput](https://img.shields.io/badge/nixrajput-EFF7F6?logo=LinkedIn&logoColor=blue&link=https://www.linkedin.com/in/nixrajput)][linkedin]
-[![Instagram: nixrajput](https://img.shields.io/badge/nixrajput-EFF7F6?logo=Instagram&link=https://www.instagram.com/nixrajput)][instagram]
-[![Twitter: nixrajput07](https://img.shields.io/badge/nixrajput-EFF7F6?logo=X&logoColor=333&link=https://x.com/nixrajput)][twitter]
-[![Telegram: nixrajput](https://img.shields.io/badge/nixrajput-EFF7F6?logo=Telegram&link=https://telegram.me/nixrajput)][telegram]
-[![Gmail: nkr.nikhil.nkr@gmail.com](https://img.shields.io/badge/nkr.nikhil.nkr@gmail.com-EFF7F6?logo=Gmail&link=mailto:nkr.nikhil.nkr@gmail.com)][gmail]
+<a href="https://github.com/sponsors/nixrajput">
+  <img src="https://img.shields.io/badge/Sponsor_on_GitHub-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="GitHub Sponsors" />
+</a>
+<a href="https://ko-fi.com/nixrajput">
+  <img src="https://img.shields.io/badge/Ko--fi-FF5E5B?style=for-the-badge&logo=kofi&logoColor=white" alt="Ko-fi" />
+</a>
+<a href="https://www.buymeacoffee.com/nixrajput">
+  <img src="https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black" alt="Buy Me a Coffee" />
+</a>
 
-## Activities
+</div>
 
-![Alt](https://repobeats.axiom.co/api/embed/4b8f4a901f0f01f16cb60ed04cd43079ec9438f4.svg "Repobeats analytics image")
+## Connect
 
-[github]: https://github.com/nixrajput
-[telegram]: https://telegram.me/nixrajput
-[twitter]: https://twitter.com/nixrajput07
-[instagram]: https://instagram.com/nixrajput
-[linkedin]: https://linkedin.com/in/nixrajput
-[gmail]: mailto:nkr.nikhil.nkr@gmail.com
+<div align="center">
+
+**Nikhil Rajput**
+
+<a href="https://github.com/nixrajput"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" /></a>
+<a href="https://linkedin.com/in/nixrajput"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+<a href="https://x.com/nixrajput"><img src="https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white" alt="X" /></a>
+<a href="https://instagram.com/nixrajput"><img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram" /></a>
+<a href="https://telegram.me/nixrajput"><img src="https://img.shields.io/badge/Telegram-26A5E4?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram" /></a>
+<a href="mailto:nkr.nikhil.nkr@gmail.com"><img src="https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" /></a>
+
+</div>

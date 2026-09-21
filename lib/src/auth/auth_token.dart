@@ -98,9 +98,10 @@ class AuthToken {
         'url=${escapeTokenComponent(url!)}',
     ];
 
-    final digest = Hmac(sha256, _decodeHexKey(key))
-        .convert(utf8.encode(toSign.join('~')))
-        .toString();
+    final digest = Hmac(
+      sha256,
+      _decodeHexKey(key),
+    ).convert(utf8.encode(toSign.join('~'))).toString();
 
     return '$tokenName=${[...parts, 'hmac=$digest'].join('~')}';
   }

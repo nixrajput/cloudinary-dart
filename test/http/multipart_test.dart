@@ -88,30 +88,32 @@ void main() {
     expect(body, isNot(contains('filename=')));
   });
 
-  test('signed multipart carries signature, api_key and a seconds timestamp',
-      () async {
-    late String body;
-    final transport = CloudinaryTransport(
-      config: _config,
-      client: MockClient((request) async {
-        body = request.body;
-        return http.Response('{"public_id":"x"}', 200);
-      }),
-    );
+  test(
+    'signed multipart carries signature, api_key and a seconds timestamp',
+    () async {
+      late String body;
+      final transport = CloudinaryTransport(
+        config: _config,
+        client: MockClient((request) async {
+          body = request.body;
+          return http.Response('{"public_id":"x"}', 200);
+        }),
+      );
 
-    await transport.sendMultipart(
-      segments: ['image', 'upload'],
-      fields: {'folder': 'f'},
-      file: const CloudinaryFileSource.url('https://example.com/a.png'),
-      signed: true,
-    );
+      await transport.sendMultipart(
+        segments: ['image', 'upload'],
+        fields: {'folder': 'f'},
+        file: const CloudinaryFileSource.url('https://example.com/a.png'),
+        signed: true,
+      );
 
-    expect(body, contains('name="signature"'));
-    expect(body, contains('name="api_key"'));
-    final ts = RegExp(r'name="timestamp"\r\n\r\n(\d+)').firstMatch(body);
-    expect(ts, isNotNull);
-    expect(ts!.group(1)!.length, lessThanOrEqualTo(10));
-  });
+      expect(body, contains('name="signature"'));
+      expect(body, contains('name="api_key"'));
+      final ts = RegExp(r'name="timestamp"\r\n\r\n(\d+)').firstMatch(body);
+      expect(ts, isNotNull);
+      expect(ts!.group(1)!.length, lessThanOrEqualTo(10));
+    },
+  );
 
   test('unsigned multipart sends no signature', () async {
     late String body;
@@ -148,8 +150,13 @@ void main() {
         file: const CloudinaryFileSource.url('https://example.com/a.png'),
         signed: true,
       ),
-      throwsA(isA<CloudinaryApiException>()
-          .having((e) => e.message, 'message', 'too big')),
+      throwsA(
+        isA<CloudinaryApiException>().having(
+          (e) => e.message,
+          'message',
+          'too big',
+        ),
+      ),
     );
   });
 }

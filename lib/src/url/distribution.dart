@@ -19,7 +19,8 @@ String buildDistributionPrefix({
   String prefix;
 
   if (config.secure) {
-    var distribution = config.secureDistribution ??
+    var distribution =
+        config.secureDistribution ??
         (config.privateCdn ? '$cloudName-res.cloudinary.com' : sharedCdnHost);
 
     if (config.cdnSubdomain && sharedDomain) {
@@ -35,7 +36,9 @@ String buildDistributionPrefix({
   } else {
     final cdnPart = config.privateCdn ? '$cloudName-' : '';
     final shardPart = config.cdnSubdomain ? '-${_shard(source)}' : '';
-    prefix = 'http://$cdnPart' 'res$shardPart.cloudinary.com';
+    prefix =
+        'http://$cdnPart'
+        'res$shardPart.cloudinary.com';
   }
 
   return sharedDomain ? '$prefix/$cloudName' : prefix;

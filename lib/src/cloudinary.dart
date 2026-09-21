@@ -28,11 +28,11 @@ class Cloudinary {
     RetryPolicy retry = const RetryPolicy(),
     Duration timeout = const Duration(seconds: 60),
   }) : transport = CloudinaryTransport(
-          config: config,
-          client: client,
-          retry: retry,
-          timeout: timeout,
-        ) {
+         config: config,
+         client: client,
+         retry: retry,
+         timeout: timeout,
+       ) {
     config.validate();
   }
 
@@ -95,15 +95,14 @@ class Cloudinary {
     http.Client? client,
     RetryPolicy retry = const RetryPolicy(),
     Duration timeout = const Duration(seconds: 60),
-  }) =>
-      Cloudinary._(
-        config: CloudinaryConfig(cloudName: cloudName),
-        urlConfig: urlConfig,
-        signatureProvider: signatureProvider,
-        client: client,
-        retry: retry,
-        timeout: timeout,
-      );
+  }) => Cloudinary._(
+    config: CloudinaryConfig(cloudName: cloudName),
+    urlConfig: urlConfig,
+    signatureProvider: signatureProvider,
+    client: client,
+    retry: retry,
+    timeout: timeout,
+  );
 
   /// Creates a client from a `CLOUDINARY_URL` string.
   factory Cloudinary.fromUrl(
@@ -112,15 +111,14 @@ class Cloudinary {
     http.Client? client,
     RetryPolicy retry = const RetryPolicy(),
     Duration timeout = const Duration(seconds: 60),
-  }) =>
-      Cloudinary._(
-        config: CloudinaryConfig.parse(cloudinaryUrl),
-        urlConfig: urlConfig,
-        signatureProvider: null,
-        client: client,
-        retry: retry,
-        timeout: timeout,
-      );
+  }) => Cloudinary._(
+    config: CloudinaryConfig.parse(cloudinaryUrl),
+    urlConfig: urlConfig,
+    signatureProvider: null,
+    client: client,
+    retry: retry,
+    timeout: timeout,
+  );
 
   /// Creates a client from the `CLOUDINARY_URL` environment variable.
   ///

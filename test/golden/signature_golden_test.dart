@@ -42,10 +42,7 @@ void main() {
   // attacker controlling one value can append parameters the caller never
   // set. Version 2 escapes the '&' and closes it.
   test('version 2 escapes & so a value cannot inject parameters', () {
-    final params = {
-      'public_id': r'a&timestamp=9999',
-      'timestamp': 1315060510,
-    };
+    final params = {'public_id': r'a&timestamp=9999', 'timestamp': 1315060510};
 
     expect(
       stringToSign(params, version: 1),

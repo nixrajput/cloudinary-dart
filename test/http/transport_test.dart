@@ -16,12 +16,11 @@ CloudinaryTransport transportReturning(
   http.Response Function(http.Request) handler, {
   CloudinaryConfig config = _signed,
   RetryPolicy retry = RetryPolicy.none,
-}) =>
-    CloudinaryTransport(
-      config: config,
-      client: MockClient((req) async => handler(req)),
-      retry: retry,
-    );
+}) => CloudinaryTransport(
+  config: config,
+  client: MockClient((req) async => handler(req)),
+  retry: retry,
+);
 
 void main() {
   group('uri building', () {
@@ -107,13 +106,10 @@ void main() {
 
     test('a signed call without a secret throws before any request', () async {
       var called = false;
-      final t = transportReturning(
-        (_) {
-          called = true;
-          return http.Response('{}', 200);
-        },
-        config: const CloudinaryConfig(cloudName: 'demo'),
-      );
+      final t = transportReturning((_) {
+        called = true;
+        return http.Response('{}', 200);
+      }, config: const CloudinaryConfig(cloudName: 'demo'));
 
       await expectLater(
         t.send(method: 'POST', segments: ['image', 'destroy'], signed: true),
@@ -131,8 +127,13 @@ void main() {
 
       expect(
         () => t.send(method: 'GET', segments: ['ping'], basicAuth: true),
-        throwsA(isA<CloudinaryAuthException>()
-            .having((e) => e.message, 'message', 'bad key')),
+        throwsA(
+          isA<CloudinaryAuthException>().having(
+            (e) => e.message,
+            'message',
+            'bad key',
+          ),
+        ),
       );
     });
 
@@ -162,10 +163,12 @@ void main() {
 
       expect(
         () => t.send(method: 'GET', segments: ['ping'], basicAuth: true),
-        throwsA(isA<CloudinaryRateLimitException>()
-            .having((e) => e.limit, 'limit', 500)
-            .having((e) => e.remaining, 'remaining', 0)
-            .having((e) => e.resetAt, 'resetAt', DateTime.utc(2026, 9, 3, 9))),
+        throwsA(
+          isA<CloudinaryRateLimitException>()
+              .having((e) => e.limit, 'limit', 500)
+              .having((e) => e.remaining, 'remaining', 0)
+              .having((e) => e.resetAt, 'resetAt', DateTime.utc(2026, 9, 3, 9)),
+        ),
       );
     });
 
@@ -176,9 +179,11 @@ void main() {
 
       expect(
         () => t.send(method: 'GET', segments: ['ping'], basicAuth: true),
-        throwsA(isA<CloudinaryApiException>()
-            .having((e) => e.statusCode, 'statusCode', 500)
-            .having((e) => e.raw['extra'], 'raw.extra', 1)),
+        throwsA(
+          isA<CloudinaryApiException>()
+              .having((e) => e.statusCode, 'statusCode', 500)
+              .having((e) => e.raw['extra'], 'raw.extra', 1),
+        ),
       );
     });
 
@@ -202,8 +207,13 @@ void main() {
 
       expect(
         () => t.send(method: 'GET', segments: ['ping']),
-        throwsA(isA<CloudinaryTransportException>()
-            .having((e) => e.cause, 'cause', isA<_Boom>())),
+        throwsA(
+          isA<CloudinaryTransportException>().having(
+            (e) => e.cause,
+            'cause',
+            isA<_Boom>(),
+          ),
+        ),
       );
     });
 

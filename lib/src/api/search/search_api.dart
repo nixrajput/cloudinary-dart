@@ -18,10 +18,10 @@ class SearchApi {
 
   /// Starts a new folder query.
   SearchQuery folders() => SearchQuery(
-        transport: _transport,
-        config: _config,
-        target: SearchTarget.folders,
-      );
+    transport: _transport,
+    config: _config,
+    target: SearchTarget.folders,
+  );
 
   /// Starts an asset query with an expression.
   SearchQuery expression(String value) => query().expression(value);
@@ -33,8 +33,7 @@ class SearchApi {
   SearchQuery sortBy(
     String field, [
     SortDirection direction = SortDirection.asc,
-  ]) =>
-      query().sortBy(field, direction);
+  ]) => query().sortBy(field, direction);
 
   /// Starts an asset query with an aggregation.
   SearchQuery aggregate(String field) => query().aggregate(field);

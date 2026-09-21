@@ -114,17 +114,17 @@ class CloudinaryConfig {
     String? apiSecret,
     int? signatureVersion,
     CloudinarySignatureAlgorithm? signatureAlgorithm,
-  }) =>
-      CloudinaryConfig(
-        cloudName: cloudName ?? this.cloudName,
-        apiKey: apiKey ?? this.apiKey,
-        apiSecret: apiSecret ?? this.apiSecret,
-        signatureVersion: signatureVersion ?? this.signatureVersion,
-        signatureAlgorithm: signatureAlgorithm ?? this.signatureAlgorithm,
-      );
+  }) => CloudinaryConfig(
+    cloudName: cloudName ?? this.cloudName,
+    apiKey: apiKey ?? this.apiKey,
+    apiSecret: apiSecret ?? this.apiSecret,
+    signatureVersion: signatureVersion ?? this.signatureVersion,
+    signatureAlgorithm: signatureAlgorithm ?? this.signatureAlgorithm,
+  );
 
   @override
-  String toString() => 'CloudinaryConfig(cloudName: $cloudName, '
+  String toString() =>
+      'CloudinaryConfig(cloudName: $cloudName, '
       'apiKey: ${apiKey.isEmpty ? '<none>' : apiKey}, '
       'apiSecret: ${apiSecret.isEmpty ? '<none>' : '<redacted>'})';
 }

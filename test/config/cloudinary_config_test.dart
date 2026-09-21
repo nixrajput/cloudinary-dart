@@ -37,8 +37,10 @@ void main() {
 
     test('an out-of-range signature version is rejected', () {
       expect(
-        () => const CloudinaryConfig(cloudName: 'd', signatureVersion: 3)
-            .validate(),
+        () => const CloudinaryConfig(
+          cloudName: 'd',
+          signatureVersion: 3,
+        ).validate(),
         throwsA(isA<CloudinaryConfigException>()),
       );
     });
@@ -52,8 +54,11 @@ void main() {
         isFalse,
       );
       expect(
-        const CloudinaryConfig(cloudName: 'd', apiKey: 'k', apiSecret: 's')
-            .canSign,
+        const CloudinaryConfig(
+          cloudName: 'd',
+          apiKey: 'k',
+          apiSecret: 's',
+        ).canSign,
         isTrue,
       );
     });

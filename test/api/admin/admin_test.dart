@@ -129,12 +129,11 @@ void main() {
 
     test('listByModeration', () async {
       final (c, cap) = clientReturning({'resources': <Object>[]});
-      await c.admin.resources
-          .listByModeration(kind: 'manual', status: 'pending');
-      expect(
-        cap.path,
-        '/v1_1/demo/resources/image/moderations/manual/pending',
+      await c.admin.resources.listByModeration(
+        kind: 'manual',
+        status: 'pending',
       );
+      expect(cap.path, '/v1_1/demo/resources/image/moderations/manual/pending');
     });
 
     test('listByAssetFolder', () async {
@@ -238,10 +237,7 @@ void main() {
     test('addRelated', () async {
       final (c, cap) = clientReturning({});
       await c.admin.resources.addRelated(publicId: 'p', assetsToRelate: ['q']);
-      expect(
-        cap.path,
-        '/v1_1/demo/resources/related_assets/image/upload/p',
-      );
+      expect(cap.path, '/v1_1/demo/resources/related_assets/image/upload/p');
     });
 
     test('updateAccessMode needs exactly one selector', () {
@@ -338,8 +334,10 @@ void main() {
 
     test('create', () async {
       final (c, cap) = clientReturning({'message': 'created'});
-      await c.admin.transformations
-          .create(name: 'small', transformation: 'w_100');
+      await c.admin.transformations.create(
+        name: 'small',
+        transformation: 'w_100',
+      );
 
       expect(cap.method, 'POST');
       expect(cap.form['name'], 'small');
@@ -395,8 +393,10 @@ void main() {
 
     test('create', () async {
       final (c, cap) = clientReturning({'message': 'created'});
-      await c.admin.uploadMappings
-          .create(folder: 'f', template: 'https://example.com');
+      await c.admin.uploadMappings.create(
+        folder: 'f',
+        template: 'https://example.com',
+      );
 
       expect(cap.form['folder'], 'f');
       expect(cap.form['template'], 'https://example.com');
@@ -485,8 +485,10 @@ void main() {
 
     test('datasource ordering', () async {
       final (c, cap) = clientReturning({});
-      await c.admin.metadataFields
-          .orderDatasource(externalId: 'f', orderBy: 'value');
+      await c.admin.metadataFields.orderDatasource(
+        externalId: 'f',
+        orderBy: 'value',
+      );
       expect(cap.path, '/v1_1/demo/metadata_fields/f/datasource/order');
     });
 

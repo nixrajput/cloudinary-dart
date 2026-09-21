@@ -12,11 +12,7 @@ import 'progress.dart';
 /// already-finalized request state.
 class ProgressMultipartRequest extends http.MultipartRequest {
   /// Creates a multipart request reporting progress to [onProgress].
-  ProgressMultipartRequest(
-    super.method,
-    super.url, {
-    this.onProgress,
-  });
+  ProgressMultipartRequest(super.method, super.url, {this.onProgress});
 
   /// Called as the body is written. Null disables progress reporting.
   final CloudinaryProgressCallback? onProgress;

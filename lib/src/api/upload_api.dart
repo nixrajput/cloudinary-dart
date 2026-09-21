@@ -45,20 +45,20 @@ class UploadApi {
     final json = await _transport.sendMultipart(
       segments: [resourceType.name, 'upload'],
       fields: {
-        if (publicId != null) 'public_id': publicId,
-        if (folder != null) 'folder': folder,
-        if (assetFolder != null) 'asset_folder': assetFolder,
-        if (displayName != null) 'display_name': displayName,
-        if (tags != null) 'tags': tags,
+        'public_id': ?publicId,
+        'folder': ?folder,
+        'asset_folder': ?assetFolder,
+        'display_name': ?displayName,
+        'tags': ?tags,
         if (context != null) 'context': encodeContext(context),
-        if (overwrite != null) 'overwrite': overwrite,
-        if (invalidate != null) 'invalidate': invalidate,
-        if (useFilename != null) 'use_filename': useFilename,
-        if (uniqueFilename != null) 'unique_filename': uniqueFilename,
-        if (transformation != null) 'transformation': transformation,
-        if (eager != null) 'eager': eager,
-        if (eagerAsync != null) 'eager_async': eagerAsync,
-        if (notificationUrl != null) 'notification_url': notificationUrl,
+        'overwrite': ?overwrite,
+        'invalidate': ?invalidate,
+        'use_filename': ?useFilename,
+        'unique_filename': ?uniqueFilename,
+        'transformation': ?transformation,
+        'eager': ?eager,
+        'eager_async': ?eagerAsync,
+        'notification_url': ?notificationUrl,
         ...?extraParams,
       },
       file: file,
@@ -95,9 +95,9 @@ class UploadApi {
       segments: [resourceType.name, 'upload'],
       fields: {
         'upload_preset': uploadPreset,
-        if (publicId != null) 'public_id': publicId,
-        if (folder != null) 'folder': folder,
-        if (tags != null) 'tags': tags,
+        'public_id': ?publicId,
+        'folder': ?folder,
+        'tags': ?tags,
         if (context != null) 'context': encodeContext(context),
         ...?extraParams,
       },
@@ -119,21 +119,22 @@ class UploadApi {
     List<String>? tags,
     String? notificationUrl,
     Map<String, dynamic>? extraParams,
-  }) async =>
-      UploadResult.fromJson(await _transport.send(
-        method: 'POST',
-        segments: [resourceType.name, 'explicit'],
-        signed: true,
-        form: {
-          'public_id': publicId,
-          'type': type,
-          if (eager != null) 'eager': eager,
-          if (eagerAsync != null) 'eager_async': eagerAsync,
-          if (tags != null) 'tags': tags,
-          if (notificationUrl != null) 'notification_url': notificationUrl,
-          ...?extraParams,
-        },
-      ));
+  }) async => UploadResult.fromJson(
+    await _transport.send(
+      method: 'POST',
+      segments: [resourceType.name, 'explicit'],
+      signed: true,
+      form: {
+        'public_id': publicId,
+        'type': type,
+        'eager': ?eager,
+        'eager_async': ?eagerAsync,
+        'tags': ?tags,
+        'notification_url': ?notificationUrl,
+        ...?extraParams,
+      },
+    ),
+  );
 
   /// Renames an asset, optionally moving it between delivery types.
   Future<UploadResult> rename({
@@ -145,21 +146,22 @@ class UploadApi {
     bool? overwrite,
     bool? invalidate,
     Map<String, dynamic>? extraParams,
-  }) async =>
-      UploadResult.fromJson(await _transport.send(
-        method: 'POST',
-        segments: [resourceType.name, 'rename'],
-        signed: true,
-        form: {
-          'from_public_id': fromPublicId,
-          'to_public_id': toPublicId,
-          if (type != null) 'type': type,
-          if (toType != null) 'to_type': toType,
-          if (overwrite != null) 'overwrite': overwrite,
-          if (invalidate != null) 'invalidate': invalidate,
-          ...?extraParams,
-        },
-      ));
+  }) async => UploadResult.fromJson(
+    await _transport.send(
+      method: 'POST',
+      segments: [resourceType.name, 'rename'],
+      signed: true,
+      form: {
+        'from_public_id': fromPublicId,
+        'to_public_id': toPublicId,
+        'type': ?type,
+        'to_type': ?toType,
+        'overwrite': ?overwrite,
+        'invalidate': ?invalidate,
+        ...?extraParams,
+      },
+    ),
+  );
 
   /// Permanently deletes an asset.
   ///
@@ -177,123 +179,119 @@ class UploadApi {
         'destroy needs a non-empty publicId.',
       );
     }
-    return DestroyResult.fromJson(await _transport.send(
-      method: 'POST',
-      segments: [resourceType.name, 'destroy'],
-      signed: true,
-      form: {
-        'public_id': publicId,
-        if (type != null) 'type': type,
-        if (invalidate != null) 'invalidate': invalidate,
-        ...?extraParams,
-      },
-    ));
+    return DestroyResult.fromJson(
+      await _transport.send(
+        method: 'POST',
+        segments: [resourceType.name, 'destroy'],
+        signed: true,
+        form: {
+          'public_id': publicId,
+          'type': ?type,
+          'invalidate': ?invalidate,
+          ...?extraParams,
+        },
+      ),
+    );
   }
 
   /// Deletes an asset by its immutable asset ID.
   Future<DestroyResult> destroyByAssetId({
     required String assetId,
     bool? invalidate,
-  }) async =>
-      DestroyResult.fromJson(await _transport.send(
-        method: 'DELETE',
-        segments: ['asset', assetId],
-        signed: true,
-        form: {if (invalidate != null) 'invalidate': invalidate},
-      ));
+  }) async => DestroyResult.fromJson(
+    await _transport.send(
+      method: 'DELETE',
+      segments: ['asset', assetId],
+      signed: true,
+      form: {'invalidate': ?invalidate},
+    ),
+  );
 
   /// Adds [tag] to each of [publicIds].
   Future<PublicIdsResult> addTag({
     required String tag,
     required List<String> publicIds,
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
-  }) =>
-      _tagCommand('add', tag, publicIds, resourceType);
+  }) => _tagCommand('add', tag, publicIds, resourceType);
 
   /// Removes [tag] from each of [publicIds].
   Future<PublicIdsResult> removeTag({
     required String tag,
     required List<String> publicIds,
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
-  }) =>
-      _tagCommand('remove', tag, publicIds, resourceType);
+  }) => _tagCommand('remove', tag, publicIds, resourceType);
 
   /// Replaces all tags on each of [publicIds] with [tag].
   Future<PublicIdsResult> replaceTag({
     required String tag,
     required List<String> publicIds,
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
-  }) =>
-      _tagCommand('replace', tag, publicIds, resourceType);
+  }) => _tagCommand('replace', tag, publicIds, resourceType);
 
   /// Removes every tag from each of [publicIds].
   Future<PublicIdsResult> removeAllTags({
     required List<String> publicIds,
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
-  }) =>
-      _tagCommand('remove_all', null, publicIds, resourceType);
+  }) => _tagCommand('remove_all', null, publicIds, resourceType);
 
   Future<PublicIdsResult> _tagCommand(
     String command,
     String? tag,
     List<String> publicIds,
     CloudinaryResourceType resourceType,
-  ) async =>
-      PublicIdsResult.fromJson(await _transport.send(
-        method: 'POST',
-        segments: [resourceType.name, 'tags'],
-        signed: true,
-        form: {
-          'command': command,
-          if (tag != null) 'tag': tag,
-          'public_ids': publicIds,
-        },
-      ));
+  ) async => PublicIdsResult.fromJson(
+    await _transport.send(
+      method: 'POST',
+      segments: [resourceType.name, 'tags'],
+      signed: true,
+      form: {'command': command, 'tag': ?tag, 'public_ids': publicIds},
+    ),
+  );
 
   /// Adds contextual metadata to each of [publicIds].
   Future<PublicIdsResult> addContext({
     required Map<String, String> context,
     required List<String> publicIds,
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
-  }) async =>
-      PublicIdsResult.fromJson(await _transport.send(
-        method: 'POST',
-        segments: [resourceType.name, 'context'],
-        signed: true,
-        form: {
-          'command': 'add',
-          'context': encodeContext(context),
-          'public_ids': publicIds,
-        },
-      ));
+  }) async => PublicIdsResult.fromJson(
+    await _transport.send(
+      method: 'POST',
+      segments: [resourceType.name, 'context'],
+      signed: true,
+      form: {
+        'command': 'add',
+        'context': encodeContext(context),
+        'public_ids': publicIds,
+      },
+    ),
+  );
 
   /// Removes all contextual metadata from each of [publicIds].
   Future<PublicIdsResult> removeAllContext({
     required List<String> publicIds,
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
-  }) async =>
-      PublicIdsResult.fromJson(await _transport.send(
-        method: 'POST',
-        segments: [resourceType.name, 'context'],
-        signed: true,
-        form: {'command': 'remove_all', 'public_ids': publicIds},
-      ));
+  }) async => PublicIdsResult.fromJson(
+    await _transport.send(
+      method: 'POST',
+      segments: [resourceType.name, 'context'],
+      signed: true,
+      form: {'command': 'remove_all', 'public_ids': publicIds},
+    ),
+  );
 
   /// Sets structured metadata values on each of [publicIds].
   Future<PublicIdsResult> updateMetadata({
     required Map<String, String> metadata,
     required List<String> publicIds,
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
-  }) async =>
-      PublicIdsResult.fromJson(await _transport.send(
-        method: 'POST',
-        segments: [resourceType.name, 'metadata'],
-        signed: true,
-        form: {
-          'metadata': encodeContext(metadata),
-          'public_ids': publicIds,
-        },
-      ));
+  }) async => PublicIdsResult.fromJson(
+    await _transport.send(
+      method: 'POST',
+      segments: [resourceType.name, 'metadata'],
+      signed: true,
+      form: {'metadata': encodeContext(metadata), 'public_ids': publicIds},
+    ),
+  );
 
   /// Splits a multi-page asset into separate derived assets.
   Future<ExplodeResult> explode({
@@ -301,17 +299,18 @@ class UploadApi {
     required String transformation,
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
     String? notificationUrl,
-  }) async =>
-      ExplodeResult.fromJson(await _transport.send(
-        method: 'POST',
-        segments: [resourceType.name, 'explode'],
-        signed: true,
-        form: {
-          'public_id': publicId,
-          'transformation': transformation,
-          if (notificationUrl != null) 'notification_url': notificationUrl,
-        },
-      ));
+  }) async => ExplodeResult.fromJson(
+    await _transport.send(
+      method: 'POST',
+      segments: [resourceType.name, 'explode'],
+      signed: true,
+      form: {
+        'public_id': publicId,
+        'transformation': transformation,
+        'notification_url': ?notificationUrl,
+      },
+    ),
+  );
 
   /// Builds an animated asset from assets sharing [tag], or from [urls].
   Future<SpriteResult> multi({
@@ -323,19 +322,21 @@ class UploadApi {
     String? notificationUrl,
   }) async {
     _requireTagOrUrls(tag, urls, 'multi');
-    return SpriteResult.fromJson(await _transport.send(
-      method: 'POST',
-      segments: ['multi'],
-      signed: true,
-      form: {
-        if (tag != null) 'tag': tag,
-        if (urls != null) 'urls': urls,
-        if (transformation != null) 'transformation': transformation,
-        if (format != null) 'format': format,
-        if (async != null) 'async': async,
-        if (notificationUrl != null) 'notification_url': notificationUrl,
-      },
-    ));
+    return SpriteResult.fromJson(
+      await _transport.send(
+        method: 'POST',
+        segments: ['multi'],
+        signed: true,
+        form: {
+          'tag': ?tag,
+          'urls': ?urls,
+          'transformation': ?transformation,
+          'format': ?format,
+          'async': ?async,
+          'notification_url': ?notificationUrl,
+        },
+      ),
+    );
   }
 
   /// Builds a sprite sheet from assets sharing [tag], or from [urls].
@@ -347,18 +348,20 @@ class UploadApi {
     String? notificationUrl,
   }) async {
     _requireTagOrUrls(tag, urls, 'generateSprite');
-    return SpriteResult.fromJson(await _transport.send(
-      method: 'POST',
-      segments: ['sprite'],
-      signed: true,
-      form: {
-        if (tag != null) 'tag': tag,
-        if (urls != null) 'urls': urls,
-        if (transformation != null) 'transformation': transformation,
-        if (async != null) 'async': async,
-        if (notificationUrl != null) 'notification_url': notificationUrl,
-      },
-    ));
+    return SpriteResult.fromJson(
+      await _transport.send(
+        method: 'POST',
+        segments: ['sprite'],
+        signed: true,
+        form: {
+          'tag': ?tag,
+          'urls': ?urls,
+          'transformation': ?transformation,
+          'async': ?async,
+          'notification_url': ?notificationUrl,
+        },
+      ),
+    );
   }
 
   /// Renders [text] as an image asset.
@@ -372,23 +375,24 @@ class UploadApi {
     String? background,
     double? opacity,
     Map<String, dynamic>? extraParams,
-  }) async =>
-      TextResult.fromJson(await _transport.send(
-        method: 'POST',
-        segments: ['text'],
-        signed: true,
-        form: {
-          'text': text,
-          if (publicId != null) 'public_id': publicId,
-          if (fontFamily != null) 'font_family': fontFamily,
-          if (fontSize != null) 'font_size': fontSize,
-          if (fontColor != null) 'font_color': fontColor,
-          if (fontWeight != null) 'font_weight': fontWeight,
-          if (background != null) 'background': background,
-          if (opacity != null) 'opacity': opacity,
-          ...?extraParams,
-        },
-      ));
+  }) async => TextResult.fromJson(
+    await _transport.send(
+      method: 'POST',
+      segments: ['text'],
+      signed: true,
+      form: {
+        'text': text,
+        'public_id': ?publicId,
+        'font_family': ?fontFamily,
+        'font_size': ?fontSize,
+        'font_color': ?fontColor,
+        'font_weight': ?fontWeight,
+        'background': ?background,
+        'opacity': ?opacity,
+        ...?extraParams,
+      },
+    ),
+  );
 
   /// Creates an archive of the selected assets.
   ///
@@ -411,22 +415,24 @@ class UploadApi {
         'assets.',
       );
     }
-    return ArchiveResult.fromJson(await _transport.send(
-      method: 'POST',
-      segments: [resourceType.name, 'generate_archive'],
-      signed: true,
-      form: {
-        if (tag != null) 'tag': tag,
-        if (publicIds != null) 'public_ids': publicIds,
-        if (prefix != null) 'prefix': prefix,
-        if (targetFormat != null) 'target_format': targetFormat,
-        if (targetPublicId != null) 'target_public_id': targetPublicId,
-        if (mode != null) 'mode': mode,
-        if (async != null) 'async': async,
-        if (notificationUrl != null) 'notification_url': notificationUrl,
-        ...?extraParams,
-      },
-    ));
+    return ArchiveResult.fromJson(
+      await _transport.send(
+        method: 'POST',
+        segments: [resourceType.name, 'generate_archive'],
+        signed: true,
+        form: {
+          'tag': ?tag,
+          'public_ids': ?publicIds,
+          'prefix': ?prefix,
+          'target_format': ?targetFormat,
+          'target_public_id': ?targetPublicId,
+          'mode': ?mode,
+          'async': ?async,
+          'notification_url': ?notificationUrl,
+          ...?extraParams,
+        },
+      ),
+    );
   }
 
   /// Creates a zip archive. A convenience wrapper over [createArchive].
@@ -438,17 +444,16 @@ class UploadApi {
     String? targetPublicId,
     String? mode,
     Map<String, dynamic>? extraParams,
-  }) =>
-      createArchive(
-        resourceType: resourceType,
-        tag: tag,
-        publicIds: publicIds,
-        prefix: prefix,
-        targetFormat: 'zip',
-        targetPublicId: targetPublicId,
-        mode: mode,
-        extraParams: extraParams,
-      );
+  }) => createArchive(
+    resourceType: resourceType,
+    tag: tag,
+    publicIds: publicIds,
+    prefix: prefix,
+    targetFormat: 'zip',
+    targetPublicId: targetPublicId,
+    mode: mode,
+    extraParams: extraParams,
+  );
 
   /// Deletes an asset using the delete token returned by its upload.
   ///
@@ -458,12 +463,13 @@ class UploadApi {
   Future<DestroyResult> deleteByToken({
     required String token,
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
-  }) async =>
-      DestroyResult.fromJson(await _transport.send(
-        method: 'POST',
-        segments: [resourceType.name, 'delete_by_token'],
-        form: {'token': token},
-      ));
+  }) async => DestroyResult.fromJson(
+    await _transport.send(
+      method: 'POST',
+      segments: [resourceType.name, 'delete_by_token'],
+      form: {'token': token},
+    ),
+  );
 
   void _requireTagOrUrls(String? tag, List<String>? urls, String method) {
     if (tag == null && (urls == null || urls.isEmpty)) {

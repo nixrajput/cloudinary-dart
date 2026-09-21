@@ -88,10 +88,7 @@ void main() {
 
       expect(cap.path, '/v1_1/demo/resources/search');
       expect(cap.method, 'POST');
-      expect(
-        cap.request.headers['content-type'],
-        contains('application/json'),
-      );
+      expect(cap.request.headers['content-type'], contains('application/json'));
       expect(cap.jsonBody['expression'], 'resource_type:image');
       expect(r.totalCount, 1);
       expect(r.time, 12);
@@ -139,8 +136,10 @@ void main() {
         apiSecret: 's',
       );
 
-      final url =
-          c.search.expression('a').nextCursor('IGNORED').toUrl(ttl: 300);
+      final url = c.search
+          .expression('a')
+          .nextCursor('IGNORED')
+          .toUrl(ttl: 300);
 
       expect(url, startsWith('https://res.cloudinary.com/demo/search/'));
       expect(url, contains('/300/'));

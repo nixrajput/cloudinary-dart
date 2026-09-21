@@ -25,27 +25,27 @@ class UrlApi {
 
   /// Starts a URL for an image.
   CloudinaryUrlBuilder image(String publicId) => CloudinaryUrlBuilder(
-        config: _config,
-        urlConfig: _urlConfig,
-        publicId: publicId,
-        resourceType: CloudinaryResourceType.image,
-      );
+    config: _config,
+    urlConfig: _urlConfig,
+    publicId: publicId,
+    resourceType: CloudinaryResourceType.image,
+  );
 
   /// Starts a URL for a video.
   CloudinaryUrlBuilder video(String publicId) => CloudinaryUrlBuilder(
-        config: _config,
-        urlConfig: _urlConfig,
-        publicId: publicId,
-        resourceType: CloudinaryResourceType.video,
-      );
+    config: _config,
+    urlConfig: _urlConfig,
+    publicId: publicId,
+    resourceType: CloudinaryResourceType.video,
+  );
 
   /// Starts a URL for a raw file.
   CloudinaryUrlBuilder raw(String publicId) => CloudinaryUrlBuilder(
-        config: _config,
-        urlConfig: _urlConfig,
-        publicId: publicId,
-        resourceType: CloudinaryResourceType.raw,
-      );
+    config: _config,
+    urlConfig: _urlConfig,
+    publicId: publicId,
+    resourceType: CloudinaryResourceType.raw,
+  );
 }
 
 /// A chainable delivery URL under construction.
@@ -56,10 +56,10 @@ class CloudinaryUrlBuilder {
     required UrlConfig urlConfig,
     required String publicId,
     required CloudinaryResourceType resourceType,
-  })  : _config = config,
-        _urlConfig = urlConfig,
-        _publicId = publicId,
-        _resourceType = resourceType;
+  }) : _config = config,
+       _urlConfig = urlConfig,
+       _publicId = publicId,
+       _resourceType = resourceType;
 
   final CloudinaryConfig _config;
   final UrlConfig _urlConfig;
@@ -138,8 +138,9 @@ class CloudinaryUrlBuilder {
     final source = _format == null ? _publicId : '$_publicId.$_format';
     final sourceToSign = _urlSuffix == null ? source : '$source/$_urlSuffix';
 
-    final signature =
-        _signed ? _signatureFor(transformation, sourceToSign) : '';
+    final signature = _signed
+        ? _signatureFor(transformation, sourceToSign)
+        : '';
     final versionSegment = _resolveVersion(sourceToSign);
 
     final prefix = buildDistributionPrefix(
@@ -186,9 +187,10 @@ class CloudinaryUrlBuilder {
       );
     }
 
-    final toSign = [transformation, sourceToSign]
-        .where((part) => part.isNotEmpty)
-        .join('/');
+    final toSign = [
+      transformation,
+      sourceToSign,
+    ].where((part) => part.isNotEmpty).join('/');
 
     final algorithm = _longSignature
         ? CloudinarySignatureAlgorithm.sha256

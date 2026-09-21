@@ -40,8 +40,8 @@ class SearchQuery {
     required CloudinaryTransport transport,
     required CloudinaryConfig config,
     this.target = SearchTarget.assets,
-  })  : _transport = transport,
-        _config = config;
+  }) : _transport = transport,
+       _config = config;
 
   final CloudinaryTransport _transport;
   final CloudinaryConfig _config;
@@ -77,8 +77,10 @@ class SearchQuery {
   }
 
   /// Adds an ordering. Repeated calls order by each field in turn.
-  SearchQuery sortBy(String field,
-      [SortDirection direction = SortDirection.asc]) {
+  SearchQuery sortBy(
+    String field, [
+    SortDirection direction = SortDirection.asc,
+  ]) {
     _sortBy.add({field: direction.name});
     return this;
   }
@@ -112,25 +114,25 @@ class SearchQuery {
   /// Empty accumulators are omitted rather than sent as empty lists, which
   /// keeps the signed payload of [toUrl] stable.
   Map<String, dynamic> toJson() => {
-        if (_expression != null) 'expression': _expression,
-        if (_maxResults != null) 'max_results': _maxResults,
-        if (_nextCursor != null) 'next_cursor': _nextCursor,
-        if (_sortBy.isNotEmpty) 'sort_by': _sortBy,
-        if (_aggregate.isNotEmpty) 'aggregate': _aggregate,
-        if (_withField.isNotEmpty) 'with_field': _withField,
-        if (_fields.isNotEmpty) 'fields': _fields,
-      };
+    if (_expression != null) 'expression': _expression,
+    if (_maxResults != null) 'max_results': _maxResults,
+    if (_nextCursor != null) 'next_cursor': _nextCursor,
+    if (_sortBy.isNotEmpty) 'sort_by': _sortBy,
+    if (_aggregate.isNotEmpty) 'aggregate': _aggregate,
+    if (_withField.isNotEmpty) 'with_field': _withField,
+    if (_fields.isNotEmpty) 'fields': _fields,
+  };
 
   /// Runs the search.
   Future<SearchResult> execute() async => SearchResult.fromJson(
-        await _transport.send(
-          method: 'POST',
-          segments: target.segments,
-          json: true,
-          form: toJson(),
-          basicAuth: true,
-        ),
-      );
+    await _transport.send(
+      method: 'POST',
+      segments: target.segments,
+      json: true,
+      form: toJson(),
+      basicAuth: true,
+    ),
+  );
 
   /// Runs a folder search.
   Future<FolderSearchResult> executeFolders() async =>

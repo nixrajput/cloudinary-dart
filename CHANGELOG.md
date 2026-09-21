@@ -25,7 +25,7 @@ A rewrite. See [MIGRATION.md](MIGRATION.md) for a call-by-call mapping from 1.x.
 - **Breaking: `file` and `fileBytes` replaced by `CloudinaryFileSource`**, with `.path`, `.bytes` and `.url` variants.
 - **Breaking: `optParams` renamed to `extraParams`**, `progressCallback` to `onProgress`.
 - **Breaking: API grouped by family**: `cloudinary.upload.*`, `cloudinary.admin.*`, `cloudinary.search.*`, `cloudinary.url.*`.
-- Dart SDK floor raised to `>=3.0.0`, for sealed classes.
+- Dart SDK floor raised to `^3.8.0`, for sealed classes and null-aware elements.
 - `CloudinaryDeliveryType` is now exported and its members extended. Its source file name was misspelled and never exported in 1.x.
 
 ### Fixed

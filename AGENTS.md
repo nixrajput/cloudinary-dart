@@ -10,7 +10,7 @@ Last updated: 2026-09-22
 
 | Area          | Detail                                                                                 |
 | ------------- | -------------------------------------------------------------------------------------- |
-| Language      | Dart 3, pure Dart, SDK `>=3.0.0 <4.0.0`                                                |
+| Language      | Dart 3, pure Dart, SDK `^3.8.0`                                                |
 | Runtime deps  | two: `http` and `crypto`. A third needs explicit approval                              |
 | Tests         | `package:test` with `package:http`'s `MockClient`; golden vectors for signing and URLs |
 | Lint / format | `package:lints` recommended, plus `avoid_print` and `public_member_api_docs`           |
