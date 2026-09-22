@@ -14,6 +14,7 @@ pubspec.lock
 AGENTS.md
 CLAUDE.md
 cspell.json
+scripts/
 
 # Unreferenced fixture carried over from 1.x.
 assets/test.png
