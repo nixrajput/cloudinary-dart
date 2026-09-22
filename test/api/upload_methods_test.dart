@@ -164,16 +164,16 @@ void main() {
     expect(r.batchId, 'b');
   });
 
-  test('multi has no resource type segment', () async {
+  test('multi carries the resource type segment', () async {
     final (c, cap) = clientReturning({'public_id': 'p'});
     await c.upload.multi(tag: 't');
-    expect(cap.path, '/v1_1/demo/multi');
+    expect(cap.path, '/v1_1/demo/image/multi');
   });
 
-  test('generateSprite has no resource type segment', () async {
+  test('generateSprite carries the resource type segment', () async {
     final (c, cap) = clientReturning({'public_id': 'p'});
     await c.upload.generateSprite(tag: 't');
-    expect(cap.path, '/v1_1/demo/sprite');
+    expect(cap.path, '/v1_1/demo/image/sprite');
   });
 
   test('multi requires a tag or urls', () {
@@ -185,7 +185,7 @@ void main() {
     final (c, cap) = clientReturning({'width': 100, 'height': 20});
     final r = await c.upload.text(text: 'hello', fontFamily: 'Arial');
 
-    expect(cap.path, '/v1_1/demo/text');
+    expect(cap.path, '/v1_1/demo/image/text');
     expect(cap.form['text'], 'hello');
     expect(cap.form['font_family'], 'Arial');
     expect(r.width, 100);

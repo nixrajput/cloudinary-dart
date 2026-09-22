@@ -304,7 +304,11 @@ void main() {
       await c.admin.streamingProfiles.update(
         'hd',
         displayName: 'HD',
-        representations: ['r'],
+        representations: const [
+          {
+            'transformation': {'crop': 'limit', 'width': 1920},
+          },
+        ],
       );
 
       expect(cap.method, 'PUT');

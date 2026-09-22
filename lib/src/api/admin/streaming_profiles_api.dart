@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../http/transport.dart';
 import '../../models/admin_config_models.dart';
 import '../../models/admin_models.dart';
@@ -32,7 +34,7 @@ class StreamingProfilesApi {
   Future<AdminAck> create({
     required String name,
     String? displayName,
-    List<String>? representations,
+    List<Map<String, dynamic>>? representations,
   }) async => AdminAck.fromJson(
     await _transport.send(
       method: 'POST',
@@ -40,7 +42,7 @@ class StreamingProfilesApi {
       form: {
         'name': name,
         'display_name': ?displayName,
-        'representations': ?representations,
+        'representations': ?_encode(representations),
       },
       basicAuth: true,
     ),
@@ -50,15 +52,22 @@ class StreamingProfilesApi {
   Future<AdminAck> update(
     String name, {
     String? displayName,
-    List<String>? representations,
+    List<Map<String, dynamic>>? representations,
   }) async => AdminAck.fromJson(
     await _transport.send(
       method: 'PUT',
       segments: ['streaming_profiles', name],
-      form: {'display_name': ?displayName, 'representations': ?representations},
+      form: {
+        'display_name': ?displayName,
+        'representations': ?_encode(representations),
+      },
       basicAuth: true,
     ),
   );
+
+  /// Cloudinary takes representations as a JSON string, not repeated fields.
+  static String? _encode(List<Map<String, dynamic>>? representations) =>
+      representations == null ? null : jsonEncode(representations);
 
   /// Deletes a profile.
   Future<AdminAck> delete(String name) async => AdminAck.fromJson(

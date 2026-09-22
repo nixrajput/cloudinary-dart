@@ -9,7 +9,7 @@ class RetryPolicy {
     this.maxAttempts = 3,
     this.baseDelay = const Duration(milliseconds: 500),
     this.maxDelay = const Duration(seconds: 30),
-    this.retryOn = const {429, 502, 503, 504},
+    this.retryOn = const {420, 429, 502, 503, 504},
   });
 
   /// A policy that never retries.

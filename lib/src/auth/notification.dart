@@ -33,7 +33,11 @@ bool verifyNotificationSignature({
   CloudinarySignatureAlgorithm algorithm = CloudinarySignatureAlgorithm.sha1,
 }) {
   final nowSeconds = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+  // Bound both sides. Checking only the lower bound would let a timestamp set
+  // far in the future keep a replay acceptable well past its window.
+  const clockSkew = 300;
   if (timestamp < nowSeconds - validFor.inSeconds) return false;
+  if (timestamp > nowSeconds + clockSkew) return false;
 
   final payload = utf8.encode('$body$timestamp$apiSecret');
   final expected = switch (algorithm) {

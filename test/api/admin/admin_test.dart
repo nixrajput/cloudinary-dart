@@ -436,7 +436,11 @@ void main() {
       final (c, cap) = clientReturning({'message': 'created'});
       await c.admin.streamingProfiles.create(
         name: 'hd',
-        representations: ['{"transformation":{"crop":"limit"}}'],
+        representations: const [
+          {
+            'transformation': {'crop': 'limit'},
+          },
+        ],
       );
       expect(cap.method, 'POST');
     });

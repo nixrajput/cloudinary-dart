@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 
 import '../../config/cloudinary_config.dart';
 import '../../config/url_config.dart';
+import '../../exceptions.dart';
 import '../../http/transport.dart';
 import '../../models/search_result.dart';
 import '../../url/distribution.dart';
@@ -138,28 +139,42 @@ class SearchQuery {
     if (_fields.isNotEmpty) 'fields': _fields,
   };
 
-  /// Runs the search.
-  Future<SearchResult> execute() async => SearchResult.fromJson(
-    await _transport.send(
-      method: 'POST',
-      segments: target.segments,
-      json: true,
-      form: toJson(),
-      basicAuth: true,
-    ),
-  );
+  /// Runs an asset search.
+  ///
+  /// Throws [CloudinaryConfigException] on a folder query: the folder
+  /// endpoint answers with `folders`, which [SearchResult] cannot read, so
+  /// the results would come back silently empty. Use [executeFolders].
+  Future<SearchResult> execute() async {
+    if (target != SearchTarget.assets) {
+      throw const CloudinaryConfigException(
+        'This is a folder query. Call executeFolders() so the response is '
+        'parsed as folders rather than assets.',
+      );
+    }
+    return SearchResult.fromJson(await _send(SearchTarget.assets));
+  }
 
   /// Runs a folder search.
-  Future<FolderSearchResult> executeFolders() async =>
-      FolderSearchResult.fromJson(
-        await _transport.send(
-          method: 'POST',
-          segments: SearchTarget.folders.segments,
-          json: true,
-          form: toJson(),
-          basicAuth: true,
-        ),
+  ///
+  /// Throws [CloudinaryConfigException] on an asset query, which would
+  /// otherwise be turned into a folder request without the caller asking.
+  Future<FolderSearchResult> executeFolders() async {
+    if (target != SearchTarget.folders) {
+      throw const CloudinaryConfigException(
+        'This is an asset query. Start it with cloudinary.search.folders() '
+        'to search folders.',
       );
+    }
+    return FolderSearchResult.fromJson(await _send(SearchTarget.folders));
+  }
+
+  Future<Map<String, dynamic>> _send(SearchTarget t) => _transport.send(
+    method: 'POST',
+    segments: t.segments,
+    json: true,
+    form: toJson(),
+    basicAuth: true,
+  );
 
   /// Builds a cacheable, signed search URL.
   ///

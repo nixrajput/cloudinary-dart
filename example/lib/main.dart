@@ -28,18 +28,22 @@ class DemoPage extends StatefulWidget {
 }
 
 class _DemoPageState extends State<DemoPage> {
-  final DemoController _controller = DemoController();
+  // Built lazily: DemoController constructs a Cloudinary client, which
+  // validates the config and throws on an empty cloud name. A field
+  // initializer would throw before build() could show _MissingConfig.
+  DemoController? _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller.addListener(_onChanged);
+    if (cloudName.trim().isEmpty) return;
+    _controller = DemoController()..addListener(_onChanged);
   }
 
   @override
   void dispose() {
     _controller
-      ..removeListener(_onChanged)
+      ?..removeListener(_onChanged)
       ..dispose();
     super.dispose();
   }
@@ -47,12 +51,15 @@ class _DemoPageState extends State<DemoPage> {
   void _onChanged() => setState(() {});
 
   Future<void> _pick(ImageSource source) async {
+    final controller = _controller;
+    if (controller == null) return;
+
     final result = await pickImage(source);
     switch (result) {
       case PickedImage(:final path):
-        _controller.setImage(path);
+        controller.setImage(path);
       case PickFailed(:final message):
-        _controller.showError(message);
+        controller.showError(message);
       case PickCancelled():
         break;
     }
@@ -83,9 +90,8 @@ class _DemoPageState extends State<DemoPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (cloudName.isEmpty) return const _MissingConfig();
-
     final c = _controller;
+    if (c == null) return const _MissingConfig();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cloudinary demo'),
@@ -198,10 +204,11 @@ class _ResultPanel extends StatelessWidget {
         Wrap(
           spacing: 12,
           children: [
-            OutlinedButton(
-              onPressed: controller.busy ? null : controller.destroy,
-              child: const Text('Delete'),
-            ),
+            if (controller.canSign)
+              OutlinedButton(
+                onPressed: controller.busy ? null : controller.destroy,
+                child: const Text('Delete'),
+              ),
             if (controller.canSign)
               OutlinedButton(
                 onPressed: controller.busy ? null : controller.search,

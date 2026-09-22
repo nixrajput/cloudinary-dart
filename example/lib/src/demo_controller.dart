@@ -5,6 +5,9 @@ import 'package:flutter/foundation.dart';
 
 import 'demo_config.dart';
 
+/// Null when unset, so an empty folder is omitted rather than sent blank.
+String? get _folder => folder.trim().isEmpty ? null : folder.trim();
+
 /// Whether the file is sent from a path or read into memory first.
 enum UploadSource { path, bytes }
 
@@ -104,13 +107,13 @@ class DemoController extends ChangeNotifier {
       _result = signed
           ? await _cloudinary.upload.upload(
               file: file,
-              folder: folder,
+              folder: _folder,
               onProgress: onProgress,
             )
           : await _cloudinary.upload.unsignedUpload(
               file: file,
               uploadPreset: uploadPreset,
-              folder: folder,
+              folder: _folder,
               onProgress: onProgress,
             );
     });
@@ -135,8 +138,14 @@ class DemoController extends ChangeNotifier {
 
   Future<void> search() async {
     await _run(() async {
+      // With no folder configured, search the whole environment rather than
+      // sending the invalid expression `folder:`.
+      final expression = _folder == null
+          ? 'resource_type:image'
+          : 'folder:${_folder!}';
+
       final results = await _cloudinary.search
-          .expression('folder:$folder')
+          .expression(expression)
           .sortBy('created_at', SortDirection.desc)
           .maxResults(10)
           .execute();

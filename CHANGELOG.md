@@ -39,6 +39,16 @@ A rewrite. See [MIGRATION.md](MIGRATION.md) for a call-by-call mapping from 1.x.
 - `crc32` hashed UTF-16 code units, so a non-ASCII public ID picked a different CDN shard from every other SDK.
 - Context encoding escaped backslashes, which Cloudinary does not, corrupting any value containing one.
 - A form whose values were all null crashed on a null check instead of sending an empty body.
+- `multi`, `generateSprite` and `text` omitted the resource-type segment Cloudinary's `api_url` always adds, so they hit the wrong route.
+- Streaming profile representations were sent as repeated form fields; Cloudinary takes one JSON string.
+- Structured metadata values did not escape `"`, which Cloudinary requires there but not in contextual metadata.
+- A `.` or `..` in a public ID survived into a delivery URL, where a CDN resolves it away and can reach a different product environment.
+- The transformation, format and URL suffix were interpolated into delivery URLs without escaping, so a `?` could open a query string.
+- A folder search parsed its response as assets and an asset query could be turned into a folder request; the two are now coupled to their parsers.
+- HTTP 420 was treated as a rate limit but excluded from the default retry set.
+- A stale rate-limit reset or a non-positive `Retry-After` retried immediately instead of backing off.
+- A repeated multipart field silently kept only the last value while the signature covered all of them.
+- Webhook verification bounded only the lower end of the timestamp window, so a far-future timestamp stayed acceptable.
 - Retries replayed POST and DELETE requests that may already have been applied. Only a 429, where the server states it did not act, repeats a non-idempotent request now.
 - The per-attempt timeout covered only the response headers, so a peer that stalled mid-body hung the call indefinitely.
 - A throttled Admin request ignored `X-FeatureRateLimit-Reset`, burning its retries in milliseconds against an hourly quota.

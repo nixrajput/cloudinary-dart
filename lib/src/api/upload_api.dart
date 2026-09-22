@@ -324,7 +324,7 @@ class UploadApi {
       method: 'POST',
       segments: [resourceType.name, 'metadata'],
       signed: true,
-      form: {'metadata': encodeContext(metadata), 'public_ids': publicIds},
+      form: {'metadata': encodeMetadata(metadata), 'public_ids': publicIds},
     ),
   );
 
@@ -349,6 +349,7 @@ class UploadApi {
 
   /// Builds an animated asset from assets sharing [tag], or from [urls].
   Future<SpriteResult> multi({
+    CloudinaryResourceType resourceType = CloudinaryResourceType.image,
     String? tag,
     List<String>? urls,
     String? transformation,
@@ -360,7 +361,7 @@ class UploadApi {
     return SpriteResult.fromJson(
       await _transport.send(
         method: 'POST',
-        segments: ['multi'],
+        segments: [resourceType.name, 'multi'],
         signed: true,
         form: {
           'tag': ?tag,
@@ -376,6 +377,7 @@ class UploadApi {
 
   /// Builds a sprite sheet from assets sharing [tag], or from [urls].
   Future<SpriteResult> generateSprite({
+    CloudinaryResourceType resourceType = CloudinaryResourceType.image,
     String? tag,
     List<String>? urls,
     String? transformation,
@@ -386,7 +388,7 @@ class UploadApi {
     return SpriteResult.fromJson(
       await _transport.send(
         method: 'POST',
-        segments: ['sprite'],
+        segments: [resourceType.name, 'sprite'],
         signed: true,
         form: {
           'tag': ?tag,
@@ -401,6 +403,7 @@ class UploadApi {
 
   /// Renders [text] as an image asset.
   Future<TextResult> text({
+    CloudinaryResourceType resourceType = CloudinaryResourceType.image,
     required String text,
     String? publicId,
     String? fontFamily,
@@ -413,7 +416,7 @@ class UploadApi {
   }) async => TextResult.fromJson(
     await _transport.send(
       method: 'POST',
-      segments: ['text'],
+      segments: [resourceType.name, 'text'],
       signed: true,
       form: {
         'text': text,
@@ -525,3 +528,15 @@ String encodeContext(Map<String, String> context) => context.entries
 
 String _escapeContext(String value) =>
     value.replaceAll('=', r'\=').replaceAll('|', r'\|');
+
+/// Encodes structured metadata values.
+///
+/// Same shape as [encodeContext], but Cloudinary also requires `"` to be
+/// escaped here. Contextual metadata does not, so the two cannot share one
+/// escaper.
+String encodeMetadata(Map<String, String> metadata) => metadata.entries
+    .map((e) => '${_escapeMetadata(e.key)}=${_escapeMetadata(e.value)}')
+    .join('|');
+
+String _escapeMetadata(String value) =>
+    value.replaceAll('=', r'\=').replaceAll('|', r'\|').replaceAll('"', r'\"');

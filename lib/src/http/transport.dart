@@ -203,11 +203,17 @@ class CloudinaryTransport {
       uri,
       onProgress: onProgress,
     );
-    // MultipartRequest.fields is a Map, so a repeated key would overwrite.
-    // No Upload API parameter needs repeats today; the array ones are
-    // flattened to `key[]` and any genuine duplicate would be a bug worth
-    // surfacing rather than silently dropping.
+    // MultipartRequest.fields is a Map, so a repeated key would silently keep
+    // only the last value while the signature covered every one of them.
+    // Nothing in the Upload API needs repeats today, so say so rather than
+    // send a body that disagrees with its own signature.
     for (final entry in CloudinaryTransport.flattenParams(prepared)) {
+      if (request.fields.containsKey(entry.key)) {
+        throw CloudinaryConfigException(
+          'Multipart uploads cannot repeat the field "${entry.key}". Pass a '
+          'single value, or join it yourself.',
+        );
+      }
       request.fields[entry.key] = entry.value;
     }
 
@@ -403,18 +409,22 @@ class CloudinaryTransport {
     final reset = _dateHeader(r, 'x-featureratelimit-reset');
     if (reset == null) return null;
     final delta = reset.difference(DateTime.now());
-    return delta.isNegative ? Duration.zero : delta;
+    // A stale reset date would otherwise retry instantly; fall back to the
+    // computed backoff instead.
+    return delta > Duration.zero ? delta : null;
   }
 
   static Duration? _retryAfter(http.Response r) {
     final raw = r.headers['retry-after'];
     if (raw == null) return null;
     final seconds = int.tryParse(raw);
-    if (seconds != null) return Duration(seconds: seconds);
+    if (seconds != null) {
+      return seconds > 0 ? Duration(seconds: seconds) : null;
+    }
     final at = parseHttpDate(raw);
     if (at == null) return null;
     final delta = at.difference(DateTime.now());
-    return delta.isNegative ? Duration.zero : delta;
+    return delta > Duration.zero ? delta : null;
   }
 
   /// Flattens parameters the way Cloudinary's own encoder does.

@@ -170,7 +170,8 @@ class CloudinaryUrlBuilder {
       return _publicId;
     }
 
-    final transformation = _chain?.serialize() ?? '';
+    final rawTransformation = _chain?.serialize() ?? '';
+    final transformation = escapePathComponent(rawTransformation);
     final suffix = _urlSuffix;
     if (suffix != null && RegExp(r'[./]').hasMatch(suffix)) {
       throw const CloudinaryConfigException(
@@ -181,12 +182,17 @@ class CloudinaryUrlBuilder {
     // Cloudinary signs the escaped path, so escaping happens first: signing
     // the raw source and emitting an escaped one gives the server a digest it
     // cannot reproduce.
-    final escaped = _escapeSource(_publicId);
+    _rejectDotSegments(_publicId, 'public ID');
+    final escaped = escapePathComponent(_publicId);
 
     // The suffix is appended to the delivered path but deliberately left out
     // of the signature payload, and the format extension trails the suffix.
-    final sourceToSign = _format == null ? escaped : '$escaped.$_format';
-    final source = switch ((suffix, _format)) {
+    final rawFormat = _format;
+    final fmt = rawFormat == null ? null : escapePathComponent(rawFormat);
+    final sfx = suffix == null ? null : escapePathComponent(suffix);
+
+    final sourceToSign = fmt == null ? escaped : '$escaped.$fmt';
+    final source = switch ((sfx, fmt)) {
       (null, null) => escaped,
       (null, final f) => '$escaped.$f',
       (final s, null) => '$escaped/$s',
@@ -241,11 +247,27 @@ class CloudinaryUrlBuilder {
 
   /// Percent-escapes the characters that would otherwise change the URL's
   /// structure, leaving `/` as a real separator.
-  static String _escapeSource(String source) => source
+  static String escapePathComponent(String value) => value
       .replaceAll('%', '%25')
       .replaceAll(' ', '%20')
       .replaceAll('?', '%3F')
       .replaceAll('#', '%23');
+
+  /// Rejects path components that a CDN would resolve away.
+  ///
+  /// A `..` inside a public ID survives into the delivery path, and the CDN
+  /// collapses it, so a caller-supplied ID can resolve to a different cloud's
+  /// assets. Escaping the dots would not help: the segment has to go.
+  static void _rejectDotSegments(String value, String what) {
+    for (final part in value.split('/')) {
+      if (part == '.' || part == '..') {
+        throw CloudinaryConfigException(
+          'A $what must not contain the path segment "$part": a CDN resolves '
+          'it away and the URL would point somewhere else.',
+        );
+      }
+    }
+  }
 
   /// Cloudinary forces `v1` when the source has a folder path and no explicit
   /// version, so overwriting an asset busts CDN caches.
