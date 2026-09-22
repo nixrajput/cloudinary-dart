@@ -282,7 +282,7 @@ try {
 }
 ```
 
-429 and 5xx responses are retried automatically, honouring `Retry-After`. A 500 on an upload is deliberately not retried, because the upload may have partly succeeded. Configure or disable it with `RetryPolicy`.
+Responses with status 420, 429, 502, 503 or 504 are retried automatically, honouring `Retry-After` and Cloudinary's `X-FeatureRateLimit-Reset`. A 500 is never retried, because the request may have partly succeeded, and for the same reason a POST or DELETE retries only on 420 and 429, where the server states it did not act. Configure or disable it with `RetryPolicy`.
 
 ## Verifying webhooks
 
