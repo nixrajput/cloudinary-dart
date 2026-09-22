@@ -459,10 +459,18 @@ class UploadApi {
     String? notificationUrl,
     Map<String, dynamic>? extraParams,
   }) async {
-    if (tags == null && publicIds == null && prefixes == null) {
+    // An empty list is as good as no selector: Cloudinary accepts the request
+    // and stores a 0-file archive rather than refusing it, so the caller pays
+    // for a junk asset instead of seeing their mistake.
+    final hasSelector = [
+      tags,
+      publicIds,
+      prefixes,
+    ].any((v) => v != null && v.isNotEmpty);
+    if (!hasSelector) {
       throw const CloudinaryConfigException(
-        'createArchive needs one of tags, publicIds or prefixes to select '
-        'assets.',
+        'createArchive needs a non-empty tags, publicIds or prefixes list to '
+        'select assets.',
       );
     }
     return ArchiveResult.fromJson(

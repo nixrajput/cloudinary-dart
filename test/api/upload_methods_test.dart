@@ -217,6 +217,20 @@ void main() {
     );
   });
 
+  test('createArchive rejects empty selector lists', () {
+    // Cloudinary answers these with a stored 0-file archive rather than an
+    // error, so an unguarded call bills the caller for a junk asset.
+    final (c, _) = clientReturning({});
+    expect(
+      () => c.upload.createArchive(tags: [], publicIds: [], prefixes: []),
+      throwsA(isA<CloudinaryConfigException>()),
+    );
+    expect(
+      () => c.upload.createZip(tags: []),
+      throwsA(isA<CloudinaryConfigException>()),
+    );
+  });
+
   test('createZip forces the zip target format', () async {
     final (c, cap) = clientReturning({'public_id': 'a'});
     await c.upload.createZip(tags: ['t']);
