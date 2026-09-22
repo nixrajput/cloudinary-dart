@@ -51,6 +51,7 @@ A rewrite. See [MIGRATION.md](MIGRATION.md) for a call-by-call mapping from 1.x.
 - Webhook verification bounded only the lower end of the timestamp window, so a far-future timestamp stayed acceptable.
 - Retries replayed POST and DELETE requests that may already have been applied. Only a 429, where the server states it did not act, repeats a non-idempotent request now.
 - The per-attempt timeout covered only the response headers, so a peer that stalled mid-body hung the call indefinitely.
+- A response whose body failed mid-read discarded the status line and headers with it, so a 401 or a 429 the server had explicitly reported surfaced as an unclassified transport failure and a throttled POST refused to retry. The status now survives the read failure, which is named in the message; a 2xx still fails, because there the body is the result.
 - A throttled Admin request ignored `X-FeatureRateLimit-Reset`, burning its retries in milliseconds against an hourly quota.
 - A missing or unreadable upload file escaped as a raw `dart:io` error rather than a `CloudinaryException`.
 - A `Map` passed through `extraParams` was serialized with Dart's `toString` and signed in that form; it is now rejected with an explanation.

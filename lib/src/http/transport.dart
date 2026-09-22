@@ -172,7 +172,8 @@ class CloudinaryTransport {
       return request;
     });
 
-    return _decode(response);
+    final (result, bodyReadError) = response;
+    return _decode(result, bodyReadError: bodyReadError);
   }
 
   /// Sends a multipart upload and returns the decoded JSON body.
@@ -251,12 +252,9 @@ class CloudinaryTransport {
         break;
     }
 
-    http.Response response;
+    (http.Response, Object?) read;
     try {
-      response = await _client
-          .send(request)
-          .then(http.Response.fromStream)
-          .timeout(timeout);
+      read = await _client.send(request).then(_readBody).timeout(timeout);
     } on CloudinaryException {
       rethrow;
     } on TimeoutException catch (e) {
@@ -271,7 +269,48 @@ class CloudinaryTransport {
       );
     }
 
-    return _decode(response);
+    final (response, bodyReadError) = read;
+    return _decode(response, bodyReadError: bodyReadError);
+  }
+
+  /// Reads [streamed] into a response, keeping the status line when the body
+  /// fails.
+  ///
+  /// A connection that dies mid-body has still delivered a status and headers,
+  /// and those alone decide whether the call retries and which exception it
+  /// maps to. Discarding them turns a rate limit the server explicitly
+  /// reported into an unclassified transport failure that a POST then refuses
+  /// to retry. A 2xx is the exception: there the body *is* the result, so a
+  /// truncated read cannot stand in for one and stays a transport failure.
+  ///
+  /// The returned record carries the read error alongside the response so the
+  /// thrown exception can name it.
+  static Future<(http.Response, Object?)> _readBody(
+    http.StreamedResponse streamed,
+  ) async {
+    try {
+      return (await http.Response.fromStream(streamed), null);
+    } on CloudinaryException {
+      rethrow;
+    } catch (e) {
+      final status = streamed.statusCode;
+      if (status >= 200 && status < 300) {
+        throw CloudinaryTransportException(
+          'Cloudinary answered $status but the response body could not be '
+          'read: $e',
+          cause: e,
+        );
+      }
+      return (
+        http.Response(
+          '',
+          status,
+          headers: streamed.headers,
+          reasonPhrase: streamed.reasonPhrase,
+        ),
+        e,
+      );
+    }
   }
 
   /// HTTP methods safe to replay after a transport failure.
@@ -282,7 +321,7 @@ class CloudinaryTransport {
   /// answered and told us it did not act.
   static const Set<String> _replayableMethods = {'GET', 'HEAD', 'OPTIONS'};
 
-  Future<http.Response> _sendWithRetry(
+  Future<(http.Response, Object?)> _sendWithRetry(
     String method,
     http.Request Function() build,
   ) async {
@@ -290,12 +329,9 @@ class CloudinaryTransport {
     var attempt = 0;
     while (true) {
       attempt++;
-      http.Response response;
+      (http.Response, Object?) read;
       try {
-        response = await _client
-            .send(build())
-            .then(http.Response.fromStream)
-            .timeout(timeout);
+        read = await _client.send(build()).then(_readBody).timeout(timeout);
       } on CloudinaryException {
         rethrow;
       } on TimeoutException catch (e) {
@@ -318,6 +354,7 @@ class CloudinaryTransport {
         continue;
       }
 
+      final response = read.$1;
       final rateLimited =
           response.statusCode == 429 || response.statusCode == 420;
       if (attempt < retry.maxAttempts &&
@@ -328,11 +365,14 @@ class CloudinaryTransport {
         );
         continue;
       }
-      return response;
+      return read;
     }
   }
 
-  Map<String, dynamic> _decode(http.Response response) {
+  Map<String, dynamic> _decode(
+    http.Response response, {
+    Object? bodyReadError,
+  }) {
     final status = response.statusCode;
     Map<String, dynamic> parsed;
     try {
@@ -354,7 +394,12 @@ class CloudinaryTransport {
 
     if (status >= 200 && status < 300) return parsed;
 
-    final message = _errorMessage(parsed) ?? 'Cloudinary request failed.';
+    final message =
+        _errorMessage(parsed) ??
+        (bodyReadError != null
+            ? 'Cloudinary request failed. The response body could not be '
+                  'read: $bodyReadError'
+            : 'Cloudinary request failed.');
     throw switch (status) {
       401 || 403 => CloudinaryAuthException(
         message: message,
