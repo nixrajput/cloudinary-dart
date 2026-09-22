@@ -1,0 +1,62 @@
+import '../../config/cloudinary_config.dart';
+import '../../config/url_config.dart';
+import '../../http/transport.dart';
+import 'search_query.dart';
+
+/// The Cloudinary Search API.
+///
+/// Reached as `cloudinary.search`. Each builder method starts a fresh query,
+/// so two searches never share accumulated state.
+///
+/// ```dart
+/// final results = await cloudinary.search
+///     .expression('resource_type:image AND tags=holiday')
+///     .sortBy('created_at', SortDirection.desc)
+///     .maxResults(50)
+///     .execute();
+///
+/// for (final asset in results.resources) {
+///   print(asset.publicId);
+/// }
+/// ```
+class SearchApi {
+  /// Creates a search API bound to [_transport].
+  SearchApi(this._transport, this._config, this._urlConfig);
+
+  final CloudinaryTransport _transport;
+  final CloudinaryConfig _config;
+  final UrlConfig _urlConfig;
+
+  /// Starts a new asset query.
+  SearchQuery query() => SearchQuery(
+    transport: _transport,
+    config: _config,
+    urlConfig: _urlConfig,
+  );
+
+  /// Starts a new folder query.
+  SearchQuery folders() => SearchQuery(
+    transport: _transport,
+    config: _config,
+    urlConfig: _urlConfig,
+    target: SearchTarget.folders,
+  );
+
+  /// Starts an asset query with an expression.
+  SearchQuery expression(String value) => query().expression(value);
+
+  /// Starts an asset query with a page size.
+  SearchQuery maxResults(int value) => query().maxResults(value);
+
+  /// Starts an asset query with an ordering.
+  SearchQuery sortBy(
+    String field, [
+    SortDirection direction = SortDirection.asc,
+  ]) => query().sortBy(field, direction);
+
+  /// Starts an asset query with an aggregation.
+  SearchQuery aggregate(String field) => query().aggregate(field);
+
+  /// Starts an asset query requesting an extra field.
+  SearchQuery withField(String field) => query().withField(field);
+}

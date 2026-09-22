@@ -1,401 +1,255 @@
-import 'dart:async';
 import 'dart:io';
 
-import 'package:cloudinary/cloudinary.dart';
-import 'package:example/utils/utility.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-const String apiKey =
-    String.fromEnvironment('CLOUDINARY_API_KEY', defaultValue: '');
-const String apiSecret =
-    String.fromEnvironment('CLOUDINARY_API_SECRET', defaultValue: '');
-const String cloudName =
-    String.fromEnvironment('CLOUDINARY_CLOUD_NAME', defaultValue: '');
-const String folder =
-    String.fromEnvironment('CLOUDINARY_FOLDER', defaultValue: '');
-const String uploadPreset =
-    String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET', defaultValue: '');
+import 'src/demo_config.dart';
+import 'src/demo_controller.dart';
+import 'src/image_picking.dart';
 
-final cloudinary = Cloudinary.unsignedConfig(
-  cloudName: cloudName,
-);
+void main() => runApp(const CloudinaryDemoApp());
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class CloudinaryDemoApp extends StatelessWidget {
+  const CloudinaryDemoApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Cloudinary Demo',
-      debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.system,
-      darkTheme: ThemeData.dark(),
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Cloudinary Home Page'),
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(
+    title: 'Cloudinary demo',
+    theme: ThemeData(colorSchemeSeed: Colors.blue, useMaterial3: true),
+    home: const DemoPage(),
+  );
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+class DemoPage extends StatefulWidget {
+  const DemoPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<DemoPage> createState() => _DemoPageState();
 }
 
-enum FileSource {
-  path,
-  bytes,
-}
+class _DemoPageState extends State<DemoPage> {
+  final DemoController _controller = DemoController();
 
-class DataTransmitNotifier {
-  final String? path;
-  late final ProgressCallback? progressCallback;
-  final notifier = ValueNotifier<double>(0);
-
-  DataTransmitNotifier({this.path, ProgressCallback? progressCallback}) {
-    this.progressCallback = progressCallback ??
-        (count, total) {
-          notifier.value = count.toDouble() / total.toDouble();
-        };
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onChanged);
   }
-}
 
-class _MyHomePageState extends State<MyHomePage> {
-  static const int loadImage = 1;
-  static const int doSignedUpload = 2;
-  static const int doUnsignedUpload = 3;
-  DataTransmitNotifier dataImages = DataTransmitNotifier();
-  CloudinaryResponse cloudinaryResponses = CloudinaryResponse();
-  bool loading = false;
-  String? errorMessage;
-  FileSource fileSource = FileSource.path;
+  @override
+  void dispose() {
+    _controller
+      ..removeListener(_onChanged)
+      ..dispose();
+    super.dispose();
+  }
 
-  void onUploadSourceChanged(FileSource? value) =>
-      setState(() => fileSource = value!);
+  void _onChanged() => setState(() {});
 
-  Widget get uploadSourceView => Column(
-        children: [
-          const Text("File source"),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: RadioListTile<FileSource>(
-                    title: const Text("Path"),
-                    value: FileSource.path,
-                    groupValue: fileSource,
-                    onChanged: onUploadSourceChanged),
-              ),
-              Expanded(
-                child: RadioListTile<FileSource>(
-                    title: const Text("Bytes"),
-                    value: FileSource.bytes,
-                    groupValue: fileSource,
-                    onChanged: onUploadSourceChanged),
-              ),
-            ],
-          )
-        ],
-      );
+  Future<void> _pick(ImageSource source) async {
+    final result = await pickImage(source);
+    switch (result) {
+      case PickedImage(:final path):
+        _controller.setImage(path);
+      case PickFailed(:final message):
+        _controller.showError(message);
+      case PickCancelled():
+        break;
+    }
+  }
 
-  Widget imageFromPathView() {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.file(
-            File(dataImages.path!),
-            height: MediaQuery.of(context).size.width * 0.75,
-            scale: 1.0,
-            fit: BoxFit.cover,
-          ),
-          const SizedBox(height: 16.0),
-          if (dataImages.notifier.value > 0)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ValueListenableBuilder<double>(
-                key: ValueKey(dataImages.path),
-                valueListenable: dataImages.notifier,
-                builder: (context, value, child) {
-                  if (value == 0 && !loading) return const SizedBox();
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      LinearProgressIndicator(
-                        value: value,
-                        minHeight: 8.0,
-                      ),
-                      const SizedBox(height: 4.0),
-                      Text('${(value * 100).toInt()} %'),
-                    ],
-                  );
-                },
-              ),
+  Future<void> _choose() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera),
+              title: const Text('Use camera'),
+              onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Scrollbar(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const SizedBox(height: 16),
-              const Text(
-                'Photos from file',
-              ),
-              const SizedBox(height: 8.0),
-              dataImages.path != null
-                  ? imageFromPathView()
-                  : ElevatedButton(
-                      onPressed: () => onClick(loadImage),
-                      style: ButtonStyle(
-                        padding: MaterialStateProperty.all(
-                          const EdgeInsets.all(8.0),
-                        ),
-                      ),
-                      child: const Text(
-                        'Choose Image',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-              const Divider(height: 32.0),
-              if (cloudinaryResponses.secureUrl != null)
-                const Text(
-                  'Cloudinary URL',
-                ),
-              const SizedBox(
-                height: 16.0,
-              ),
-              if (cloudinaryResponses.secureUrl != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                  ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).bottomAppBarTheme.color,
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    padding: const EdgeInsets.all(16.0),
-                    child: RichText(
-                      text: TextSpan(
-                        text: cloudinaryResponses.secureUrl ?? '',
-                      ),
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 16.0),
-              Visibility(
-                visible: errorMessage?.isNotEmpty ?? false,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "$errorMessage",
-                      textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontSize: 18, color: Colors.red.shade900),
-                    ),
-                    const SizedBox(
-                      height: 128,
-                    ),
-                  ],
-                ),
-              ),
-              uploadSourceView,
-              const SizedBox(
-                height: 16,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: loading ? null : () => onClick(doSignedUpload),
-                    style: ButtonStyle(
-                      padding: MaterialStateProperty.all(
-                        const EdgeInsets.all(16.0),
-                      ),
-                    ),
-                    child: const Text(
-                      'Signed upload',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: loading ? null : () => onClick(doUnsignedUpload),
-                    style: ButtonStyle(
-                      padding:
-                          MaterialStateProperty.all(const EdgeInsets.all(16.0)),
-                    ),
-                    child: const Text(
-                      'Unsigned upload',
-                      textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40.0),
-            ],
-          ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choose from gallery'),
+              onTap: () => Navigator.pop(context, ImageSource.gallery),
+            ),
+          ],
         ),
       ),
     );
+    if (source != null) await _pick(source);
   }
 
-  void onNewImages(List<String> filePaths) {
-    if (filePaths.isNotEmpty) {
-      for (final path in filePaths) {
-        if (path.isNotEmpty) {
-          setState(() {
-            dataImages = DataTransmitNotifier(path: path);
-          });
-        }
-      }
-      setState(() {});
-    }
+  @override
+  Widget build(BuildContext context) {
+    if (cloudName.isEmpty) return const _MissingConfig();
+
+    final c = _controller;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Cloudinary demo'),
+        bottom: c.busy
+            ? PreferredSize(
+                preferredSize: const Size.fromHeight(4),
+                child: LinearProgressIndicator(
+                  value: c.progress == 0 ? null : c.progress,
+                ),
+              )
+            : null,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _SourceToggle(controller: c),
+          const SizedBox(height: 16),
+          if (c.imagePath != null)
+            Image.file(File(c.imagePath!), height: 180, fit: BoxFit.contain),
+          const SizedBox(height: 16),
+          FilledButton.tonal(
+            onPressed: c.busy ? null : _choose,
+            child: Text(c.imagePath == null ? 'Choose image' : 'Change image'),
+          ),
+          const SizedBox(height: 8),
+          _UploadButtons(controller: c),
+          if (c.result != null) _ResultPanel(controller: c),
+          if (c.status != null) _Banner(text: c.status!),
+          if (c.error != null) _Banner(text: c.error!, isError: true),
+        ],
+      ),
+    );
   }
+}
 
-  Future<List<int>> getFileBytes(String path) async {
-    return await File(path).readAsBytes();
+class _SourceToggle extends StatelessWidget {
+  const _SourceToggle({required this.controller});
+
+  final DemoController controller;
+
+  @override
+  Widget build(BuildContext context) => SegmentedButton<UploadSource>(
+    segments: const [
+      ButtonSegment(value: UploadSource.path, label: Text('From path')),
+      ButtonSegment(value: UploadSource.bytes, label: Text('From bytes')),
+    ],
+    selected: {controller.source},
+    onSelectionChanged: (s) => controller.setSource(s.first),
+  );
+}
+
+class _UploadButtons extends StatelessWidget {
+  const _UploadButtons({required this.controller});
+
+  final DemoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final ready = controller.imagePath != null && !controller.busy;
+    return Wrap(
+      spacing: 12,
+      alignment: WrapAlignment.center,
+      children: [
+        if (controller.canSign)
+          FilledButton(
+            onPressed: ready ? () => controller.upload(signed: true) : null,
+            child: const Text('Signed upload'),
+          ),
+        if (controller.hasUploadPreset)
+          FilledButton(
+            onPressed: ready ? () => controller.upload(signed: false) : null,
+            child: const Text('Unsigned upload'),
+          ),
+      ],
+    );
   }
+}
 
-  Future<void> doSingleUpload({bool signed = true}) async {
-    try {
-      final data = dataImages;
-      List<int>? fileBytes;
+class _ResultPanel extends StatelessWidget {
+  const _ResultPanel({required this.controller});
 
-      if (fileSource == FileSource.bytes) {
-        fileBytes = await getFileBytes(data.path!);
-      }
+  final DemoController controller;
 
-      CloudinaryResponse response = signed
-          ? await cloudinary.upload(
-              file: data.path,
-              fileBytes: fileBytes,
-              resourceType: CloudinaryResourceType.image,
-              folder: folder,
-              progressCallback: data.progressCallback,
-            )
-          : await cloudinary.unsignedUpload(
-              file: data.path,
-              fileBytes: fileBytes,
-              resourceType: CloudinaryResourceType.image,
-              folder: folder,
-              progressCallback: data.progressCallback,
-              uploadPreset: uploadPreset,
-            );
-
-      if (response.isSuccessful && response.secureUrl!.isNotEmpty) {
-        setState(() {
-          cloudinaryResponses = response;
-        });
-      } else {
-        setState(() {
-          errorMessage = response.error;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        errorMessage = e.toString();
-      });
-      if (kDebugMode) {
-        print(e);
-      }
-    }
+  @override
+  Widget build(BuildContext context) {
+    final transformed = controller.transformedUrl;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(height: 32),
+        Text('Delivery URL', style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 4),
+        SelectableText(controller.result?.secureUrl ?? ''),
+        if (transformed != null) ...[
+          const SizedBox(height: 16),
+          Text(
+            'Transformed URL',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 4),
+          SelectableText(transformed),
+          const SizedBox(height: 8),
+          Image.network(
+            transformed,
+            height: 150,
+            errorBuilder: (_, _, _) => const Text('Preview unavailable'),
+          ),
+        ],
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 12,
+          children: [
+            OutlinedButton(
+              onPressed: controller.busy ? null : controller.destroy,
+              child: const Text('Delete'),
+            ),
+            if (controller.canSign)
+              OutlinedButton(
+                onPressed: controller.busy ? null : controller.search,
+                child: const Text('Search folder'),
+              ),
+          ],
+        ),
+      ],
+    );
   }
+}
 
-  void onClick(int id) async {
-    errorMessage = null;
-    try {
-      switch (id) {
-        case loadImage:
-          Utility.showImagePickerModal(
-            context: context,
-            onImageFromCamera: () async {
-              onNewImages(await handleImagePickerResponse(
-                  Utility.takePhoto(cameraDevice: CameraDevice.rear)));
-            },
-            onImageFromGallery: () async {
-              onNewImages(await handleImagePickerResponse(
-                  Utility.pickImageFromGallery()));
-            },
-          );
-          break;
-        case doSignedUpload:
-          await doSingleUpload();
-          break;
-        case doUnsignedUpload:
-          await doSingleUpload(signed: false);
-          break;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      loading = false;
-      setState(() => errorMessage = e.toString());
-    } finally {
-      if (loading) hideLoading();
-    }
+class _Banner extends StatelessWidget {
+  const _Banner({required this.text, this.isError = false});
+
+  final String text;
+  final bool isError;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(color: isError ? scheme.error : scheme.primary),
+      ),
+    );
   }
+}
 
-  void showLoading() => setState(() => loading = true);
+class _MissingConfig extends StatelessWidget {
+  const _MissingConfig();
 
-  void hideLoading() => setState(() => loading = false);
-
-  Future<List<String>> handleImagePickerResponse(Future getImageCall) async {
-    Map<String, dynamic> resource =
-        await (getImageCall as FutureOr<Map<String, dynamic>>);
-    if (resource.isEmpty) return [];
-    switch (resource['status']) {
-      case 'SUCCESS':
-        // ignore: use_build_context_synchronously
-        Navigator.pop(context);
-        return resource['data'];
-      default:
-        Utility.showPermissionExplanation(
-            context: context, message: resource['message']);
-        break;
-    }
-    return [];
-  }
+  @override
+  Widget build(BuildContext context) => const MaterialApp(
+    home: Scaffold(
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Text(
+            'Run with --dart-define=CLOUDINARY_CLOUD_NAME=your-cloud.\n'
+            'See example/README.md for the full command.',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    ),
+  );
 }
