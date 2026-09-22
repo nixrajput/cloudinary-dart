@@ -224,8 +224,8 @@ class CloudinaryUrlBuilder {
       source,
     ].where((part) => part.isNotEmpty);
 
-    // #5: a transformation value may contain a space (a text overlay, say),
-    // which would otherwise land raw in the URL.
+    // A transformation value may contain a space (a text overlay, say), which
+    // would otherwise land raw in the URL.
     final url = parts.join('/').replaceAll(' ', '%20');
 
     final token = _authToken;

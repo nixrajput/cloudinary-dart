@@ -204,10 +204,9 @@ class CloudinaryTransport {
       uri,
       onProgress: onProgress,
     );
-    // MultipartRequest.fields is a Map, so a repeated key would silently keep
-    // only the last value while the signature covered every one of them.
-    // Nothing in the Upload API needs repeats today, so say so rather than
-    // send a body that disagrees with its own signature.
+    // MultipartRequest.fields is a Map, so a repeated key keeps only the last
+    // value while the signature covered every one. No Upload API call needs
+    // repeats, so reject it rather than send a body its signature disowns.
     for (final entry in CloudinaryTransport.flattenParams(prepared)) {
       if (request.fields.containsKey(entry.key)) {
         throw CloudinaryConfigException(

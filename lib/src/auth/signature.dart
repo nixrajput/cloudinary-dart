@@ -27,10 +27,9 @@ String stringToSign(Map<String, dynamic> params, {int version = 2}) {
     pairs.add(MapEntry(entry.key, rendered));
   }
 
-  // Sort by key, as Cloudinary's Node and Ruby SDKs do. Their Python SDK
-  // sorts the joined "key=value" strings instead; the two orders agree unless
-  // one key is a prefix of another followed by a character below '=', which
-  // no Cloudinary parameter name is.
+  // Sort by key, as Cloudinary's Node and Ruby SDKs do. Python sorts the
+  // joined "key=value" strings; the orders diverge only where one key prefixes
+  // another before a character below '=', which no Cloudinary parameter is.
   pairs.sort((a, b) => a.key.compareTo(b.key));
 
   return pairs
