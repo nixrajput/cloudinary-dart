@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <b>92 API methods</b> across Upload, Admin and Search &nbsp;·&nbsp; <b>385 tests</b> &nbsp;·&nbsp; <b>2 runtime dependencies</b> &nbsp;·&nbsp; <b>0 Flutter dependencies</b>
+  <b>93 API methods</b> across Upload, Admin and Search &nbsp;·&nbsp; <b>386 tests</b> &nbsp;·&nbsp; <b>2 runtime dependencies</b> &nbsp;·&nbsp; <b>0 Flutter dependencies</b>
 </p>
 
 <p align="center">
@@ -141,7 +141,7 @@ CloudinaryFileSource.bytes(bytes, filename: 'a.png');
 CloudinaryFileSource.url('https://example.com/a.png');
 ```
 
-The rest of the Upload API is there too: `explicit`, `rename`, `destroy`, `addTag`, `removeTag`, `replaceTag`, `removeAllTags`, `addContext`, `removeAllContext`, `updateMetadata`, `explode`, `multi`, `generateSprite`, `text`, `createArchive`, `createZip` and `deleteByToken`.
+The rest of the Upload API is there too: `explicit`, `rename`, `destroy`, `destroyByAssetId`, `addTag`, `removeTag`, `replaceTag`, `removeAllTags`, `addContext`, `removeAllContext`, `updateMetadata`, `explode`, `multi`, `generateSprite`, `text`, `createArchive`, `createZip` and `deleteByToken`.
 
 ## Delivery URLs
 

@@ -33,8 +33,8 @@ class StreamingProfilesApi {
   /// Creates a profile.
   Future<AdminAck> create({
     required String name,
+    required List<Map<String, dynamic>> representations,
     String? displayName,
-    List<Map<String, dynamic>>? representations,
   }) async => AdminAck.fromJson(
     await _transport.send(
       method: 'POST',
@@ -42,7 +42,7 @@ class StreamingProfilesApi {
       form: {
         'name': name,
         'display_name': ?displayName,
-        'representations': ?_encode(representations),
+        'representations': _encode(representations),
       },
       basicAuth: true,
     ),
@@ -51,23 +51,23 @@ class StreamingProfilesApi {
   /// Updates a profile.
   Future<AdminAck> update(
     String name, {
+    required List<Map<String, dynamic>> representations,
     String? displayName,
-    List<Map<String, dynamic>>? representations,
   }) async => AdminAck.fromJson(
     await _transport.send(
       method: 'PUT',
       segments: ['streaming_profiles', name],
       form: {
         'display_name': ?displayName,
-        'representations': ?_encode(representations),
+        'representations': _encode(representations),
       },
       basicAuth: true,
     ),
   );
 
   /// Cloudinary takes representations as a JSON string, not repeated fields.
-  static String? _encode(List<Map<String, dynamic>>? representations) =>
-      representations == null ? null : jsonEncode(representations);
+  static String _encode(List<Map<String, dynamic>> representations) =>
+      jsonEncode(representations);
 
   /// Deletes a profile.
   Future<AdminAck> delete(String name) async => AdminAck.fromJson(

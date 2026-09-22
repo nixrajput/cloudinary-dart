@@ -229,6 +229,31 @@ class UploadApi {
     );
   }
 
+  /// Deletes an asset by its immutable asset ID.
+  ///
+  /// Posts to the same `destroy` endpoint as [destroy], carrying `asset_id`
+  /// in place of `public_id`, which is the shape the Upload API reference
+  /// documents.
+  Future<DestroyResult> destroyByAssetId({
+    required String assetId,
+    CloudinaryResourceType resourceType = CloudinaryResourceType.image,
+    bool? invalidate,
+    String? notificationUrl,
+    Map<String, dynamic>? extraParams,
+  }) async => DestroyResult.fromJson(
+    await _transport.send(
+      method: 'POST',
+      segments: [resourceType.name, 'destroy'],
+      signed: true,
+      form: {
+        'asset_id': assetId,
+        'invalidate': ?invalidate,
+        'notification_url': ?notificationUrl,
+        ...?extraParams,
+      },
+    ),
+  );
+
   /// Adds [tag] to each of [publicIds].
   Future<PublicIdsResult> addTag({
     required String tag,

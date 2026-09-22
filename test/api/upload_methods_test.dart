@@ -55,6 +55,17 @@ void main() {
     expect(cap.form['signature'], isNotNull);
   });
 
+  test('destroyByAssetId posts asset_id to the destroy endpoint', () async {
+    final (c, cap) = clientReturning({'result': 'ok'});
+    await c.upload.destroyByAssetId(assetId: 'aid', invalidate: true);
+
+    expect(cap.method, 'POST');
+    expect(cap.path, '/v1_1/demo/image/destroy');
+    expect(cap.form['asset_id'], 'aid');
+    expect(cap.form['public_id'], isNull);
+    expect(cap.form['invalidate'], 'true');
+  });
+
   test('rename posts both public ids', () async {
     final (c, cap) = clientReturning({'public_id': 'b'});
     await c.upload.rename(fromPublicId: 'a', toPublicId: 'b');
