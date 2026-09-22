@@ -217,7 +217,9 @@ void main() {
     final (c, cap) = clientReturning({'result': 'ok'});
     await c.upload.deleteByToken(token: 'tok');
 
-    expect(cap.path, '/v1_1/demo/image/delete_by_token');
+    // This route sits directly under the cloud name; the resource-type
+    // segment every other upload endpoint carries makes it 404.
+    expect(cap.path, '/v1_1/demo/delete_by_token');
     expect(cap.form['token'], 'tok');
     expect(cap.form.containsKey('api_key'), isFalse);
     expect(cap.form.containsKey('signature'), isFalse);

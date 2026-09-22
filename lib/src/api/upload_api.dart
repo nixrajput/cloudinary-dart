@@ -484,17 +484,19 @@ class UploadApi {
   ///
   /// Unsigned on purpose: this is how a client app undoes its own upload
   /// without holding an API secret. The token expires ten minutes after
-  /// upload.
-  Future<DestroyResult> deleteByToken({
-    required String token,
-    CloudinaryResourceType resourceType = CloudinaryResourceType.image,
-  }) async => DestroyResult.fromJson(
-    await _transport.send(
-      method: 'POST',
-      segments: [resourceType.name, 'delete_by_token'],
-      form: {'token': token},
-    ),
-  );
+  /// upload, and one token deletes one asset.
+  ///
+  /// Takes no resource type: this route sits directly under the cloud name,
+  /// unlike every other upload endpoint, and the token identifies the asset
+  /// on its own.
+  Future<DestroyResult> deleteByToken({required String token}) async =>
+      DestroyResult.fromJson(
+        await _transport.send(
+          method: 'POST',
+          segments: ['delete_by_token'],
+          form: {'token': token},
+        ),
+      );
 
   void _requireTagOrUrls(String? tag, List<String>? urls, String method) {
     if (tag == null && (urls == null || urls.isEmpty)) {
