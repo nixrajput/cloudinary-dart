@@ -15,7 +15,7 @@ A rewrite. See [MIGRATION.md](MIGRATION.md) for a call-by-call mapping from 1.x.
 - **Typed exceptions**: a sealed `CloudinaryException` hierarchy covering API, rate limit, auth, not-found, transport, config and signature failures.
 - **Typed response models**, each exposing `raw` so a response field this package does not model is still reachable.
 - **`CLOUDINARY_URL` support** via `Cloudinary.fromEnvironment()` and `Cloudinary.fromUrl()`.
-- Automatic retries on 429, 502, 503 and 504, honouring `Retry-After`, configurable through `RetryPolicy`.
+- Automatic retries on 420, 429, 502, 503 and 504, honouring `Retry-After`, configurable through `RetryPolicy`.
 
 ### Changed
 
@@ -59,7 +59,6 @@ A rewrite. See [MIGRATION.md](MIGRATION.md) for a call-by-call mapping from 1.x.
 - A transformation value containing a space produced a syntactically invalid URL.
 - `transformChain` stored the caller's chain by reference, so a later `transform()` mutated a chain they still held.
 - Signed search URLs ignored `UrlConfig`, pointing private-CDN and CNAME accounts at a host they do not serve from.
-
 - Signature timestamps were sent in milliseconds; Cloudinary expects UNIX seconds.
 - Signature parameters were sorted by the joined `key=value` string instead of by key, which produces a different digest whenever one parameter name is a prefix of another.
 - `destroy` had an inverted null check that threw a null-check error instead of its intended message.
@@ -74,8 +73,6 @@ A rewrite. See [MIGRATION.md](MIGRATION.md) for a call-by-call mapping from 1.x.
 - **The web secret guard now detects both web compilers.** It used `identical(0, 0.0)`, which is true only under dart2js; under dart2wasm it read false and the guard never fired, so an API secret shipped in the bundle. It now uses `bool.fromEnvironment('dart.library.js_interop')` and lives in the private constructor that every factory routes through, so `Cloudinary.fromUrl` and `Cloudinary.fromEnvironment` are covered too.
 - **Auth tokens escape `!` and the client IP.** `!` separates ACL entries, so a `!` inside a caller-supplied identifier split one entry into several and could widen a token to every asset in the environment. A `~` in `ip` could splice an extra field into the signed token.
 - **Signed delivery URLs no longer fall back silently.** A public ID that was an absolute URL was returned untouched, discarding a requested signature and auth token and handing back a third-party origin; that now throws.
-
-
 - **Signature version 2 is now the default.** Version 1 does not escape `&` inside parameter values, so a value containing `&` is absorbed into the signed string as additional parameters. Version 1 remains selectable for compatibility.
 - **Validation guards no longer use `assert`.** Dart strips asserts from release builds, so in a release Flutter build 1.x sent an unauthenticated request instead of failing when a signed method was called on an unsigned client.
 - **Admin credentials moved out of the URL** and into an `Authorization: Basic` header, so they no longer leak into logs and proxies.
