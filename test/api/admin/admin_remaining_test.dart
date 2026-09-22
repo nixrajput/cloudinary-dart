@@ -56,10 +56,21 @@ void main() {
       expect(cap.request.url.queryParametersAll['public_ids[]'], ['a', 'b']);
     });
 
+    test('listing by prefix without a type is refused locally', () {
+      // Cloudinary answers 400 "Missing required parameter - type" and the
+      // round trip still counts against the hourly Admin quota.
+      final (c, _) = client({'resources': <Object>[]});
+      expect(
+        () => c.admin.resources.list(prefix: 'p'),
+        throwsA(isA<CloudinaryConfigException>()),
+      );
+    });
+
     test('list passes through every filter', () async {
       final (c, cap) = client({'resources': <Object>[]});
       await c.admin.resources.list(
         prefix: 'p',
+        type: 'upload',
         tags: true,
         context: true,
         moderations: true,
@@ -70,6 +81,7 @@ void main() {
         nextCursor: 'C',
       );
 
+      expect(cap.path, '/v1_1/demo/resources/image/upload');
       expect(cap.query['prefix'], 'p');
       expect(cap.query['tags'], 'true');
       expect(cap.query['context'], 'true');
@@ -108,8 +120,8 @@ void main() {
       final (c, cap) = client({'public_id': 'p'});
       await c.admin.resources.update(
         'p',
-        context: 'a=b',
-        metadata: 'c=d',
+        context: {'a': 'b'},
+        metadata: {'c': 'd|and=chars'},
         moderationStatus: 'approved',
         assetFolder: 'f',
         displayName: 'N',
@@ -117,7 +129,9 @@ void main() {
       );
 
       expect(cap.form['context'], 'a=b');
-      expect(cap.form['metadata'], 'c=d');
+      // Both are encoded here, as Cloudinary's own updateable_resource_params
+      // does; metadata additionally escapes the quote that context does not.
+      expect(cap.form['metadata'], r'c=d\|and\=chars');
       expect(cap.form['moderation_status'], 'approved');
       expect(cap.form['asset_folder'], 'f');
       expect(cap.form['display_name'], 'N');

@@ -2,6 +2,7 @@ import '../../enums/cloudinary_resource_type.dart';
 import '../../exceptions.dart';
 import '../../http/transport.dart';
 import '../../models/admin_models.dart';
+import '../upload_api.dart';
 
 /// Admin endpoints for listing, updating and deleting assets.
 class ResourcesApi {
@@ -35,6 +36,11 @@ class ResourcesApi {
   };
 
   /// Lists assets of [resourceType], optionally narrowed to a delivery type.
+  ///
+  /// Cloudinary carries the delivery type in the path rather than the query,
+  /// so narrowing by [prefix] requires [type] as well and answers 400 without
+  /// it. That round trip counts against the hourly Admin quota, so it is
+  /// refused here instead.
   Future<ResourceListResult> list({
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
     String? type,
@@ -48,25 +54,33 @@ class ResourcesApi {
     String? direction,
     String? startAt,
     List<String>? fields,
-  }) async => ResourceListResult.fromJson(
-    await _transport.send(
-      method: 'GET',
-      segments: ['resources', resourceType.name, ?type],
-      query: _listQuery(
-        nextCursor: nextCursor,
-        maxResults: maxResults,
-        prefix: prefix,
-        tags: tags,
-        context: context,
-        moderations: moderations,
-        metadata: metadata,
-        direction: direction,
-        startAt: startAt,
-        fields: fields,
+  }) async {
+    if (prefix != null && type == null) {
+      throw const CloudinaryConfigException(
+        'Listing by prefix needs a delivery type, because Cloudinary reads it '
+        'from the path: pass type: "upload" (or private, authenticated).',
+      );
+    }
+    return ResourceListResult.fromJson(
+      await _transport.send(
+        method: 'GET',
+        segments: ['resources', resourceType.name, ?type],
+        query: _listQuery(
+          nextCursor: nextCursor,
+          maxResults: maxResults,
+          prefix: prefix,
+          tags: tags,
+          context: context,
+          moderations: moderations,
+          metadata: metadata,
+          direction: direction,
+          startAt: startAt,
+          fields: fields,
+        ),
+        basicAuth: true,
       ),
-      basicAuth: true,
-    ),
-  );
+    );
+  }
 
   /// Lists assets carrying [tag].
   Future<ResourceListResult> listByTag(
@@ -219,8 +233,8 @@ class ResourcesApi {
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
     String type = 'upload',
     List<String>? tags,
-    String? context,
-    String? metadata,
+    Map<String, String>? context,
+    Map<String, String>? metadata,
     String? moderationStatus,
     String? assetFolder,
     String? displayName,
@@ -231,8 +245,8 @@ class ResourcesApi {
       segments: ['resources', resourceType.name, type, publicId],
       form: {
         'tags': ?tags?.join(','),
-        'context': ?context,
-        'metadata': ?metadata,
+        if (context != null) 'context': encodeContext(context),
+        if (metadata != null) 'metadata': encodeMetadata(metadata),
         'moderation_status': ?moderationStatus,
         'asset_folder': ?assetFolder,
         'display_name': ?displayName,
