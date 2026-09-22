@@ -230,6 +230,12 @@ class UploadApi {
   }
 
   /// Deletes an asset by its immutable asset ID.
+  ///
+  /// Uses Cloudinary's documented `DELETE /v1_1/<cloud>/asset/<asset_id>`
+  /// route. Neither the Node nor the Ruby SDK implements an asset-ID destroy,
+  /// so there is no reference implementation to compare against: if this ever
+  /// misbehaves, check the Upload API reference before assuming the caller is
+  /// at fault. Prefer [destroy] where a public ID is available.
   Future<DestroyResult> destroyByAssetId({
     required String assetId,
     bool? invalidate,
