@@ -193,9 +193,16 @@ void main() {
 
   test('createArchive', () async {
     final (c, cap) = clientReturning({'public_id': 'a', 'file_count': 3});
-    final r = await c.upload.createArchive(tag: 't');
+    final r = await c.upload.createArchive(tags: ['t'], prefixes: ['p/']);
 
     expect(cap.path, '/v1_1/demo/image/generate_archive');
+    // Cloudinary's archive endpoint reads `tags` and `prefixes`, both plural
+    // and both arrays. Singular names are discarded and the call 401s.
+    // Cloudinary's archive endpoint reads `tags` and `prefixes`, plural and
+    // repeated. The singular names it ignores, and the call then 401s because
+    // the selector never reached the string it signed.
+    expect(cap.forms['tags[]'], ['t']);
+    expect(cap.forms['prefixes[]'], ['p/']);
     expect(r.fileCount, 3);
   });
 
@@ -209,8 +216,9 @@ void main() {
 
   test('createZip forces the zip target format', () async {
     final (c, cap) = clientReturning({'public_id': 'a'});
-    await c.upload.createZip(tag: 't');
+    await c.upload.createZip(tags: ['t']);
     expect(cap.form['target_format'], 'zip');
+    expect(cap.forms['tags[]'], ['t']);
   });
 
   test('deleteByToken sends neither api_key nor signature', () async {

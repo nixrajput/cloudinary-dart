@@ -443,9 +443,9 @@ class UploadApi {
   /// Select with [tag], [publicIds] or [prefix]. At least one is required.
   Future<ArchiveResult> createArchive({
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
-    String? tag,
+    List<String>? tags,
     List<String>? publicIds,
-    String? prefix,
+    List<String>? prefixes,
     String? targetFormat,
     String? targetPublicId,
     String? mode,
@@ -453,9 +453,9 @@ class UploadApi {
     String? notificationUrl,
     Map<String, dynamic>? extraParams,
   }) async {
-    if (tag == null && publicIds == null && prefix == null) {
+    if (tags == null && publicIds == null && prefixes == null) {
       throw const CloudinaryConfigException(
-        'createArchive needs one of tag, publicIds or prefix to select '
+        'createArchive needs one of tags, publicIds or prefixes to select '
         'assets.',
       );
     }
@@ -465,9 +465,9 @@ class UploadApi {
         segments: [resourceType.name, 'generate_archive'],
         signed: true,
         form: {
-          'tag': ?tag,
+          'tags': ?tags,
           'public_ids': ?publicIds,
-          'prefix': ?prefix,
+          'prefixes': ?prefixes,
           'target_format': ?targetFormat,
           'target_public_id': ?targetPublicId,
           'mode': ?mode,
@@ -482,17 +482,17 @@ class UploadApi {
   /// Creates a zip archive. A convenience wrapper over [createArchive].
   Future<ArchiveResult> createZip({
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
-    String? tag,
+    List<String>? tags,
     List<String>? publicIds,
-    String? prefix,
+    List<String>? prefixes,
     String? targetPublicId,
     String? mode,
     Map<String, dynamic>? extraParams,
   }) => createArchive(
     resourceType: resourceType,
-    tag: tag,
+    tags: tags,
     publicIds: publicIds,
-    prefix: prefix,
+    prefixes: prefixes,
     targetFormat: 'zip',
     targetPublicId: targetPublicId,
     mode: mode,
