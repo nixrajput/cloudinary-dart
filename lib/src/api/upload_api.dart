@@ -446,7 +446,7 @@ class UploadApi {
 
   /// Creates an archive of the selected assets.
   ///
-  /// Select with [tag], [publicIds] or [prefix]. At least one is required.
+  /// Select with [tags], [publicIds] or [prefixes]. At least one is required.
   Future<ArchiveResult> createArchive({
     CloudinaryResourceType resourceType = CloudinaryResourceType.image,
     List<String>? tags,
