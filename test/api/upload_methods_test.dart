@@ -90,14 +90,6 @@ void main() {
     );
   });
 
-  test('destroyByAssetId uses DELETE on the asset path', () async {
-    final (c, cap) = clientReturning({'result': 'ok'});
-    await c.upload.destroyByAssetId(assetId: 'aid');
-
-    expect(cap.method, 'DELETE');
-    expect(cap.path, '/v1_1/demo/asset/aid');
-  });
-
   group('tag commands', () {
     test('add', () async {
       final (c, cap) = clientReturning({

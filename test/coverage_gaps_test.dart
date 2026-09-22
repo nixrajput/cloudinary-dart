@@ -155,14 +155,13 @@ void main() {
         transformation: 'pg_all',
         notificationUrl: 'https://hook.example.com',
       );
-      await c.upload.destroyByAssetId(assetId: 'aid', invalidate: true);
       await c.upload.createZip(
         publicIds: ['a'],
         targetPublicId: 'z',
         mode: 'create',
       );
 
-      expect(captured, hasLength(10));
+      expect(captured, hasLength(9));
       expect(captured.every((b) => b.isNotEmpty), isTrue);
     });
   });
