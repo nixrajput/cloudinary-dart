@@ -29,3 +29,5 @@ example/.dart_tool/
 example/build/
 example/pubspec.lock
 example/.metadata
+example/assets/
+example/flutter_launcher_icons.yaml

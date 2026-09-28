@@ -23,6 +23,7 @@
 </p>
 
 <p align="center">
+  <a href="https://nixrajput.github.io/cloudinary-dart">Live demo</a> &nbsp;·&nbsp;
   <a href="#quick-start">Quick start</a> &nbsp;·&nbsp;
   <a href="#uploading">Uploading</a> &nbsp;·&nbsp;
   <a href="#delivery-urls">Delivery URLs</a> &nbsp;·&nbsp;
@@ -36,6 +37,7 @@
 
 - [Table of Contents](#table-of-contents)
 - [Overview](#overview)
+- [Demo](#demo)
 - [Quick start](#quick-start)
   - [Prerequisites](#prerequisites)
   - [Install](#install)
@@ -63,6 +65,10 @@
 This package talks to Cloudinary's Upload, Admin and Search APIs and builds signed delivery URLs. It is written in pure Dart with no Flutter dependency, so the same code runs in a Flutter app, a Dart backend, a CLI, and on the web.
 
 Responses come back as typed models, failures throw typed exceptions, and every model also exposes the raw decoded map, so a field Cloudinary added last week is reachable today rather than after a release here.
+
+## Demo
+
+Try every feature in the [live web demo](https://nixrajput.github.io/cloudinary-dart): a delivery URL playground on Cloudinary's public demo cloud, a real unsigned upload to your own cloud, signatures, signed URLs, auth tokens and webhook verification computed with a throwaway secret, a search query builder, a tour of the Admin API, `CLOUDINARY_URL` parsing and the exception family. It is the [example app](example/README.md) built for the web; the same app runs on Android, iOS, macOS, Windows and Linux.
 
 ## Quick start
 
