@@ -26,12 +26,12 @@ Here are the steps to contribute to this project:
 
 4. Make Changes: Implement your changes and improvements in your local repository. Follow the coding style and best practices of the project.
 
-5. Test Your Changes: Ensure that your changes do not introduce any errors or regressions. Test the website locally to verify that it functions as expected.
+5. Test Your Changes: Ensure that your changes do not introduce any errors or regressions. Run the checks listed in [AGENTS.md](AGENTS.md#the-checks) locally before you push.
 
-6. Commit Changes: Commit your changes with a clear and descriptive commit message.
+6. Commit Changes: Commit your changes with a [Conventional Commits](https://www.conventionalcommits.org) message (`feat:`, `fix:`, `docs:` and so on).
 
    ```bash
-   git commit -m "Add feature/fix: Describe your changes here"
+   git commit -m "feat: describe your change"
    ```
 
 7. Push Changes: Push your changes to your forked repository on GitHub.
