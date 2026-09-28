@@ -10,7 +10,7 @@ Last updated: 2026-09-22
 
 | Area          | Detail                                                                                 |
 | ------------- | -------------------------------------------------------------------------------------- |
-| Language      | Dart 3, pure Dart, SDK `^3.8.0`                                                        |
+| Language      | Dart 3, pure Dart, SDK `^3.13.0`                                                       |
 | Runtime deps  | two: `http` and `crypto`. A third needs explicit approval                              |
 | Tests         | `package:test` with `package:http`'s `MockClient`; golden vectors for signing and URLs |
 | Lint / format | `package:lints` recommended, plus `avoid_print` and `public_member_api_docs`           |
@@ -41,7 +41,7 @@ Every model extends `CloudinaryModel` and exposes `raw`. Parsing is total: a mis
 
 ### The checks
 
-`dart format --output=none --set-exit-if-changed .`, `dart analyze`, `dart test`, `dart pub publish --dry-run`. CI runs the first three in the `build` job, plus the tests in a browser (`dart test -p chrome`, then with `-c dart2wasm`) and a 90% coverage gate (`scripts/coverage.sh 90`). Tests that read repository files are `@TestOn('vm')`, and a test that builds a signing client passes `allowSecretOnWeb: true`, or it throws in the browser runs. `.githooks/pre-push` runs all four (`git config core.hooksPath .githooks`).
+`dart format --output=none --set-exit-if-changed .`, `dart analyze`, `dart test`, `dart pub publish --dry-run`. CI runs the first three in the `build` job, plus the tests in a browser (`dart test -p chrome`, then with `-c dart2wasm`) and a 90% coverage gate (`scripts/coverage.sh 90`). The `floor` job repeats analyze and test on Dart 3.13.0, the SDK floor. Tests that read repository files are `@TestOn('vm')`, and a test that builds a signing client passes `allowSecretOnWeb: true`, or it throws in the browser runs. `.githooks/pre-push` runs all four (`git config core.hooksPath .githooks`).
 
 ### Conventions
 
