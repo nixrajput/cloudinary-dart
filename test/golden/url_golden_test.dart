@@ -6,6 +6,7 @@ import 'package:test/test.dart';
 /// and `+` swapped for `_` and `-`. Secret is `abcd` throughout.
 void main() {
   Cloudinary demo({UrlConfig? url}) => Cloudinary.signed(
+    allowSecretOnWeb: true,
     cloudName: 'demo',
     apiKey: 'k',
     apiSecret: 'abcd',

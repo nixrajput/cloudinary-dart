@@ -12,6 +12,7 @@ void main() {
   late Uri url;
 
   Cloudinary client() => Cloudinary.signed(
+    allowSecretOnWeb: true,
     cloudName: 'demo',
     apiKey: 'k',
     apiSecret: 's',
@@ -153,6 +154,7 @@ void main() {
   group('multipart repeats', () {
     test('a repeated field is rejected rather than silently dropped', () async {
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 's',

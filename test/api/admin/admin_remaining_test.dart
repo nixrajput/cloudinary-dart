@@ -35,6 +35,7 @@ class Captured {
 (Cloudinary, Captured) client([Map<String, dynamic> body = const {}]) {
   final captured = Captured();
   final c = Cloudinary.signed(
+    allowSecretOnWeb: true,
     cloudName: 'demo',
     apiKey: 'k',
     apiSecret: 's',

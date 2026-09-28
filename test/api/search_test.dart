@@ -17,6 +17,7 @@ class Captured {
 (Cloudinary, Captured) clientReturning(Map<String, dynamic> body) {
   final captured = Captured();
   final c = Cloudinary.signed(
+    allowSecretOnWeb: true,
     cloudName: 'demo',
     apiKey: 'k',
     apiSecret: 's',
@@ -131,6 +132,7 @@ void main() {
   group('signed search urls', () {
     test('embeds the ttl and a signature, and omits the cursor', () {
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 's',
@@ -148,6 +150,7 @@ void main() {
 
     test('the same query signs identically, so the URL is cacheable', () {
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 's',
@@ -161,6 +164,7 @@ void main() {
 
     test('a different expression produces a different signature', () {
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 's',
@@ -174,6 +178,7 @@ void main() {
 
     test('a cursor is appended after the payload', () {
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 's',

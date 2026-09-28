@@ -71,6 +71,7 @@ void main() {
 
   test('the admin api surfaces it end to end', () async {
     final c = Cloudinary.signed(
+      allowSecretOnWeb: true,
       cloudName: 'mycloud',
       apiKey: 'k',
       apiSecret: 's',

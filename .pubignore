@@ -9,15 +9,13 @@ pubspec.lock
 .claude/
 .githooks/
 .playwright-mcp/
+.superpowers/
 
 # Development-only; useful in the repo, noise in the package.
 AGENTS.md
 CLAUDE.md
 cspell.json
 scripts/
-
-# Unreferenced fixture carried over from 1.x.
-assets/test.png
 
 # Example platform scaffolding. pub.dev renders the example from its Dart
 # sources, so the Xcode, Gradle and web shells are dead weight.

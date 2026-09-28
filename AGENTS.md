@@ -41,12 +41,12 @@ Every model extends `CloudinaryModel` and exposes `raw`. Parsing is total: a mis
 
 ### The checks
 
-`dart format --output=none --set-exit-if-changed .`, `dart analyze`, `dart test`, `dart pub publish --dry-run`. CI runs the first three in the `build` job. `.githooks/pre-push` runs them too (`git config core.hooksPath .githooks`).
+`dart format --output=none --set-exit-if-changed .`, `dart analyze`, `dart test`, `dart pub publish --dry-run`. CI runs the first three in the `build` job, plus the tests in a browser (`dart test -p chrome`, then with `-c dart2wasm`) and a 90% coverage gate (`scripts/coverage.sh 90`). Tests that read repository files are `@TestOn('vm')`, and a test that builds a signing client passes `allowSecretOnWeb: true`, or it throws in the browser runs. `.githooks/pre-push` runs all four (`git config core.hooksPath .githooks`).
 
 ### Conventions
 
 - Conventional Commits, imperative subject `<=` 50 chars, no trailing period, no `Co-Authored-By` or `Generated with` trailers.
-- Every PR that changes anything users receive bumps `pubspec.yaml` and adds a matching `CHANGELOG.md` entry. CI gate `version bumped` enforces both, and pub.dev rejects a publish with no changelog entry.
+- Every PR that changes anything users receive bumps `pubspec.yaml` and adds a matching `CHANGELOG.md` entry. CI gate `version bumped` enforces both, and without the entry `dart pub publish --dry-run` fails, which stops the release workflow before it publishes.
 - The PR title becomes the squash commit message.
 - `master` is protected: PR required, squash-only merges.
 - The README documents **shipped features only** - no roadmap, no plans.

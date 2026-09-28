@@ -112,6 +112,7 @@ void main() {
     () async {
       late String body;
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 's',

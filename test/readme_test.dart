@@ -1,3 +1,7 @@
+// Reads files from the repository, so it runs on the VM only.
+@TestOn('vm')
+library;
+
 import 'dart:io';
 
 import 'package:test/test.dart';

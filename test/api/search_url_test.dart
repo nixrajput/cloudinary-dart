@@ -6,6 +6,7 @@ import 'package:test/test.dart';
 void main() {
   test('a private CDN host is used for search URLs', () {
     final c = Cloudinary.signed(
+      allowSecretOnWeb: true,
       cloudName: 'demo',
       apiKey: 'k',
       apiSecret: 's',
@@ -23,6 +24,7 @@ void main() {
 
   test('search and delivery URLs agree on the host', () {
     final c = Cloudinary.signed(
+      allowSecretOnWeb: true,
       cloudName: 'demo',
       apiKey: 'k',
       apiSecret: 's',
@@ -36,7 +38,12 @@ void main() {
   });
 
   test('the default account still uses the shared CDN', () {
-    final c = Cloudinary.signed(cloudName: 'demo', apiKey: 'k', apiSecret: 's');
+    final c = Cloudinary.signed(
+      allowSecretOnWeb: true,
+      cloudName: 'demo',
+      apiKey: 'k',
+      apiSecret: 's',
+    );
     expect(
       c.search.expression('x').toUrl(),
       startsWith('https://res.cloudinary.com/demo/search/'),
