@@ -34,3 +34,6 @@ pubspec.lock
 
 # Coverage output
 coverage/
+
+# Local agent state
+.superpowers/
