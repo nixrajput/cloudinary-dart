@@ -6,8 +6,12 @@ import 'package:test/test.dart';
 /// suffixed path produced a digest the server cannot reproduce, so every
 /// signed SEO URL was rejected.
 void main() {
-  Cloudinary demo() =>
-      Cloudinary.signed(cloudName: 'demo', apiKey: 'k', apiSecret: 'abcd');
+  Cloudinary demo() => Cloudinary.signed(
+    allowSecretOnWeb: true,
+    cloudName: 'demo',
+    apiKey: 'k',
+    apiSecret: 'abcd',
+  );
 
   test('the format extension trails the suffix', () {
     expect(

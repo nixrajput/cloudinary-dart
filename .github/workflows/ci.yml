@@ -39,6 +39,11 @@ jobs:
           else
             echo "no test cases found - skipping"
           fi
+      - name: Test on the web (dart2js and dart2wasm)
+        # Tests that read repository files are @TestOn('vm') and skip here.
+        run: |
+          dart test -p chrome
+          dart test -p chrome -c dart2wasm
       - name: Coverage
         run: |
           dart pub global activate coverage

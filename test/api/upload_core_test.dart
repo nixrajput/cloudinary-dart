@@ -7,6 +7,7 @@ import 'package:http/testing.dart';
 import 'package:test/test.dart';
 
 Cloudinary signedWith(MockClient client) => Cloudinary.signed(
+  allowSecretOnWeb: true,
   cloudName: 'demo',
   apiKey: 'k',
   apiSecret: 's',

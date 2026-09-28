@@ -14,6 +14,7 @@ void main() {
   late Uri url;
 
   Cloudinary client() => Cloudinary.signed(
+    allowSecretOnWeb: true,
     cloudName: 'demo',
     apiKey: 'k',
     apiSecret: 's',

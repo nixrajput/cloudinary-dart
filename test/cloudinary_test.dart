@@ -13,18 +13,33 @@ void main() {
   group('construction', () {
     test('signed client rejects empty credentials', () {
       expect(
-        () => Cloudinary.signed(cloudName: 'demo', apiKey: '', apiSecret: 's'),
+        () => Cloudinary.signed(
+          allowSecretOnWeb: true,
+          cloudName: 'demo',
+          apiKey: '',
+          apiSecret: 's',
+        ),
         throwsA(isA<CloudinaryConfigException>()),
       );
       expect(
-        () => Cloudinary.signed(cloudName: 'demo', apiKey: 'k', apiSecret: ''),
+        () => Cloudinary.signed(
+          allowSecretOnWeb: true,
+          cloudName: 'demo',
+          apiKey: 'k',
+          apiSecret: '',
+        ),
         throwsA(isA<CloudinaryConfigException>()),
       );
     });
 
     test('signed client rejects an empty cloud name', () {
       expect(
-        () => Cloudinary.signed(cloudName: '', apiKey: 'k', apiSecret: 's'),
+        () => Cloudinary.signed(
+          allowSecretOnWeb: true,
+          cloudName: '',
+          apiKey: 'k',
+          apiSecret: 's',
+        ),
         throwsA(isA<CloudinaryConfigException>()),
       );
     });
@@ -37,7 +52,10 @@ void main() {
     });
 
     test('fromUrl builds a signing client', () {
-      final c = Cloudinary.fromUrl('cloudinary://k:s@demo');
+      final c = Cloudinary.fromUrl(
+        'cloudinary://k:s@demo',
+        allowSecretOnWeb: true,
+      );
       expect(c.config.cloudName, 'demo');
       expect(c.config.canSign, isTrue);
       expect(c.canSign, isTrue);
@@ -84,6 +102,7 @@ void main() {
 
     test('a local-secret client is not signing remotely', () {
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 's',
@@ -97,6 +116,7 @@ void main() {
     test('close leaves an injected client open', () async {
       final injected = MockClient((_) async => http.Response('{}', 200));
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 's',
@@ -113,6 +133,7 @@ void main() {
   group('secret redaction', () {
     test('config toString hides the secret', () {
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 'top-secret',

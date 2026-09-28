@@ -3,8 +3,12 @@ import 'package:test/test.dart';
 
 /// Regressions for URL builder defects found in review.
 void main() {
-  Cloudinary demo() =>
-      Cloudinary.signed(cloudName: 'demo', apiKey: 'k', apiSecret: 'abcd');
+  Cloudinary demo() => Cloudinary.signed(
+    allowSecretOnWeb: true,
+    cloudName: 'demo',
+    apiKey: 'k',
+    apiSecret: 'abcd',
+  );
 
   group('transform chains', () {
     test('repeated transform() calls accumulate', () {

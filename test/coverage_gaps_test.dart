@@ -13,6 +13,7 @@ void main() {
     test('signed upload', () async {
       late String body;
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 's',
@@ -89,6 +90,7 @@ void main() {
     test('explicit, rename, text and archive optional parameters', () async {
       final captured = <String>[];
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 's',
@@ -411,6 +413,7 @@ void main() {
   group('search query remaining builders', () {
     test('fields and ttl', () {
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 's',
@@ -429,6 +432,7 @@ void main() {
 
     test('maxResults, withField and aggregate entry points', () {
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 's',
@@ -460,6 +464,7 @@ void main() {
 
     test('transformChain and raw video url options', () {
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 'abcd',
@@ -481,6 +486,7 @@ void main() {
 
     test('a url suffix is appended to the source', () {
       final c = Cloudinary.signed(
+        allowSecretOnWeb: true,
         cloudName: 'demo',
         apiKey: 'k',
         apiSecret: 'abcd',
