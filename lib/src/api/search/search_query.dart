@@ -50,13 +50,11 @@ enum SearchTarget {
 class SearchQuery {
   /// Creates a query bound to a transport and target.
   SearchQuery({
-    required CloudinaryTransport transport,
-    required CloudinaryConfig config,
-    UrlConfig urlConfig = const UrlConfig(),
+    required this._transport,
+    required this._config,
+    this._urlConfig = const UrlConfig(),
     this.target = SearchTarget.assets,
-  }) : _transport = transport,
-       _config = config,
-       _urlConfig = urlConfig;
+  });
 
   final CloudinaryTransport _transport;
   final CloudinaryConfig _config;
