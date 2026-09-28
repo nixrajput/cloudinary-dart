@@ -1,68 +1,104 @@
 name: Bug Report
-description: File a bug report
+description: File a bug report for the cloudinary package
 title: "[Bug]: "
-labels: ["bug", "triage"]
+labels: ["bug"]
 assignees: ["nixrajput"]
 body:
-  - type: input
-    id: contact
+  - type: markdown
     attributes:
-      label: Contact Details
-      description: How can we get in touch with you if we need more info?
-      placeholder: ex. email@example.com
+      value: |
+        Thanks for taking the time to fill out this bug report.
+        Before submitting, please check the [existing issues](https://github.com/nixrajput/cloudinary-dart/issues) to avoid duplicates.
+        **Never paste your API secret, API key or a signed URL you still use.** Redact them from code and logs; this issue is public.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      description: Which part of the package is affected?
+      multiple: false
+      options:
+        - Uploading (UploadApi)
+        - Delivery URLs and transformations
+        - Admin API
+        - Search API
+        - Signing and auth tokens
+        - Verifying webhooks
+        - Errors, retries and HTTP transport
+        - Configuration (CloudinaryConfig, CLOUDINARY_URL)
+        - Types / API
+        - Other
     validations:
-      required: false
+      required: true
+
   - type: textarea
     id: what-happened
     attributes:
       label: What happened?
-      description: Also tell us, what did you expect to happen?
-      placeholder: Tell us what you see!
+      description: Describe the bug clearly. What did you see, and what did you expect?
+      placeholder: "Expected: ... Actual: ..."
     validations:
       required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: A minimal snippet plus what Cloudinary returned. Smaller repros get fixed faster.
+      placeholder: |
+        1. Create the client from `CLOUDINARY_URL`
+        2. Upload a 2 MB JPEG with `folder: 'avatars'`
+        3. See error
+    validations:
+      required: true
+
   - type: input
     id: version
     attributes:
-      label: Version
-      description: What version of our app are you running?
-      placeholder: 2.0.1
+      label: cloudinary version
+      description: The version of this package you are running.
+      placeholder: "e.g. 2.0.0"
     validations:
       required: true
-  - type: dropdown
-    id: devices
+
+  - type: textarea
+    id: sdk
     attributes:
-      label: What devices are you seeing the problem on?
+      label: Dart or Flutter version
+      description: Output of `dart --version`, or `flutter --version` in a Flutter app.
+      render: shell
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Platforms
+      description: Where do you see the bug?
       multiple: true
       options:
         - Android
-        - iPhone
+        - iOS
+        - Web
+        - macOS
         - Windows
-        - Mac
         - Linux
+        - Server / CLI (Dart VM)
     validations:
       required: true
-  - type: input
-    id: os
-    attributes:
-      label: OS
-      description: On what version of OS is your device running?
-      placeholder: Android 12
-    validations:
-      required: true
+
   - type: textarea
     id: logs
     attributes:
-      label: Relevant log output
-      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      label: Relevant logs or error output
+      description: Paste the exception and stack trace, with credentials redacted. Formatted as code.
       render: shell
+
   - type: checkboxes
-    id: terms
+    id: conduct
     attributes:
       label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/nixrajput/cloudinary-dart/CODE_OF_CONDUCT.md).
+      description: By submitting this issue you agree to follow our [Code of Conduct](https://github.com/nixrajput/cloudinary-dart/blob/master/CODE_OF_CONDUCT.md).
       options:
         - label: I agree to follow this project's Code of Conduct
           required: true
-  - type: markdown
-    attributes:
-      value: "## Thanks for taking the time to fill out this bug report!"
