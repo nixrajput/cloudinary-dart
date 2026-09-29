@@ -39,6 +39,43 @@ void main() {
     expect(url.queryParametersAll['asset_ids[]'], ['a', 'b']);
   });
 
+  test('a query array keeps every element past the second', () async {
+    await client().admin.resources.listByAssetIds(['a', 'b', 'c', 'd']);
+
+    expect(url.queryParametersAll['asset_ids[]'], ['a', 'b', 'c', 'd']);
+  });
+
+  test('a Map parameter is refused before anything is sent', () async {
+    var sent = false;
+    final c = Cloudinary.signed(
+      allowSecretOnWeb: true,
+      cloudName: 'demo',
+      apiKey: 'k',
+      apiSecret: 's',
+      client: MockClient((_) async {
+        sent = true;
+        return http.Response('{}', 200);
+      }),
+    );
+
+    await expectLater(
+      c.upload.explicit(
+        publicId: 'p',
+        extraParams: {
+          'context': {'alt': 'a'},
+        },
+      ),
+      throwsA(
+        isA<CloudinaryConfigException>().having(
+          (e) => e.message,
+          'message',
+          contains('"context" is a Map'),
+        ),
+      ),
+    );
+    expect(sent, isFalse);
+  });
+
   test('a single-element array still gets brackets', () async {
     await client().admin.resources.delete(['only']);
     expect(body, contains('public_ids%5B%5D=only'));

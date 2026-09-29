@@ -139,5 +139,26 @@ void main() {
         throwsA(isA<CloudinaryAuthException>()),
       );
     });
+
+    test('a multipart 2xx keeps the read error as its cause', () async {
+      await expectLater(
+        _transport(200).sendMultipart(
+          segments: ['image', 'upload'],
+          fields: const {},
+          file: CloudinaryFileSource.bytes(
+            Uint8List.fromList([1, 2, 3]),
+            filename: 'a.bin',
+          ),
+          signed: true,
+        ),
+        throwsA(
+          isA<CloudinaryTransportException>().having(
+            (e) => e.cause,
+            'cause',
+            isA<_BodyDied>(),
+          ),
+        ),
+      );
+    });
   });
 }

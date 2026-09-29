@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:cloudinary/cloudinary.dart';
@@ -157,5 +158,140 @@ void main() {
         ),
       ),
     );
+  });
+
+  test(
+    'a path source uploads the file under its own or a given name',
+    () async {
+      final bodies = <String>[];
+      final transport = CloudinaryTransport(
+        config: _config,
+        client: MockClient((request) async {
+          bodies.add(request.body);
+          return http.Response('{"public_id":"x"}', 200);
+        }),
+      );
+
+      for (final source in const [
+        CloudinaryFileSource.path('pubspec.yaml'),
+        CloudinaryFileSource.path('pubspec.yaml', filename: 'manifest.yaml'),
+      ]) {
+        await transport.sendMultipart(
+          segments: ['image', 'upload'],
+          fields: const {},
+          file: source,
+          signed: true,
+        );
+      }
+
+      expect(bodies[0], contains('name="file"; filename="pubspec.yaml"'));
+      expect(bodies[0], contains('name: cloudinary'));
+      expect(bodies[1], contains('name="file"; filename="manifest.yaml"'));
+    },
+    testOn: 'vm',
+  );
+
+  test('an unreadable path is a transport exception naming it', () async {
+    var sent = false;
+    final transport = CloudinaryTransport(
+      config: _config,
+      client: MockClient((_) async {
+        sent = true;
+        return http.Response('{}', 200);
+      }),
+    );
+
+    await expectLater(
+      transport.sendMultipart(
+        segments: ['image', 'upload'],
+        fields: const {},
+        file: const CloudinaryFileSource.path('missing/photo.jpg'),
+        signed: true,
+      ),
+      throwsA(
+        isA<CloudinaryTransportException>()
+            .having((e) => e.message, 'message', contains('missing/photo.jpg'))
+            .having((e) => e.cause, 'cause', isA<Exception>()),
+      ),
+    );
+    expect(sent, isFalse);
+  }, testOn: 'vm');
+
+  test('a path source on the web asks for bytes instead', () async {
+    final transport = CloudinaryTransport(
+      config: _config,
+      client: MockClient((_) async => http.Response('{}', 200)),
+    );
+
+    await expectLater(
+      transport.sendMultipart(
+        segments: ['image', 'upload'],
+        fields: const {},
+        file: const CloudinaryFileSource.path('photo.jpg'),
+        signed: true,
+      ),
+      throwsA(
+        isA<CloudinaryConfigException>().having(
+          (e) => e.message,
+          'message',
+          contains('CloudinaryFileSource.bytes'),
+        ),
+      ),
+    );
+  }, testOn: 'browser');
+
+  test(
+    'an upload that outlives the timeout is a transport exception',
+    () async {
+      final transport = CloudinaryTransport(
+        config: _config,
+        timeout: const Duration(milliseconds: 1),
+        client: MockClient((_) async {
+          await Future<void>.delayed(const Duration(milliseconds: 40));
+          return http.Response('{"public_id":"x"}', 200);
+        }),
+      );
+
+      await expectLater(
+        transport.sendMultipart(
+          segments: ['image', 'upload'],
+          fields: const {},
+          file: const CloudinaryFileSource.url('https://example.com/a.png'),
+          signed: true,
+        ),
+        throwsA(
+          isA<CloudinaryTransportException>()
+              .having((e) => e.message, 'message', contains('timed out'))
+              .having((e) => e.cause, 'cause', isA<TimeoutException>()),
+        ),
+      );
+    },
+  );
+
+  test('a failed upload is never retried', () async {
+    var calls = 0;
+    final transport = CloudinaryTransport(
+      config: _config,
+      retry: const RetryPolicy(maxAttempts: 3, baseDelay: Duration.zero),
+      client: MockClient((_) async {
+        calls++;
+        throw http.ClientException('connection reset by peer');
+      }),
+    );
+
+    await expectLater(
+      transport.sendMultipart(
+        segments: ['image', 'upload'],
+        fields: const {},
+        file: CloudinaryFileSource.bytes(Uint8List.fromList([1, 2, 3])),
+        signed: true,
+      ),
+      throwsA(
+        isA<CloudinaryTransportException>()
+            .having((e) => e.message, 'message', contains('connection reset'))
+            .having((e) => e.cause, 'cause', isA<http.ClientException>()),
+      ),
+    );
+    expect(calls, 1, reason: 'a replayed upload can create a duplicate asset');
   });
 }

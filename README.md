@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <b>93 API methods</b> across Upload, Admin and Search &nbsp;·&nbsp; <b>389 tests</b> &nbsp;·&nbsp; <b>2 runtime dependencies</b> &nbsp;·&nbsp; <b>0 Flutter dependencies</b>
+  <b>93 API methods</b> across Upload, Admin and Search &nbsp;·&nbsp; <b>430 tests</b> &nbsp;·&nbsp; <b>2 runtime dependencies</b> &nbsp;·&nbsp; <b>0 Flutter dependencies</b>
 </p>
 
 <p align="center">

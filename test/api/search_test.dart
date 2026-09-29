@@ -108,6 +108,26 @@ void main() {
       expect(cap.path, '/v1_1/demo/folders/search');
     });
 
+    test('folder search parses folders, the total and the cursor', () async {
+      final (c, _) = clientReturning({
+        'folders': [
+          {'name': 'a', 'path': 'trips/a'},
+        ],
+        'total_count': 1,
+        'next_cursor': 'C',
+      });
+
+      final r = await c.search
+          .folders()
+          .expression('path:trips/*')
+          .executeFolders();
+
+      expect(r.folders.single.name, 'a');
+      expect(r.folders.single.path, 'trips/a');
+      expect(r.totalCount, 1);
+      expect(r.nextCursor, 'C');
+    });
+
     test('aggregations are surfaced', () async {
       final (c, _) = clientReturning({
         'resources': <Object>[],
