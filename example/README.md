@@ -1,59 +1,50 @@
 # cloudinary example
 
-A Flutter app demonstrating the package end to end: signed and unsigned
-uploads with progress, deleting an asset, building a transformed delivery URL,
-and querying the Search API.
+## Usage
 
-## Running it
+```dart
+import 'package:cloudinary/cloudinary.dart';
 
-Credentials are passed with `--dart-define`, so nothing is committed. Only
-`CLOUDINARY_CLOUD_NAME` is required.
+Future<void> main() async {
+  // In an app: unsigned uploads only, so no secret ships in the bundle.
+  final cloudinary = Cloudinary.unsigned(cloudName: 'your-cloud');
 
-Unsigned uploads, which is what a real client app should do:
+  final url = cloudinary.url
+      .image('sample')
+      .transform(
+        Transformation()
+          ..width(600)
+          ..crop(CropMode.fill)
+          ..gravity(Gravity.auto)
+          ..format(DeliveryFormat.auto),
+      )
+      .build();
+  print(url); // https://res.cloudinary.com/your-cloud/image/upload/c_fill,f_auto,g_auto,w_600/sample
 
-```bash
-flutter run \
-  --dart-define=CLOUDINARY_CLOUD_NAME=your-cloud \
-  --dart-define=CLOUDINARY_UPLOAD_PRESET=your-unsigned-preset \
-  --dart-define=CLOUDINARY_FOLDER=demo
+  final result = await cloudinary.upload.unsignedUpload(
+    file: const CloudinaryFileSource.url('https://example.com/photo.jpg'),
+    uploadPreset: 'your-unsigned-preset',
+  );
+  print(result.secureUrl);
+
+  cloudinary.close();
+}
 ```
 
-Adding an API key and secret switches the app to a signed client, which also
-enables the delete and search actions:
+## The demo app
 
-```bash
-flutter run \
-  --dart-define=CLOUDINARY_CLOUD_NAME=your-cloud \
-  --dart-define=CLOUDINARY_API_KEY=your-key \
-  --dart-define=CLOUDINARY_API_SECRET=your-secret \
-  --dart-define=CLOUDINARY_FOLDER=demo
-```
+This directory is also a Flutter demo of the whole package. It runs everything a browser can run safely against Cloudinary's public `demo` cloud, and shows the rest as the code and a sample response. It has seven parts:
 
-Do not ship an API secret in a real mobile or web build. The app only builds a
-signed client because credentials were passed explicitly here; in production
-use an unsigned preset or a `SignatureProvider` that signs on your server.
+- **Options and Preview:** a delivery URL built live from the public ID, crop, gravity, effect, quality, width, aspect ratio, format, rounding, rotation, CDN subdomains and short URLs, with the image Cloudinary delivers for it, the URL, and the Dart that builds it.
+- **Upload:** a real unsigned upload from the device to your own cloud with progress, given your cloud name and an unsigned upload preset. Nothing is stored in the app.
+- **Signing:** the string to sign and the signature (versions 1 and 2, SHA-1 and SHA-256), a signed delivery URL, an auth token, and webhook verification with a switch that tampers with the body, all computed with a throwaway secret. A `SignatureProvider` shows how a real app signs on its server.
+- **Search:** a query built as you type, with its request body, a signed cacheable search URL and a sample response.
+- **Admin API:** all ten groups under `cloudinary.admin`, each with a call and the shape of its response.
+- **Configuration:** a `CLOUDINARY_URL` parsed as you type, with the secret redacted.
+- **Errors and retries:** the sealed exception family, two failures triggered for real, and the delays the default `RetryPolicy` waits.
 
-On the web `Cloudinary.signed` refuses to construct at all, so passing a secret
-there makes the demo fall back to an unsigned client. That fallback is left in
-deliberately, to show the guard working rather than to work around it.
+The preview never scrolls away. On wide or landscape screens the options and preview are both pinned side by side, whenever the options fit whole, with the rest in one list beneath. On a portrait phone the preview is pinned above that list, and the options lead it. A mouse wheel anywhere on the page scrolls the list. The app follows the device theme, and the switch in the app bar forces light or dark.
 
-## What it shows
+`flutter test` checks the layout at phone to desktop sizes, including a large text scale and a phone's bottom inset, and the live parts: the URLs, the signatures, webhook verification, configuration parsing and the errors.
 
-- `upload.upload` and `upload.unsignedUpload`, from a file path or from bytes,
-  with an `onProgress` callback driving the progress bar.
-- `upload.destroy`, checking `DestroyResult.isDeleted` rather than relying on
-  an exception, because Cloudinary answers `not found` with a 200.
-- `url.image(...).transform(...)` building a delivery URL with no network call,
-  which the app then renders.
-- `search.expression(...)` listing what is in the upload folder.
-- Catching `CloudinaryException` instead of inspecting a response for an error
-  string, which is the main change from 1.x.
-
-## Layout
-
-```
-lib/main.dart              app shell and widgets
-lib/src/demo_controller.dart   every call into the SDK, the part worth reading
-lib/src/demo_config.dart       credentials from --dart-define, client creation
-lib/src/image_picking.dart     typed wrapper over image_picker
-```
+Run it from this directory with `flutter run -d chrome`, or open the live demo at https://nixrajput.github.io/cloudinary-dart.

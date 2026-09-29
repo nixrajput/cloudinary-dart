@@ -1,27 +1,33 @@
-name: example
-description: "Demonstrates the cloudinary package - uploads, deletion, transformed delivery URLs and search."
-
-publish_to: "none"
-
-version: 1.0.0+1
+name: cloudinary_example
+description: Demonstrates the cloudinary package.
+publish_to: none
+version: 1.0.0
 
 environment:
   sdk: ^3.13.0
   flutter: ">=3.47.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
-
-  cupertino_icons: ^1.0.9
-  image_picker: ^1.2.3
   cloudinary:
     path: ../
+  # Signs the sample webhook the way Cloudinary does, so the demo can verify it.
+  crypto: ^3.0.7
+  flutter:
+    sdk: flutter
+  image_picker: ^1.2.3
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.14.4
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
+  # The web cannot fall back to a system monospace font, so code needs one bundled.
+  fonts:
+    - family: RobotoMono
+      fonts:
+        - asset: fonts/RobotoMono-Regular.ttf
+  assets:
+    - fonts/LICENSE.txt

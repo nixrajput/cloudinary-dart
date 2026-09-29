@@ -6,6 +6,8 @@
 
 - **Dart SDK floor raised to `^3.13.0`** (Flutter 3.47 or newer), the current stable SDK, in line with this author's other packages. Projects on an older SDK keep resolving 2.0.0, which pub selects automatically; nothing in the API changed.
 - CI now also runs the test suite in a browser with dart2js and dart2wasm, and on the Dart 3.13.0 SDK floor.
+- **The example app is rebuilt** as a demo of the whole package, live at https://nixrajput.github.io/cloudinary-dart: a delivery URL playground on Cloudinary's public demo cloud, a real unsigned upload, signing, webhook verification, search, every Admin API group, `CLOUDINARY_URL` parsing and the exception family. It runs on the web, Android, iOS, macOS, Windows and Linux.
+- A new logo, in the same style as this author's other packages.
 
 ## 2.0.0
 

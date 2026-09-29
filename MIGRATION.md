@@ -1,4 +1,4 @@
-# Migrating from v1 to v2
+# Migrating from 1.x to 2.0
 
 Version 2 is a rewrite. There are no deprecated shims, because the three v1 methods cannot survive the change to throwing errors: a shim that kept their signatures would have to keep swallowing failures, which is the main thing being fixed.
 

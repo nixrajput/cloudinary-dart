@@ -19,23 +19,26 @@
 </p>
 
 <p align="center">
-  <sub>Every signature, auth token and delivery URL is pinned by golden vectors derived from Cloudinary's own algorithm, so correctness here is measured rather than asserted. Coverage and correctness are the numbers this package reports.</sub>
+  <sub>Every signature, auth token and delivery URL is pinned by golden vectors derived from Cloudinary's own algorithm, so correctness here is measured rather than asserted. There is no benchmark: a client's speed is the network's. The method and test counts are checked by <code>test/readme_test.dart</code>.</sub>
 </p>
 
 <p align="center">
+  <a href="https://nixrajput.github.io/cloudinary-dart">Live demo</a> &nbsp;·&nbsp;
   <a href="#quick-start">Quick start</a> &nbsp;·&nbsp;
   <a href="#uploading">Uploading</a> &nbsp;·&nbsp;
   <a href="#delivery-urls">Delivery URLs</a> &nbsp;·&nbsp;
   <a href="#admin-api">Admin</a> &nbsp;·&nbsp;
   <a href="#search-api">Search</a> &nbsp;·&nbsp;
   <a href="#is-this-for-you">Is this for you</a> &nbsp;·&nbsp;
-  <a href="MIGRATION.md">Migrating from v1</a>
+  <a href="MIGRATION.md">Migrating from 1.x</a> &nbsp;·&nbsp;
+  <a href="https://pub.dev/documentation/cloudinary/latest/">API reference</a>
 </p>
 
-## Table of Contents
+## Table of contents
 
-- [Table of Contents](#table-of-contents)
+- [Table of contents](#table-of-contents)
 - [Overview](#overview)
+- [Demo](#demo)
 - [Quick start](#quick-start)
   - [Prerequisites](#prerequisites)
   - [Install](#install)
@@ -53,6 +56,7 @@
 - [FAQ](#faq)
 - [Scope](#scope)
 - [About Cloudinary](#about-cloudinary)
+- [Migrating from 1.x](#migrating-from-1x)
 - [Contributing](#contributing)
 - [License](#license)
 - [Support the project](#support-the-project)
@@ -63,6 +67,10 @@
 This package talks to Cloudinary's Upload, Admin and Search APIs and builds signed delivery URLs. It is written in pure Dart with no Flutter dependency, so the same code runs in a Flutter app, a Dart backend, a CLI, and on the web.
 
 Responses come back as typed models, failures throw typed exceptions, and every model also exposes the raw decoded map, so a field Cloudinary added last week is reachable today rather than after a release here.
+
+## Demo
+
+Try every feature in the [live web demo](https://nixrajput.github.io/cloudinary-dart): a delivery URL playground on Cloudinary's public demo cloud, a real unsigned upload to your own cloud, signatures, signed URLs, auth tokens and webhook verification computed with a throwaway secret, a search query builder, a tour of the Admin API, `CLOUDINARY_URL` parsing and the exception family. It is the [example app](example/README.md) built for the web; the same app runs on Android, iOS, macOS, Windows and Linux.
 
 ## Quick start
 
@@ -360,15 +368,19 @@ They are the things this package controls and can prove: how much of Cloudinary'
 
 ## Scope
 
-Version 2.0 covers the Upload, Admin and Search APIs in full, plus delivery URL construction. The Provisioning API (sub-accounts, users, user groups and access keys) and the v2 Analysis API are planned for a later release.
+This package covers the Upload, Admin and Search APIs in full, plus delivery URL construction. The Provisioning API (sub-accounts, users, user groups and access keys) and the v2 Analysis API are not covered.
 
 ## About Cloudinary
 
 Cloudinary is a media API for websites and mobile apps: it stores, transforms, optimises and delivers images and video through multiple CDNs.
 
+## Migrating from 1.x
+
+2.0 is a rewrite: failures throw typed exceptions instead of returning an `error` string, `package:http` replaces `dio`, the API is grouped under `cloudinary.upload`, `admin`, `search` and `url`, and `CloudinaryFileSource` replaces `file` and `fileBytes`. [MIGRATION.md](MIGRATION.md) maps every 1.x call to its 2.x equivalent.
+
 ## Contributing
 
-Fork the repository, make your changes, and open a pull request. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first, and note that every PR must bump the version in `pubspec.yaml` and add a matching `CHANGELOG.md` entry.
+Fork the repository, make your changes and open a pull request. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first, and note that every PR must bump the version in `pubspec.yaml` and add a matching `CHANGELOG.md` entry.
 
 ## License
 
