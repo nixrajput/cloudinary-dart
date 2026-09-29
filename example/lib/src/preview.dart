@@ -10,7 +10,7 @@ class UrlPreview extends StatelessWidget {
     super.key,
     required this.options,
     required this.imageHeight,
-    required this.showCode,
+    this.wrapUrl = true,
   });
 
   final UrlOptions options;
@@ -18,15 +18,16 @@ class UrlPreview extends StatelessWidget {
   /// Sized by the page, so the pinned preview always fits the screen.
   final double imageHeight;
 
-  /// Only where the screen is tall enough; the list carries the code otherwise.
-  final bool showCode;
+  /// Wraps the URL whole under a subtitle; a short preview drops the
+  /// subtitle and keeps the URL to one scrolling line.
+  final bool wrapUrl;
 
   @override
   Widget build(BuildContext context) {
     final url = options.url;
     return Section(
       title: 'Preview',
-      subtitle: showCode
+      subtitle: wrapUrl
           ? "Delivered live from Cloudinary's public demo cloud."
           : null,
       child: Column(
@@ -37,11 +38,7 @@ class UrlPreview extends StatelessWidget {
             child: DeliveredImage(url: url),
           ),
           const SizedBox(height: Gaps.m),
-          CodeBlock(url, label: 'the URL', wrap: true),
-          if (showCode) ...[
-            const SizedBox(height: Gaps.m),
-            CodeBlock(options.dartCode, label: 'the code'),
-          ],
+          CodeBlock(url, label: 'the URL', wrap: wrapUrl),
         ],
       ),
     );

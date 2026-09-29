@@ -63,80 +63,72 @@ class _ErrorsSectionState extends State<ErrorsSection>
     super.build(context);
     final theme = Theme.of(context);
     const policy = RetryPolicy();
-    return Section(
-      title: 'Errors and retries',
-      subtitle:
-          'Every failure is a CloudinaryException subtype, so a switch '
-          'over it is exhaustive.',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (final (name, meaning) in _types)
-            Padding(
-              padding: const EdgeInsets.only(bottom: Gaps.s),
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '$name  ',
-                      style: const TextStyle(fontFamily: codeFont),
-                    ),
-                    TextSpan(
-                      text: meaning,
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final (name, meaning) in _types)
+          Padding(
+            padding: const EdgeInsets.only(bottom: Gaps.s),
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: '$name  ',
+                    style: const TextStyle(fontFamily: codeFont),
+                  ),
+                  TextSpan(
+                    text: meaning,
+                    style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                  ),
+                ],
               ),
             ),
-          const SizedBox(height: Gaps.s),
-          Wrap(
-            spacing: Gaps.s,
-            runSpacing: Gaps.s,
-            children: [
-              OutlinedButton(
-                onPressed: () =>
-                    _trigger(() => Cloudinary.unsigned(cloudName: ' ')),
-                child: const Text('Empty cloud name'),
-              ),
-              OutlinedButton(
-                onPressed: () =>
-                    _trigger(() => const AuthToken(key: 'a1b2c3d4').generate()),
-                child: const Text('Token without an ACL'),
-              ),
-            ],
           ),
-          if (_caught case final caught?) ...[
-            const SizedBox(height: Gaps.m),
-            CodeBlock(caught, label: 'the exception'),
+        const SizedBox(height: Gaps.s),
+        Wrap(
+          spacing: Gaps.s,
+          runSpacing: Gaps.s,
+          children: [
+            OutlinedButton(
+              onPressed: () =>
+                  _trigger(() => Cloudinary.unsigned(cloudName: ' ')),
+              child: const Text('Empty cloud name'),
+            ),
+            OutlinedButton(
+              onPressed: () =>
+                  _trigger(() => const AuthToken(key: 'a1b2c3d4').generate()),
+              child: const Text('Token without an ACL'),
+            ),
           ],
-          const Divider(height: Gaps.l * 2),
-          Text('Retries', style: theme.textTheme.titleSmall),
-          const SizedBox(height: Gaps.s),
-          Text(
-            'The default RetryPolicy makes ${policy.maxAttempts} attempts in '
-            'all, retrying on ${policy.retryOn.join(', ')}. A Retry-After '
-            'header always wins over the computed backoff.',
-            style: theme.textTheme.bodyMedium,
-          ),
+        ),
+        if (_caught case final caught?) ...[
           const SizedBox(height: Gaps.m),
-          Wrap(
-            spacing: Gaps.l,
-            runSpacing: Gaps.m,
-            children: [
-              for (var attempt = 1; attempt < policy.maxAttempts; attempt++)
-                Reading(
-                  caption: 'After failure $attempt',
-                  value: '${policy.delayFor(attempt).inMilliseconds} ms',
-                ),
-            ],
-          ),
-          const SizedBox(height: Gaps.m),
-          const CodeBlock(_code, label: 'the code'),
+          CodeBlock(caught, label: 'the exception'),
         ],
-      ),
+        const Divider(height: Gaps.l * 2),
+        Text('Retries', style: theme.textTheme.titleSmall),
+        const SizedBox(height: Gaps.s),
+        Text(
+          'The default RetryPolicy makes ${policy.maxAttempts} attempts in '
+          'all, retrying on ${policy.retryOn.join(', ')}. A Retry-After '
+          'header always wins over the computed backoff.',
+          style: theme.textTheme.bodyMedium,
+        ),
+        const SizedBox(height: Gaps.m),
+        Wrap(
+          spacing: Gaps.l,
+          runSpacing: Gaps.m,
+          children: [
+            for (var attempt = 1; attempt < policy.maxAttempts; attempt++)
+              Reading(
+                caption: 'After failure $attempt',
+                value: '${policy.delayFor(attempt).inMilliseconds} ms',
+              ),
+          ],
+        ),
+        const SizedBox(height: Gaps.m),
+        const CodeBlock(_code, label: 'the code'),
+      ],
     );
   }
 }

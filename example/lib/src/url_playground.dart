@@ -2,6 +2,7 @@ import 'package:cloudinary/cloudinary.dart';
 import 'package:flutter/material.dart';
 
 import 'app_theme.dart';
+import 'collapsible_section.dart';
 import 'widgets.dart';
 
 /// Cloudinary's public demo cloud, which serves the sample assets Cloudinary's
@@ -200,170 +201,189 @@ class UrlOptions {
   }
 }
 
-class OptionsPanel extends StatelessWidget {
-  const OptionsPanel({
-    super.key,
-    required this.options,
-    required this.onChanged,
-  });
-
-  final UrlOptions options;
-  final ValueChanged<UrlOptions> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    Widget toggle(String label, bool value, UrlOptions Function(bool) next) =>
-        FilterChip(
-          label: Text(label),
-          selected: value,
-          onSelected: (v) => onChanged(next(v)),
-        );
-    Widget menu<T>(
-      String label,
-      T? value,
-      List<T> values,
-      String Function(T) name,
-      ValueChanged<T?> onSelected, {
-      bool enabled = true,
-    }) => DropdownMenu<T>(
-      label: Text(label),
-      enabled: enabled,
-      expandedInsets: EdgeInsets.zero,
-      initialSelection: value,
-      dropdownMenuEntries: [
-        for (final v in values) DropdownMenuEntry(value: v, label: name(v)),
-      ],
-      onSelected: onSelected,
-    );
-    // Two menus a row once there is room, one each on a narrow screen.
-    Widget pair(Widget a, Widget b) => LayoutBuilder(
-      builder: (context, constraints) => constraints.maxWidth < 360
-          ? Column(
-              children: [
-                a,
-                const SizedBox(height: Gaps.m),
-                b,
-              ],
-            )
-          : Row(
-              children: [
-                Expanded(child: a),
-                const SizedBox(width: Gaps.m),
-                Expanded(child: b),
-              ],
-            ),
-    );
-    return Column(
+/// The URL options as collapsible cards, grouped by what they change.
+/// [generation] rebuilds the menus, which read their selection once, after a
+/// reset.
+List<DemoSection> optionSections({
+  required UrlOptions options,
+  required ValueChanged<UrlOptions> onChanged,
+  required int generation,
+}) {
+  final o = options;
+  Widget toggle(String label, bool value, UrlOptions Function(bool) next) =>
+      FilterChip(
+        label: Text(label),
+        selected: value,
+        onSelected: (v) => onChanged(next(v)),
+      );
+  Widget menu<T>(
+    String label,
+    T? value,
+    List<T> values,
+    String Function(T) name,
+    ValueChanged<T?> onSelected, {
+    bool enabled = true,
+  }) => DropdownMenu<T>(
+    label: Text(label),
+    enabled: enabled,
+    expandedInsets: EdgeInsets.zero,
+    initialSelection: value,
+    dropdownMenuEntries: [
+      for (final v in values) DropdownMenuEntry(value: v, label: name(v)),
+    ],
+    onSelected: onSelected,
+  );
+  // Two menus a row once there is room, one each on a narrow card.
+  Widget pair(Widget a, Widget b) => LayoutBuilder(
+    builder: (context, constraints) => constraints.maxWidth < 320
+        ? Column(
+            children: [
+              a,
+              const SizedBox(height: Gaps.m),
+              b,
+            ],
+          )
+        : Row(
+            children: [
+              Expanded(child: a),
+              const SizedBox(width: Gaps.m),
+              Expanded(child: b),
+            ],
+          ),
+  );
+  Widget column(List<Widget> children) => KeyedSubtree(
+    key: ValueKey(generation),
+    child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
+      children: children,
+    ),
+  );
+  Widget chips(List<Widget> children) =>
+      Wrap(spacing: Gaps.s, runSpacing: Gaps.s, children: children);
+  return [
+    DemoSection(
+      title: 'Asset',
+      summary: o.publicId,
+      child: column([
         menu<String>(
           'Public ID',
-          options.publicId,
+          o.publicId,
           samplePublicIds,
           (id) => id,
-          (id) => onChanged(options.copyWith(publicId: id)),
+          (id) => onChanged(o.copyWith(publicId: id)),
         ),
-        const SizedBox(height: Gaps.m),
+      ]),
+    ),
+    DemoSection(
+      title: 'Resize and crop',
+      summary: [
+        o.crop.name,
+        if (usesGravity(o.crop)) 'gravity ${o.gravity.name}',
+        '${o.width} px',
+        o.ratio,
+      ].join(' · '),
+      child: column([
         pair(
           menu<CropMode>(
             'Crop',
-            options.crop,
+            o.crop,
             cropModes,
             (c) => c.name,
-            (c) => onChanged(options.copyWith(crop: c)),
+            (c) => onChanged(o.copyWith(crop: c)),
           ),
           menu<Gravity>(
             'Gravity',
-            options.gravity,
+            o.gravity,
             gravities,
             (g) => g.name,
-            (g) => onChanged(options.copyWith(gravity: g)),
-            enabled: usesGravity(options.crop),
+            (g) => onChanged(o.copyWith(gravity: g)),
+            enabled: usesGravity(o.crop),
           ),
         ),
         const SizedBox(height: Gaps.m),
-        pair(
-          menu<Effect?>(
-            'Effect',
-            options.effect,
-            [null, ...effects],
-            (e) => e?.name ?? 'none',
-            (e) => onChanged(options.copyWith(effect: () => e)),
-          ),
-          menu<Quality>(
-            'Quality',
-            options.quality,
-            qualities,
-            (q) => q.name,
-            (q) => onChanged(options.copyWith(quality: q)),
-          ),
-        ),
-        const SizedBox(height: Gaps.m),
-        Text('Width ${options.width} px'),
+        Text('Width ${o.width} px'),
         Slider(
-          value: options.width.toDouble(),
+          value: o.width.toDouble(),
           min: 200,
           max: 1600,
           divisions: 14,
-          onChanged: (v) => onChanged(options.copyWith(width: v.round())),
+          onChanged: (v) => onChanged(o.copyWith(width: v.round())),
         ),
         Labelled(
-          label: 'Aspect ratio and format',
-          child: Wrap(
-            spacing: Gaps.s,
-            runSpacing: Gaps.s,
-            children: [
-              SegmentedButton<String>(
-                showSelectedIcon: false,
-                segments: [
-                  for (final r in ratios)
-                    ButtonSegment(value: r, label: Text(r)),
-                ],
-                selected: {options.ratio},
-                onSelectionChanged: (s) =>
-                    onChanged(options.copyWith(ratio: s.single)),
-              ),
-              SegmentedButton<DeliveryFormat>(
-                showSelectedIcon: false,
-                segments: [
-                  for (final f in formats)
-                    ButtonSegment(value: f, label: Text(f.name)),
-                ],
-                selected: {options.format},
-                onSelectionChanged: (s) =>
-                    onChanged(options.copyWith(format: s.single)),
-              ),
+          label: 'Aspect ratio',
+          child: SegmentedButton<String>(
+            showSelectedIcon: false,
+            segments: [
+              for (final r in ratios)
+                ButtonSegment(value: r, label: segmentLabel(r)),
             ],
+            selected: {o.ratio},
+            onSelectionChanged: (s) => onChanged(o.copyWith(ratio: s.single)),
+          ),
+        ),
+      ]),
+    ),
+    DemoSection(
+      title: 'Look',
+      summary: [
+        o.effect?.name ?? 'no effect',
+        'quality ${o.quality.name}',
+        o.format.name,
+        if (o.rounded) 'round',
+        if (o.rotated) 'rotated',
+      ].join(' · '),
+      child: column([
+        pair(
+          menu<Effect?>(
+            'Effect',
+            o.effect,
+            [null, ...effects],
+            (e) => e?.name ?? 'none',
+            (e) => onChanged(o.copyWith(effect: () => e)),
+          ),
+          menu<Quality>(
+            'Quality',
+            o.quality,
+            qualities,
+            (q) => q.name,
+            (q) => onChanged(o.copyWith(quality: q)),
           ),
         ),
         const SizedBox(height: Gaps.m),
-        Wrap(
-          spacing: Gaps.s,
-          runSpacing: Gaps.s,
-          children: [
-            toggle(
-              'Round',
-              options.rounded,
-              (v) => options.copyWith(rounded: v),
-            ),
-            toggle(
-              'Rotate 90°',
-              options.rotated,
-              (v) => options.copyWith(rotated: v),
-            ),
-            toggle(
-              'CDN subdomain',
-              options.cdnSubdomain,
-              (v) => options.copyWith(cdnSubdomain: v),
-            ),
-            toggle(
-              'Short URL',
-              options.shorten,
-              (v) => options.copyWith(shorten: v),
-            ),
-          ],
+        Labelled(
+          label: 'Format',
+          child: SegmentedButton<DeliveryFormat>(
+            showSelectedIcon: false,
+            segments: [
+              for (final f in formats)
+                ButtonSegment(value: f, label: segmentLabel(f.name)),
+            ],
+            selected: {o.format},
+            onSelectionChanged: (s) => onChanged(o.copyWith(format: s.single)),
+          ),
         ),
-      ],
-    );
-  }
+        const SizedBox(height: Gaps.m),
+        chips([
+          toggle('Round', o.rounded, (v) => o.copyWith(rounded: v)),
+          toggle('Rotate 90°', o.rotated, (v) => o.copyWith(rotated: v)),
+        ]),
+      ]),
+    ),
+    DemoSection(
+      title: 'Delivery',
+      summary: [
+        if (o.cdnSubdomain) 'CDN subdomain',
+        if (o.shorten) 'short URL',
+        if (!o.cdnSubdomain && !o.shorten) 'standard URL',
+      ].join(' · '),
+      child: chips([
+        toggle(
+          'CDN subdomain',
+          o.cdnSubdomain,
+          (v) => o.copyWith(cdnSubdomain: v),
+        ),
+        toggle('Short URL', o.shorten, (v) => o.copyWith(shorten: v)),
+      ]),
+    ),
+  ];
 }
