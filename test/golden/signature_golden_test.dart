@@ -37,6 +37,11 @@ void main() {
     );
   });
 
+  test('each algorithm carries the name Cloudinary uses for it', () {
+    expect(CloudinarySignatureAlgorithm.sha1.wireName, 'sha1');
+    expect(CloudinarySignatureAlgorithm.sha256.wireName, 'sha256');
+  });
+
   // v1 of this package signed with version 1 semantics. A value containing
   // '&' then splits into extra parameters inside the signed string, so an
   // attacker controlling one value can append parameters the caller never

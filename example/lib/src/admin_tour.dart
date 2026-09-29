@@ -156,38 +156,32 @@ class _AdminTourState extends State<AdminTour>
   Widget build(BuildContext context) {
     super.build(context);
     final theme = Theme.of(context);
-    return Section(
-      title: 'Admin API',
-      subtitle:
-          'All ten groups under cloudinary.admin. Each call needs the API '
-          'secret, so it runs on your server.',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          DropdownMenu<AdminGroup>(
-            label: const Text('Group'),
-            leadingIcon: const Icon(Icons.admin_panel_settings_outlined),
-            expandedInsets: EdgeInsets.zero,
-            initialSelection: _group,
-            dropdownMenuEntries: [
-              for (final g in adminGroups)
-                DropdownMenuEntry(value: g, label: 'admin.${g.name}'),
-            ],
-            onSelected: (g) {
-              if (g != null) setState(() => _group = g);
-            },
-          ),
-          const SizedBox(height: Gaps.m),
-          Text(_group.summary, style: theme.textTheme.bodyMedium),
-          const SizedBox(height: Gaps.m),
-          CodeBlock(_group.code, label: 'the code'),
-          const SizedBox(height: Gaps.m),
-          Labelled(
-            label: 'A response looks like this',
-            child: CodeBlock(_group.response, label: 'the response'),
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DropdownMenu<AdminGroup>(
+          label: const Text('Group'),
+          leadingIcon: const Icon(Icons.admin_panel_settings_outlined),
+          expandedInsets: EdgeInsets.zero,
+          initialSelection: _group,
+          dropdownMenuEntries: [
+            for (final g in adminGroups)
+              DropdownMenuEntry(value: g, label: 'admin.${g.name}'),
+          ],
+          onSelected: (g) {
+            if (g != null) setState(() => _group = g);
+          },
+        ),
+        const SizedBox(height: Gaps.m),
+        Text(_group.summary, style: theme.textTheme.bodyMedium),
+        const SizedBox(height: Gaps.m),
+        CodeBlock(_group.code, label: 'the code'),
+        const SizedBox(height: Gaps.m),
+        Labelled(
+          label: 'A response looks like this',
+          child: CodeBlock(_group.response, label: 'the response'),
+        ),
+      ],
     );
   }
 }

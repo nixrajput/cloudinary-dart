@@ -78,4 +78,63 @@ void main() {
 
     expect(t.serialize(), 'c_fill,g_north_east');
   });
+
+  test('image setters emit their short keys', () {
+    final t = Transformation()
+      ..aspectRatio('16:9')
+      ..qualityValue(80)
+      ..dpr('2.0')
+      ..radius('max')
+      ..opacity(50)
+      ..angle(90)
+      ..border('2px_solid_black')
+      ..x(10)
+      ..y(-5)
+      ..zoom(1.5)
+      ..page(2)
+      ..underlay('bg')
+      ..named('thumb');
+
+    expect(
+      t.serialize(),
+      'a_90,ar_16:9,bo_2px_solid_black,dpr_2.0,o_50,pg_2,q_80,r_max,t_thumb,'
+      'u_bg,x_10,y_-5,z_1.5',
+    );
+  });
+
+  test('video setters emit their short keys', () {
+    final t = Transformation()
+      ..videoCodec('h264')
+      ..audioCodec('aac')
+      ..bitRate('500k')
+      ..streamingProfile('hd')
+      ..startOffset(2.5)
+      ..endOffset(10)
+      ..duration('30p');
+
+    expect(t.serialize(), 'ac_aac,br_500k,du_30p,eo_10,so_2.5,sp_hd,vc_h264');
+  });
+
+  test('toString is the serialized form, for a stage and a chain', () {
+    final stage = Transformation()
+      ..width(100)
+      ..crop(CropMode.fill);
+    final chain = TransformationChain([stage, Transformation()..angle(90)]);
+
+    expect('$stage', 'c_fill,w_100');
+    expect('$chain', 'c_fill,w_100/a_90');
+  });
+
+  test('a chain is empty only when every stage is', () {
+    expect(TransformationChain([]).isEmpty, isTrue);
+    expect(
+      TransformationChain([Transformation(), Transformation()]).isEmpty,
+      isTrue,
+    );
+    expect(
+      TransformationChain([Transformation(), Transformation()..width(1)])
+          .isEmpty,
+      isFalse,
+    );
+  });
 }

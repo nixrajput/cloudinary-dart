@@ -32,7 +32,7 @@ dart test -p chrome                  # and again with -c dart2wasm
 dart pub publish --dry-run
 ```
 
-CI also holds line coverage at 90% (`scripts/coverage.sh 90`) and repeats analyze and test on Dart 3.13.0, the SDK floor. A test that builds a signing client passes `allowSecretOnWeb: true`, or it throws in the browser runs.
+CI also holds line coverage at 100% (`scripts/coverage.sh 100`), repeats analyze and test on Dart 3.13.0, the SDK floor, and builds the example app for Android, iOS, macOS, Windows, Linux, web and WebAssembly. A test that builds a signing client passes `allowSecretOnWeb: true`, or it throws in the browser runs.
 
 ## Workflow
 

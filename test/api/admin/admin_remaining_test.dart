@@ -226,6 +226,109 @@ void main() {
       expect(cap.form['access_mode'], 'authenticated');
       expect(cap.form['tag'], 't');
     });
+
+    test('updateAccessMode by public ids, then by prefix', () async {
+      final (c, cap) = client();
+      await c.admin.resources.updateAccessMode(
+        accessMode: 'public',
+        publicIds: ['a', 'b'],
+      );
+      expect(cap.forms['public_ids[]'], ['a', 'b']);
+      expect(cap.forms.containsKey('prefix'), isFalse);
+
+      await c.admin.resources.updateAccessMode(
+        accessMode: 'public',
+        prefix: 'p/',
+      );
+      expect(cap.form['prefix'], 'p/');
+      expect(cap.forms.containsKey('public_ids[]'), isFalse);
+    });
+
+    test('context and asset folder listings page', () async {
+      final (c, cap) = client({'resources': <Object>[]});
+      await c.admin.resources.listByContext(
+        'alt',
+        nextCursor: 'C',
+        maxResults: 5,
+      );
+      expect(cap.path, '/v1_1/demo/resources/image/context');
+      expect(cap.query, {'key': 'alt', 'next_cursor': 'C', 'max_results': '5'});
+
+      await c.admin.resources.listByAssetFolder(
+        'trips',
+        nextCursor: 'D',
+        maxResults: 7,
+      );
+      expect(cap.path, '/v1_1/demo/resources/by_asset_folder');
+      expect(cap.query, {
+        'asset_folder': 'trips',
+        'next_cursor': 'D',
+        'max_results': '7',
+      });
+    });
+
+    test('delete by public ids passes every option', () async {
+      final (c, cap) = client({'deleted': <String, Object>{}});
+      await c.admin.resources.delete(
+        ['a'],
+        resourceType: CloudinaryResourceType.video,
+        type: 'private',
+        invalidate: true,
+        keepOriginal: true,
+        nextCursor: 'C',
+      );
+
+      expect(cap.method, 'DELETE');
+      expect(cap.path, '/v1_1/demo/resources/video/private');
+      expect(cap.forms, {
+        'public_ids[]': ['a'],
+        'invalidate': ['true'],
+        'keep_original': ['true'],
+        'next_cursor': ['C'],
+      });
+    });
+
+    test('bulk and derived deletes pass invalidate and next_cursor', () async {
+      final (c, cap) = client({'deleted': <String, Object>{}});
+
+      await c.admin.resources.deleteByPrefix(
+        'old/',
+        invalidate: true,
+        nextCursor: 'C',
+      );
+      expect(cap.form, {
+        'prefix': 'old/',
+        'invalidate': 'true',
+        'next_cursor': 'C',
+      });
+
+      await c.admin.resources.deleteAll(
+        confirm: true,
+        invalidate: true,
+        nextCursor: 'D',
+      );
+      expect(cap.form, {
+        'all': 'true',
+        'invalidate': 'true',
+        'next_cursor': 'D',
+      });
+
+      await c.admin.resources.deleteByTag('junk', invalidate: true);
+      expect(cap.path, '/v1_1/demo/resources/image/tags/junk');
+      expect(cap.form, {'invalidate': 'true'});
+
+      await c.admin.resources.deleteDerivedByTransformation(
+        publicIds: ['a'],
+        transformations: 'w_100',
+        invalidate: true,
+      );
+      expect(cap.forms, {
+        'public_ids[]': ['a'],
+        'transformations': ['w_100'],
+        'keep_original': ['true'],
+        'invalidate': ['true'],
+      });
+    });
   });
 
   group('folders and tags, remaining', () {
@@ -241,6 +344,18 @@ void main() {
       final (c, cap) = client({'folders': <Object>[]});
       await c.admin.folders.subfolders('a', maxResults: 5, nextCursor: 'C');
       expect(cap.query['next_cursor'], 'C');
+    });
+
+    test('tags paging', () async {
+      final (c, cap) = client({'tags': <Object>[]});
+      await c.admin.tags.list(
+        resourceType: CloudinaryResourceType.video,
+        maxResults: 5,
+        nextCursor: 'C',
+      );
+
+      expect(cap.path, '/v1_1/demo/tags/video');
+      expect(cap.query, {'max_results': '5', 'next_cursor': 'C'});
     });
   });
 
@@ -312,6 +427,24 @@ void main() {
       await c2.admin.uploadMappings.delete('f');
       expect(cap2.method, 'DELETE');
       expect(cap2.form['folder'], 'f');
+    });
+
+    test('streaming profiles create with a display name', () async {
+      final (c, cap) = client({'message': 'created'});
+      await c.admin.streamingProfiles.create(
+        name: 'hd',
+        displayName: 'HD',
+        representations: const [
+          {
+            'transformation': {'crop': 'limit'},
+          },
+        ],
+      );
+
+      expect(cap.method, 'POST');
+      expect(cap.path, '/v1_1/demo/streaming_profiles');
+      expect(cap.form['name'], 'hd');
+      expect(cap.form['display_name'], 'HD');
     });
 
     test('streaming profiles update and delete', () async {
@@ -414,6 +547,54 @@ void main() {
       expect(cap2.method, 'PUT');
       final body = jsonDecode(cap2.request.body) as Map<String, dynamic>;
       expect(body['state'], 'active');
+    });
+
+    test('update sends mandatory, a default and extra params', () async {
+      final (c, cap) = client({'external_id': 'f'});
+      await c.admin.metadataFields.update(
+        'f',
+        mandatory: false,
+        defaultValue: 'none',
+        extraParams: {
+          'restrictions': {'readonly_ui': true},
+        },
+      );
+
+      expect(jsonDecode(cap.request.body), {
+        'mandatory': false,
+        'default_value': 'none',
+        'restrictions': {'readonly_ui': true},
+      });
+    });
+
+    test('rules create with a name, update condition and result', () async {
+      final (c, cap) = client({'external_id': 'r'});
+      const condition = {'metadata_field_id': 'category', 'equals': 'shoes'};
+      const result = {'enable': true, 'activate_values': 'all'};
+
+      await c.admin.metadataRules.create(
+        metadataFieldId: 'size',
+        condition: condition,
+        result: result,
+        name: 'Sizes for shoes',
+      );
+      expect(jsonDecode(cap.request.body), {
+        'metadata_field_id': 'size',
+        'condition': condition,
+        'result': result,
+        'name': 'Sizes for shoes',
+      });
+
+      await c.admin.metadataRules.update(
+        'r',
+        condition: condition,
+        result: result,
+      );
+      expect(cap.path, '/v1_1/demo/metadata_rules/r');
+      expect(jsonDecode(cap.request.body), {
+        'condition': condition,
+        'result': result,
+      });
     });
   });
 }

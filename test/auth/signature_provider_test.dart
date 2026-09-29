@@ -24,6 +24,22 @@ class _RecordingSigner implements SignatureProvider {
   }
 }
 
+// Subclassing goes through SignatureProvider's own constructor, which
+// implementing the interface never runs.
+class _SubclassSigner extends SignatureProvider {
+  int calls = 0;
+
+  @override
+  Future<RemoteSignature> sign(Map<String, dynamic> params) async {
+    calls++;
+    return const RemoteSignature(
+      signature: 'cafebabe',
+      timestamp: 1700000000,
+      apiKey: 'remote-key',
+    );
+  }
+}
+
 void main() {
   test('a signed upload routes through the provider', () async {
     final signer = _RecordingSigner();
@@ -126,6 +142,27 @@ void main() {
 
       expect(body, isNot(contains('deadbeef')));
       expect(body, contains('signature'));
+    },
+  );
+
+  test(
+    'a provider may extend SignatureProvider as well as implement it',
+    () async {
+      final signer = _SubclassSigner();
+      late String body;
+      final c = Cloudinary.unsigned(
+        cloudName: 'demo',
+        signatureProvider: signer,
+        client: MockClient((req) async {
+          body = req.body;
+          return http.Response(jsonEncode({'result': 'ok'}), 200);
+        }),
+      );
+
+      await c.upload.destroy(publicId: 'p');
+
+      expect(signer.calls, 1);
+      expect(Uri.splitQueryString(body)['signature'], 'cafebabe');
     },
   );
 }

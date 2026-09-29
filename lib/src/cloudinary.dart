@@ -5,17 +5,13 @@ import 'api/search/search_api.dart';
 import 'api/upload_api.dart';
 import 'auth/signature_provider.dart';
 import 'config/cloudinary_config.dart';
-import 'config/environment.dart';
+import 'config/environment_reader.dart';
 import 'config/url_config.dart';
 import 'exceptions.dart';
 import 'http/retry_policy.dart';
 import 'http/transport.dart';
 import 'url/cloudinary_url.dart';
-
-// True on both web compilers. `identical(0, 0.0)` detects only dart2js: under
-// dart2wasm int and double have distinct representations, so it reads false
-// and the secret guard below would never fire.
-const bool _isWebRuntime = bool.fromEnvironment('dart.library.js_interop');
+import 'web_guard.dart';
 
 /// Entry point for the Cloudinary API.
 ///
@@ -50,15 +46,7 @@ class Cloudinary {
     config.validate();
     // Every factory converges here, so no constructor can hold a secret on
     // the web by skipping the check.
-    if (_isWebRuntime && config.canSign && !allowSecretOnWeb) {
-      throw const CloudinaryConfigException(
-        'Refusing to hold an API secret on the web: it would ship in your '
-        'bundle and be readable by anyone. Use Cloudinary.unsigned with an '
-        'upload preset, or pass a SignatureProvider that signs on your '
-        'server. Set allowSecretOnWeb: true only if this code never reaches '
-        'a browser.',
-      );
-    }
+    refuseSecretOnWeb(config, allowSecretOnWeb: allowSecretOnWeb);
 
     transport = CloudinaryTransport(
       config: config,
@@ -187,7 +175,7 @@ class Cloudinary {
     Duration timeout = const Duration(seconds: 60),
     bool allowSecretOnWeb = false,
   }) {
-    final value = readCloudinaryUrl();
+    final value = cloudinaryUrlReader();
     if (value == null || value.isEmpty) {
       throw const CloudinaryConfigException(
         'CLOUDINARY_URL is not set in the environment.',

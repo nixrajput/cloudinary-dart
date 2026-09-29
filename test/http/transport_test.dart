@@ -201,6 +201,41 @@ void main() {
       );
     });
 
+    test('an HTML error page from a proxy keeps its status and body', () {
+      final t = transportReturning(
+        (_) => http.Response('<html>Bad gateway</html>', 502),
+      );
+
+      expect(
+        () => t.send(method: 'GET', segments: ['ping']),
+        throwsA(
+          isA<CloudinaryApiException>()
+              .having((e) => e.statusCode, 'statusCode', 502)
+              .having((e) => e.message, 'message', contains('non-JSON error'))
+              .having(
+                (e) => e.raw['body'],
+                'raw.body',
+                contains('Bad gateway'),
+              ),
+        ),
+      );
+    });
+
+    test('an error given as plain text is the exception message', () {
+      final t = transportReturning(
+        (_) => http.Response(jsonEncode({'error': 'Invalid width'}), 400),
+      );
+
+      expect(
+        () => t.send(method: 'GET', segments: ['ping']),
+        throwsA(
+          isA<CloudinaryApiException>()
+              .having((e) => e.statusCode, 'statusCode', 400)
+              .having((e) => e.message, 'message', 'Invalid width'),
+        ),
+      );
+    });
+
     test('a socket failure maps to CloudinaryTransportException', () {
       final t = CloudinaryTransport(
         config: const CloudinaryConfig(cloudName: 'demo'),
@@ -290,6 +325,72 @@ void main() {
       );
       expect(calls, 1, reason: 'a 500 may have partially succeeded');
     });
+
+    // Each date is decades ahead, so only maxDelay can explain a wait this
+    // long; the 1ms backoff alone would finish far sooner.
+    test('a Retry-After date sets the delay, capped at maxDelay', () async {
+      var calls = 0;
+      final t = CloudinaryTransport(
+        config: _signed,
+        client: MockClient((_) async {
+          calls++;
+          return calls == 1
+              ? http.Response(
+                  '{}',
+                  503,
+                  headers: {'retry-after': 'Fri, 01 Jan 2100 00:00:00 GMT'},
+                )
+              : http.Response('{"ok":true}', 200);
+        }),
+        retry: const RetryPolicy(
+          maxAttempts: 2,
+          baseDelay: Duration(milliseconds: 1),
+          maxDelay: Duration(milliseconds: 100),
+        ),
+      );
+
+      final watch = Stopwatch()..start();
+      final result = await t.send(method: 'GET', segments: ['ping']);
+
+      expect(result['ok'], isTrue);
+      expect(calls, 2);
+      expect(watch.elapsedMilliseconds, greaterThanOrEqualTo(90));
+    });
+
+    test('without Retry-After, the rate-limit reset sets the delay', () async {
+      var calls = 0;
+      final t = CloudinaryTransport(
+        config: _signed,
+        client: MockClient((_) async {
+          calls++;
+          return calls == 1
+              ? http.Response(
+                  '{}',
+                  420,
+                  headers: {
+                    'x-featureratelimit-reset': 'Fri, 01 Jan 2100 00:00:00 GMT',
+                  },
+                )
+              : http.Response('{"ok":true}', 200);
+        }),
+        retry: const RetryPolicy(
+          maxAttempts: 2,
+          baseDelay: Duration(milliseconds: 1),
+          maxDelay: Duration(milliseconds: 100),
+        ),
+      );
+
+      final watch = Stopwatch()..start();
+      final result = await t.send(
+        method: 'GET',
+        segments: ['ping'],
+        basicAuth: true,
+      );
+
+      expect(result['ok'], isTrue);
+      expect(calls, 2);
+      expect(watch.elapsedMilliseconds, greaterThanOrEqualTo(90));
+    });
   });
 
   group('client ownership', () {
@@ -302,6 +403,18 @@ void main() {
       // A closed MockClient throws on use; this must still work.
       final response = await injected.get(Uri.https('example.com', '/'));
       expect(response.statusCode, 200);
+    });
+
+    test('a client the transport created is closed by close()', () async {
+      final t = CloudinaryTransport(config: _signed);
+
+      t.close();
+
+      // A closed client refuses before opening a connection.
+      await expectLater(
+        t.client.get(Uri.https('example.com', '/')),
+        throwsA(isA<http.ClientException>()),
+      );
     });
   });
 
@@ -346,6 +459,28 @@ void main() {
         throwsA(isA<CloudinaryTransportException>()),
       );
       expect(calls, 3);
+    });
+
+    test('a timed-out GET is retried', () async {
+      var calls = 0;
+      final t = CloudinaryTransport(
+        config: _signed,
+        client: MockClient((_) async {
+          calls++;
+          if (calls == 1) {
+            await Future<void>.delayed(const Duration(milliseconds: 500));
+          }
+          return http.Response('{"ok":true}', 200);
+        }),
+        retry: const RetryPolicy(
+          maxAttempts: 2,
+          baseDelay: Duration(milliseconds: 1),
+        ),
+        timeout: const Duration(milliseconds: 50),
+      );
+
+      expect((await t.send(method: 'GET', segments: ['ping']))['ok'], isTrue);
+      expect(calls, 2);
     });
 
     test('a 503 does not retry a POST: the origin may have acted', () async {

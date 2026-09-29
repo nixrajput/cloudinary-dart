@@ -11,11 +11,12 @@
   <a href="https://github.com/nixrajput/cloudinary-dart/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/nixrajput/cloudinary-dart/ci.yml?branch=master&label=CI" alt="CI" /></a>
   <a href="https://pub.dev/packages/cloudinary/score"><img src="https://img.shields.io/pub/likes/cloudinary?label=Likes" alt="pub likes" /></a>
   <a href="https://pub.dev/packages/cloudinary/score"><img src="https://img.shields.io/pub/points/cloudinary?label=Points" alt="pub points" /></a>
+  <a href="https://github.com/nixrajput/cloudinary-dart/graphs/contributors"><img src="https://img.shields.io/github/contributors/nixrajput/cloudinary-dart?label=Contributors" alt="contributors" /></a>
   <a href="https://github.com/nixrajput/cloudinary-dart/blob/master/LICENSE"><img src="https://img.shields.io/github/license/nixrajput/cloudinary-dart?label=Licence" alt="licence" /></a>
 </p>
 
 <p align="center">
-  <b>93 API methods</b> across Upload, Admin and Search &nbsp;·&nbsp; <b>388 tests</b> &nbsp;·&nbsp; <b>2 runtime dependencies</b> &nbsp;·&nbsp; <b>0 Flutter dependencies</b>
+  <b>93 API methods</b> across Upload, Admin and Search &nbsp;·&nbsp; <b>430 tests</b> &nbsp;·&nbsp; <b>2 runtime dependencies</b> &nbsp;·&nbsp; <b>0 Flutter dependencies</b>
 </p>
 
 <p align="center">
@@ -30,7 +31,7 @@
   <a href="#admin-api">Admin</a> &nbsp;·&nbsp;
   <a href="#search-api">Search</a> &nbsp;·&nbsp;
   <a href="#is-this-for-you">Is this for you</a> &nbsp;·&nbsp;
-  <a href="MIGRATION.md">Migrating from 1.x</a> &nbsp;·&nbsp;
+  <a href="https://github.com/nixrajput/cloudinary-dart/blob/master/MIGRATION.md">Migrating from 1.x</a> &nbsp;·&nbsp;
   <a href="https://pub.dev/documentation/cloudinary/latest/">API reference</a>
 </p>
 
@@ -58,6 +59,7 @@
 - [About Cloudinary](#about-cloudinary)
 - [Migrating from 1.x](#migrating-from-1x)
 - [Contributing](#contributing)
+- [Contributors](#contributors)
 - [License](#license)
 - [Support the project](#support-the-project)
 - [Connect](#connect)
@@ -70,7 +72,7 @@ Responses come back as typed models, failures throw typed exceptions, and every 
 
 ## Demo
 
-Try every feature in the [live web demo](https://nixrajput.github.io/cloudinary-dart): a delivery URL playground on Cloudinary's public demo cloud, a real unsigned upload to your own cloud, signatures, signed URLs, auth tokens and webhook verification computed with a throwaway secret, a search query builder, a tour of the Admin API, `CLOUDINARY_URL` parsing and the exception family. It is the [example app](example/README.md) built for the web; the same app runs on Android, iOS, macOS, Windows and Linux.
+Try every feature in the [live web demo](https://nixrajput.github.io/cloudinary-dart): a delivery URL playground on Cloudinary's public demo cloud, a real unsigned upload to your own cloud, signatures, signed URLs, auth tokens and webhook verification computed with a throwaway secret, a search query builder, a tour of the Admin API, `CLOUDINARY_URL` parsing and the exception family. It is the [example app](https://github.com/nixrajput/cloudinary-dart/blob/master/example/README.md) built for the web; the same app runs on Android, iOS, macOS, Windows and Linux.
 
 ## Quick start
 
@@ -123,7 +125,7 @@ Call `cloudinary.close()` when you are done, unless you passed your own `http.Cl
 
 ```dart
 final result = await cloudinary.upload.upload(
-  file: CloudinaryFileSource.path('/path/to/photo.jpg'),
+  file: const CloudinaryFileSource.path('/path/to/photo.jpg'),
   folder: 'trips/2026',
   tags: ['holiday'],
   onProgress: (sent, total) => print('$sent / $total'),
@@ -144,9 +146,9 @@ final result = await cloudinary.upload.unsignedUpload(
 A file can come from a path, from bytes, or from a URL Cloudinary fetches itself:
 
 ```dart
-CloudinaryFileSource.path('/path/to/photo.jpg');   // not available on the web
+const CloudinaryFileSource.path('/path/to/photo.jpg');   // not available on the web
 CloudinaryFileSource.bytes(bytes, filename: 'a.png');
-CloudinaryFileSource.url('https://example.com/a.png');
+const CloudinaryFileSource.url('https://example.com/a.png');
 ```
 
 The rest of the Upload API is there too: `explicit`, `rename`, `destroy`, `destroyByAssetId`, `addTag`, `removeTag`, `replaceTag`, `removeAllTags`, `addContext`, `removeAllContext`, `updateMetadata`, `explode`, `multi`, `generateSprite`, `text`, `createArchive`, `createZip` and `deleteByToken`.
@@ -190,7 +192,7 @@ Sign a URL so nobody can edit the transformation, or attach a time-limited token
 cloudinary.url.image('private.jpg').signed().build();
 
 cloudinary.url.image('private.jpg').authToken(
-  AuthToken(key: 'your-token-key', acl: '/image/*', duration: 3600),
+  const AuthToken(key: 'your-token-key', acl: '/image/*', duration: 3600),
 ).build();
 ```
 
@@ -296,7 +298,7 @@ Responses with status 420, 429, 502, 503 or 504 are retried automatically, honou
 
 ```dart
 final ok = verifyNotificationSignature(
-  body: rawRequestBody,          // the raw bytes as received, not re-encoded
+  body: rawRequestBody,          // the raw body as received, not re-encoded
   timestamp: int.parse(headers['x-cld-timestamp']!),
   signature: headers['x-cld-signature']!,
   apiSecret: 'your-secret',
@@ -329,7 +331,7 @@ final result = await cloudinary.upload.upload(
 print(result.secureUrl);
 ```
 
-[MIGRATION.md](MIGRATION.md) maps every v1 call to its v2 equivalent.
+[MIGRATION.md](https://github.com/nixrajput/cloudinary-dart/blob/master/MIGRATION.md) maps every v1 call to its v2 equivalent.
 
 ## Is this for you
 
@@ -376,15 +378,23 @@ Cloudinary is a media API for websites and mobile apps: it stores, transforms, o
 
 ## Migrating from 1.x
 
-2.0 is a rewrite: failures throw typed exceptions instead of returning an `error` string, `package:http` replaces `dio`, the API is grouped under `cloudinary.upload`, `admin`, `search` and `url`, and `CloudinaryFileSource` replaces `file` and `fileBytes`. [MIGRATION.md](MIGRATION.md) maps every 1.x call to its 2.x equivalent.
+2.0 is a rewrite: failures throw typed exceptions instead of returning an `error` string, `package:http` replaces `dio`, the API is grouped under `cloudinary.upload`, `admin`, `search` and `url`, and `CloudinaryFileSource` replaces `file` and `fileBytes`. [MIGRATION.md](https://github.com/nixrajput/cloudinary-dart/blob/master/MIGRATION.md) maps every 1.x call to its 2.x equivalent.
 
 ## Contributing
 
-Fork the repository, make your changes and open a pull request. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first, and note that every PR must bump the version in `pubspec.yaml` and add a matching `CHANGELOG.md` entry.
+Contributions are welcome. Fork, branch and open a pull request - see [CONTRIBUTING.md](https://github.com/nixrajput/cloudinary-dart/blob/master/CONTRIBUTING.md) for the checks a PR has to pass, and note that every PR must bump the version in `pubspec.yaml` and add a matching `CHANGELOG.md` entry. Bugs and ideas go to [Issues](https://github.com/nixrajput/cloudinary-dart/issues), questions to [Discussions](https://github.com/nixrajput/cloudinary-dart/discussions), and vulnerabilities follow [SECURITY.md](https://github.com/nixrajput/cloudinary-dart/blob/master/SECURITY.md).
+
+## Contributors
+
+Thanks to everyone who has contributed to cloudinary.
+
+<a href="https://github.com/nixrajput/cloudinary-dart/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=nixrajput/cloudinary-dart" alt="Contributors" />
+</a>
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT. See [LICENSE](https://github.com/nixrajput/cloudinary-dart/blob/master/LICENSE).
 
 ## Support the project
 

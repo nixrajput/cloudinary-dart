@@ -128,99 +128,92 @@ class _SigningSectionState extends State<SigningSection>
       child: Text(text, style: theme.textTheme.titleSmall),
     );
 
-    return Section(
-      title: 'Signing',
-      subtitle:
-          'Computed here with a throwaway secret, which is safe to show. '
-          'A real secret never leaves your server.',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          heading('Request signature'),
-          Wrap(
-            spacing: Gaps.s,
-            runSpacing: Gaps.s,
-            children: [
-              SegmentedButton<int>(
-                showSelectedIcon: false,
-                segments: const [
-                  ButtonSegment(value: 1, label: Text('Version 1')),
-                  ButtonSegment(value: 2, label: Text('Version 2')),
-                ],
-                selected: {_version},
-                onSelectionChanged: (s) => setState(() => _version = s.single),
-              ),
-              SegmentedButton<CloudinarySignatureAlgorithm>(
-                showSelectedIcon: false,
-                segments: [
-                  for (final a in CloudinarySignatureAlgorithm.values)
-                    ButtonSegment(value: a, label: Text(a.name.toUpperCase())),
-                ],
-                selected: {_algorithm},
-                onSelectionChanged: (s) =>
-                    setState(() => _algorithm = s.single),
-              ),
-            ],
-          ),
-          const SizedBox(height: Gaps.m),
-          Labelled(
-            label: 'String to sign, keys sorted',
-            child: CodeBlock(stringToSign(_params, version: _version)),
-          ),
-          const SizedBox(height: Gaps.m),
-          Labelled(
-            label: 'Signature',
-            child: CodeBlock(signature, label: 'the signature'),
-          ),
-          const SizedBox(height: Gaps.s),
-          Text(
-            _version == 2
-                ? 'Version 2 escapes the & inside a value, so a value cannot '
-                      'add a parameter to the signed string.'
-                : 'Version 1 leaves the & bare: "Fish & chips" reads as a '
-                      'second parameter. Use version 2.',
-            style: theme.textTheme.bodySmall,
-          ),
-          const Divider(height: Gaps.l * 2),
-          heading('Signed delivery URL'),
-          CodeBlock(signedUrl, label: 'the URL', wrap: true),
-          const SizedBox(height: Gaps.s),
-          Text(
-            'The s--...-- component proves the transformation was chosen by '
-            'someone holding the secret. Cloudinary checks it against your '
-            'real secret, so this one would be refused.',
-            style: theme.textTheme.bodySmall,
-          ),
-          const Divider(height: Gaps.l * 2),
-          heading('Auth token'),
-          CodeBlock(_token, label: 'the token'),
-          const SizedBox(height: Gaps.m),
-          Labelled(
-            label: 'An authenticated URL carrying a token',
-            child: CodeBlock(_tokenUrl, label: 'the URL', wrap: true),
-          ),
-          const Divider(height: Gaps.l * 2),
-          heading('Webhook verification'),
-          Labelled(label: 'Body received', child: CodeBlock(received)),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Tamper with the body'),
-            value: _tampered,
-            onChanged: (v) => setState(() => _tampered = v),
-          ),
-          Outcome(
-            ok: verified,
-            text: verified
-                ? 'Signature valid: this came from Cloudinary.'
-                : 'Signature invalid: reject the request.',
-          ),
-          const SizedBox(height: Gaps.m),
-          const CodeBlock(_verifyCode, label: 'the code'),
-          const Divider(height: Gaps.l * 2),
-          heading('Signing on your server'),
-          const CodeBlock(_providerCode, label: 'the code'),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        heading('Request signature'),
+        Wrap(
+          spacing: Gaps.s,
+          runSpacing: Gaps.s,
+          children: [
+            SegmentedButton<int>(
+              showSelectedIcon: false,
+              segments: const [
+                ButtonSegment(value: 1, label: Text('Version 1')),
+                ButtonSegment(value: 2, label: Text('Version 2')),
+              ],
+              selected: {_version},
+              onSelectionChanged: (s) => setState(() => _version = s.single),
+            ),
+            SegmentedButton<CloudinarySignatureAlgorithm>(
+              showSelectedIcon: false,
+              segments: [
+                for (final a in CloudinarySignatureAlgorithm.values)
+                  ButtonSegment(value: a, label: Text(a.name.toUpperCase())),
+              ],
+              selected: {_algorithm},
+              onSelectionChanged: (s) => setState(() => _algorithm = s.single),
+            ),
+          ],
+        ),
+        const SizedBox(height: Gaps.m),
+        Labelled(
+          label: 'String to sign, keys sorted',
+          child: CodeBlock(stringToSign(_params, version: _version)),
+        ),
+        const SizedBox(height: Gaps.m),
+        Labelled(
+          label: 'Signature',
+          child: CodeBlock(signature, label: 'the signature'),
+        ),
+        const SizedBox(height: Gaps.s),
+        Text(
+          _version == 2
+              ? 'Version 2 escapes the & inside a value, so a value cannot '
+                    'add a parameter to the signed string.'
+              : 'Version 1 leaves the & bare: "Fish & chips" reads as a '
+                    'second parameter. Use version 2.',
+          style: theme.textTheme.bodySmall,
+        ),
+        const Divider(height: Gaps.l * 2),
+        heading('Signed delivery URL'),
+        CodeBlock(signedUrl, label: 'the URL', wrap: true),
+        const SizedBox(height: Gaps.s),
+        Text(
+          'The s--...-- component proves the transformation was chosen by '
+          'someone holding the secret. Cloudinary checks it against your '
+          'real secret, so this one would be refused.',
+          style: theme.textTheme.bodySmall,
+        ),
+        const Divider(height: Gaps.l * 2),
+        heading('Auth token'),
+        CodeBlock(_token, label: 'the token'),
+        const SizedBox(height: Gaps.m),
+        Labelled(
+          label: 'An authenticated URL carrying a token',
+          child: CodeBlock(_tokenUrl, label: 'the URL', wrap: true),
+        ),
+        const Divider(height: Gaps.l * 2),
+        heading('Webhook verification'),
+        Labelled(label: 'Body received', child: CodeBlock(received)),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: const Text('Tamper with the body'),
+          value: _tampered,
+          onChanged: (v) => setState(() => _tampered = v),
+        ),
+        Outcome(
+          ok: verified,
+          text: verified
+              ? 'Signature valid: this came from Cloudinary.'
+              : 'Signature invalid: reject the request.',
+        ),
+        const SizedBox(height: Gaps.m),
+        const CodeBlock(_verifyCode, label: 'the code'),
+        const Divider(height: Gaps.l * 2),
+        heading('Signing on your server'),
+        const CodeBlock(_providerCode, label: 'the code'),
+      ],
     );
   }
 }

@@ -67,6 +67,28 @@ void main() {
     expect(cap.form['invalidate'], 'true');
   });
 
+  test('destroyByAssetId signs notification_url and extra params', () async {
+    final (c, cap) = clientReturning({'result': 'ok'});
+    await c.upload.destroyByAssetId(
+      assetId: 'aid',
+      notificationUrl: 'https://example.com/hook',
+      extraParams: {'type': 'private'},
+    );
+
+    final f = cap.form;
+    expect(f['notification_url'], 'https://example.com/hook');
+    expect(f['type'], 'private');
+    expect(
+      f['signature'],
+      signRequest({
+        'asset_id': 'aid',
+        'notification_url': 'https://example.com/hook',
+        'type': 'private',
+        'timestamp': f['timestamp'],
+      }, 's'),
+    );
+  });
+
   test('rename posts both public ids', () async {
     final (c, cap) = clientReturning({'public_id': 'b'});
     await c.upload.rename(fromPublicId: 'a', toPublicId: 'b');

@@ -33,9 +33,10 @@ Future<void> main() async {
 
 ## The demo app
 
-This directory is also a Flutter demo of the whole package. It runs everything a browser can run safely against Cloudinary's public `demo` cloud, and shows the rest as the code and a sample response. It has seven parts:
+This directory is also a Flutter demo of the whole package. It runs everything a browser can run safely against Cloudinary's public `demo` cloud, and shows the rest as the code and a sample response. It has eight parts:
 
-- **Options and Preview:** a delivery URL built live from the public ID, crop, gravity, effect, quality, width, aspect ratio, format, rounding, rotation, CDN subdomains and short URLs, with the image Cloudinary delivers for it, the URL, and the Dart that builds it.
+- **Options and Preview:** a delivery URL built live from the public ID, crop, gravity, effect, quality, width, aspect ratio, format, rounding, rotation, CDN subdomains and short URLs, with the image Cloudinary delivers for it and the URL.
+- **Code:** the Dart that builds that URL, updated as the options change.
 - **Upload:** a real unsigned upload from the device to your own cloud with progress, given your cloud name and an unsigned upload preset. Nothing is stored in the app.
 - **Signing:** the string to sign and the signature (versions 1 and 2, SHA-1 and SHA-256), a signed delivery URL, an auth token, and webhook verification with a switch that tampers with the body, all computed with a throwaway secret. A `SignatureProvider` shows how a real app signs on its server.
 - **Search:** a query built as you type, with its request body, a signed cacheable search URL and a sample response.
@@ -43,8 +44,8 @@ This directory is also a Flutter demo of the whole package. It runs everything a
 - **Configuration:** a `CLOUDINARY_URL` parsed as you type, with the secret redacted.
 - **Errors and retries:** the sealed exception family, two failures triggered for real, and the delays the default `RetryPolicy` waits.
 
-The preview never scrolls away. On wide or landscape screens the options and preview are both pinned side by side, whenever the options fit whole, with the rest in one list beneath. On a portrait phone the preview is pinned above that list, and the options lead it. A mouse wheel anywhere on the page scrolls the list. The app follows the device theme, and the switch in the app bar forces light or dark.
+The preview never scrolls away. The options sit in cards that open and close, and a closed card shows its current values, so a phone starts with an overview of everything. From 840 pixels wide, and on a landscape phone, the options get a scrolling panel beside the preview, with the rest of the demo scrolling under the preview; a narrower screen pins the preview above one list of cards. An open card's header stays pinned while the card is on screen, Reset puts every option back, and Expand all opens every card in a group. A mouse wheel over the preview scrolls the list beside or under it. The app follows the device theme, and the switch in the app bar forces light or dark.
 
-`flutter test` checks the layout at phone to desktop sizes, including a large text scale and a phone's bottom inset, and the live parts: the URLs, the signatures, webhook verification, configuration parsing and the errors.
+`flutter test` checks the layout at 20 screen sizes, from a 320-pixel phone to a 3440-pixel ultrawide and including 200% text, and that cards open by tap and keyboard, focus is never hidden behind a pinned header and the page keeps its state across a resize, and the live parts: the URLs, the signatures, webhook verification, configuration parsing and the errors.
 
 Run it from this directory with `flutter run -d chrome`, or open the live demo at https://nixrajput.github.io/cloudinary-dart.

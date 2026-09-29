@@ -17,6 +17,40 @@ void main() {
     );
   });
 
+  test('a value that is not a URI is a config exception', () {
+    expect(
+      () => CloudinaryConfig.parse('cloudinary://k:s@my_cloud:port'),
+      throwsA(
+        isA<CloudinaryConfigException>().having(
+          (e) => e.message,
+          'message',
+          contains('not a valid URI'),
+        ),
+      ),
+    );
+  });
+
+  test('no CLOUDINARY_URL error ever repeats the secret', () {
+    const secret = 'TOPSECRET';
+    for (final url in [
+      'cloudinary://key:$secret@cloud:port',
+      'https://key:$secret@cloud',
+      'cloudinary://key:$secret@',
+    ]) {
+      expect(
+        () => CloudinaryConfig.parse(url),
+        throwsA(
+          isA<CloudinaryConfigException>().having(
+            (e) => '$e ${e.message}',
+            'text',
+            isNot(contains(secret)),
+          ),
+        ),
+        reason: url,
+      );
+    }
+  });
+
   test('rejects a missing cloud name', () {
     expect(
       () => CloudinaryConfig.parse('cloudinary://k:s@'),
