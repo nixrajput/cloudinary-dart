@@ -111,7 +111,7 @@ void main() {
         .where((b) => !b.startsWith('// v1'));
     expect(blocks, isNotEmpty);
     for (final block in blocks) {
-      expect(snippets.contains(block.trimRight()), isTrue, reason: block);
+      expect(snippets.contains(block), isTrue, reason: block);
     }
   });
 
