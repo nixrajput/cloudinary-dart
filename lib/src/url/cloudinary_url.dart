@@ -61,14 +61,11 @@ class UrlApi {
 class CloudinaryUrlBuilder {
   /// Creates a builder. Prefer [UrlApi.image] and friends.
   CloudinaryUrlBuilder({
-    required CloudinaryConfig config,
-    required UrlConfig urlConfig,
-    required String publicId,
-    required CloudinaryResourceType resourceType,
-  }) : _config = config,
-       _urlConfig = urlConfig,
-       _publicId = publicId,
-       _resourceType = resourceType;
+    required this._config,
+    required this._urlConfig,
+    required this._publicId,
+    required this._resourceType,
+  });
 
   final CloudinaryConfig _config;
   final UrlConfig _urlConfig;

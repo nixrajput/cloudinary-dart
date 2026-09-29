@@ -68,7 +68,7 @@ Responses come back as typed models, failures throw typed exceptions, and every 
 
 ### Prerequisites
 
-- Dart SDK `^3.8.0` (Flutter 3.32 or newer bundles a compatible SDK).
+- Dart SDK `^3.13.0` (Flutter 3.47 or newer bundles a compatible SDK).
 - A Cloudinary account. Your cloud name, API key and API secret are on the dashboard.
 - For client-side uploads, an [unsigned upload preset](https://cloudinary.com/documentation/upload_presets), so the app needs no secret.
 

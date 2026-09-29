@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.0
+
+### Changed
+
+- **Dart SDK floor raised to `^3.13.0`** (Flutter 3.47 or newer), the current stable SDK, in line with this author's other packages. Projects on an older SDK keep resolving 2.0.0, which pub selects automatically; nothing in the API changed.
+- CI now also runs the test suite in a browser with dart2js and dart2wasm, and on the Dart 3.13.0 SDK floor.
+
 ## 2.0.0
 
 A rewrite. See [MIGRATION.md](MIGRATION.md) for a call-by-call mapping from 1.x.

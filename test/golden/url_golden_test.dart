@@ -118,18 +118,18 @@ void main() {
   group('distribution', () {
     test('insecure drops to http on the shared cdn', () {
       expect(
-        demo(
-          url: const UrlConfig(secure: false),
-        ).url.image('sample.jpg').build(),
+        demo(url: const UrlConfig(secure: false)).url
+            .image('sample.jpg')
+            .build(),
         'http://res.cloudinary.com/demo/image/upload/sample.jpg',
       );
     });
 
     test('a private cdn moves the cloud name into the host', () {
       expect(
-        demo(
-          url: const UrlConfig(privateCdn: true),
-        ).url.image('sample.jpg').build(),
+        demo(url: const UrlConfig(privateCdn: true)).url
+            .image('sample.jpg')
+            .build(),
         'https://demo-res.cloudinary.com/image/upload/sample.jpg',
       );
     });
@@ -137,16 +137,16 @@ void main() {
     test('cdn sharding picks a subdomain from a crc32 of the source', () {
       // crc32('sample.jpg') = 3318385313; 3318385313 % 5 + 1 = 4
       expect(
-        demo(
-          url: const UrlConfig(cdnSubdomain: true),
-        ).url.image('sample.jpg').build(),
+        demo(url: const UrlConfig(cdnSubdomain: true)).url
+            .image('sample.jpg')
+            .build(),
         'https://res-4.cloudinary.com/demo/image/upload/sample.jpg',
       );
       // crc32('sample') = 4044060355; % 5 + 1 = 1
       expect(
-        demo(
-          url: const UrlConfig(cdnSubdomain: true),
-        ).url.image('sample').build(),
+        demo(url: const UrlConfig(cdnSubdomain: true)).url
+            .image('sample')
+            .build(),
         'https://res-1.cloudinary.com/demo/image/upload/sample',
       );
     });
@@ -161,36 +161,36 @@ void main() {
 
     test('a secure distribution host is used verbatim', () {
       expect(
-        demo(
-          url: const UrlConfig(secureDistribution: 'cdn.example.com'),
-        ).url.image('sample.jpg').build(),
+        demo(url: const UrlConfig(secureDistribution: 'cdn.example.com')).url
+            .image('sample.jpg')
+            .build(),
         'https://cdn.example.com/demo/image/upload/sample.jpg',
       );
     });
 
     test('a cname applies on insecure urls', () {
       expect(
-        demo(
-          url: const UrlConfig(secure: false, cname: 'cdn.example.com'),
-        ).url.image('sample.jpg').build(),
+        demo(url: const UrlConfig(secure: false, cname: 'cdn.example.com')).url
+            .image('sample.jpg')
+            .build(),
         'http://cdn.example.com/demo/image/upload/sample.jpg',
       );
     });
 
     test('shorten rewrites image/upload to iu', () {
       expect(
-        demo(
-          url: const UrlConfig(shorten: true),
-        ).url.image('sample.jpg').build(),
+        demo(url: const UrlConfig(shorten: true)).url
+            .image('sample.jpg')
+            .build(),
         'https://res.cloudinary.com/demo/iu/sample.jpg',
       );
     });
 
     test('useRootPath drops both type segments', () {
       expect(
-        demo(
-          url: const UrlConfig(useRootPath: true),
-        ).url.image('sample.jpg').build(),
+        demo(url: const UrlConfig(useRootPath: true)).url
+            .image('sample.jpg')
+            .build(),
         'https://res.cloudinary.com/demo/sample.jpg',
       );
     });
@@ -210,9 +210,9 @@ void main() {
 
     test('forceVersion off omits it', () {
       expect(
-        demo(
-          url: const UrlConfig(forceVersion: false),
-        ).url.image('folder/sample.jpg').build(),
+        demo(url: const UrlConfig(forceVersion: false)).url
+            .image('folder/sample.jpg')
+            .build(),
         'https://res.cloudinary.com/demo/image/upload/folder/sample.jpg',
       );
     });

@@ -527,13 +527,14 @@ class CloudinaryTransport {
   }
 
   /// Form body, percent-encoded, preserving repeated keys.
-  static String encodeForm(Map<String, dynamic>? input) => flattenParams(input)
-      .map(
-        (e) =>
-            '${Uri.encodeQueryComponent(e.key)}='
-            '${Uri.encodeQueryComponent(e.value)}',
-      )
-      .join('&');
+  static String encodeForm(Map<String, dynamic>? input) =>
+      flattenParams(input)
+          .map(
+            (e) =>
+                '${Uri.encodeQueryComponent(e.key)}='
+                '${Uri.encodeQueryComponent(e.value)}',
+          )
+          .join('&');
 
   static Map<String, dynamic> _jsonSafe(Map<String, dynamic> input) => {
     for (final e in input.entries)

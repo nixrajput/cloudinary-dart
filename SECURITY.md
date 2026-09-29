@@ -4,7 +4,8 @@
 
 | Version | Supported           |
 | ------- | ------------------- |
-| 2.0.x   | Yes, actively       |
+| 2.1.x   | Yes, actively       |
+| 2.0.x   | Security fixes only |
 | 1.x     | Security fixes only |
 
 ## Reporting a vulnerability
