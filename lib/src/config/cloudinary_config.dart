@@ -28,7 +28,11 @@ class CloudinaryConfig {
     try {
       uri = Uri.parse(cloudinaryUrl);
     } on FormatException catch (e) {
-      throw CloudinaryConfigException('CLOUDINARY_URL is not a valid URI: $e');
+      // Only the message: the exception's text repeats the whole URL, and with
+      // it the API secret, into anything that logs this.
+      throw CloudinaryConfigException(
+        'CLOUDINARY_URL is not a valid URI: ${e.message}.',
+      );
     }
 
     if (uri.scheme != 'cloudinary') {

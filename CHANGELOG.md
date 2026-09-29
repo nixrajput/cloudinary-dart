@@ -5,6 +5,7 @@
 - **Docs:** the README gains a Contributors section and a contributors badge, and its Contributing section points to Issues, Discussions and SECURITY.md.
 - **Docs:** links to MIGRATION.md, CONTRIBUTING.md and the other repository files are absolute, so they work on pub.dev, which drops relative ones.
 - **Docs:** every Dart block in the README is compiled by the test suite. The webhook example now calls `body` the raw body, which is a `String`, not bytes, and the examples use `const` where the analyzer asks for it.
+- **Fixed:** a `CLOUDINARY_URL` that is not a valid URI no longer puts the whole URL, API secret included, into the exception message, where anything that logged the error logged the secret.
 - **Chore:** the pubspec homepage is the live demo.
 - **Example:** the demo is redesigned for every screen, from a 320-pixel phone to an ultrawide: the preview never scrolls away, the options sit in collapsible cards that summarise their values while closed, and wide screens give the options a panel of their own. The Dart that builds the URL gets a card of its own.
 
