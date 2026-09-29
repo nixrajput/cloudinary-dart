@@ -8,13 +8,13 @@ Last updated: 2026-09-22
 
 **cloudinary** is a complete Cloudinary SDK for Dart and Flutter. It is pure Dart on purpose: no Flutter dependency, so the same package serves a Flutter app, a Dart backend and a CLI.
 
-| Area          | Detail                                                                                 |
-| ------------- | -------------------------------------------------------------------------------------- |
-| Language      | Dart 3, pure Dart, SDK `^3.13.0`                                                       |
-| Runtime deps  | two: `http` and `crypto`. A third needs explicit approval                              |
-| Tests         | `package:test` with `package:http`'s `MockClient`; golden vectors for signing and URLs |
-| Lint / format | `package:lints` recommended, plus `avoid_print` and `public_member_api_docs`           |
-| Publishing    | pub.dev, tag-triggered via the `PUB_RELEASE_TOKEN` secret                              |
+| Area          | Detail                                                                                                         |
+| ------------- | -------------------------------------------------------------------------------------------------------------- |
+| Language      | Dart 3, pure Dart, SDK `^3.13.0`                                                                               |
+| Runtime deps  | two: `http` and `crypto`. A third needs explicit approval                                                      |
+| Tests         | `package:test` with `package:http`'s `MockClient`; golden vectors for signing and URLs; a README snippet guard |
+| Lint / format | `package:lints` recommended, plus `avoid_print` and `public_member_api_docs`                                   |
+| Publishing    | pub.dev, tag-triggered via the `PUB_RELEASE_TOKEN` secret                                                      |
 
 ### Layout
 
@@ -35,6 +35,7 @@ lib/
 test/
   golden/                         signature, auth token and URL vectors
   api/, http/, config/, models/   per-area unit tests over MockClient
+  readme_test.dart                README TOC, links, claim counts, and every Dart block found in readme_snippets.dart
 ```
 
 Every model extends `CloudinaryModel` and exposes `raw`. Parsing is total: a missing or malformed field degrades to null rather than throwing, so a new Cloudinary field is reachable through `raw` immediately instead of after a release here. Do not add strict parsing that can throw.
@@ -49,7 +50,7 @@ Every model extends `CloudinaryModel` and exposes `raw`. Parsing is total: a mis
 - Every PR that changes anything users receive bumps `pubspec.yaml` and adds a matching `CHANGELOG.md` entry. CI gate `version bumped` enforces both, and without the entry `dart pub publish --dry-run` fails, which stops the release workflow before it publishes.
 - The PR title becomes the squash commit message.
 - `master` is protected: PR required, squash-only merges.
-- The README documents **shipped features only** - no roadmap, no plans.
+- The README documents **shipped features only** - no roadmap, no plans. Every Dart block in it must also be in `test/readme_snippets.dart`, verbatim, or `readme_test.dart` fails. Repository files are linked by absolute GitHub URL, because pub.dev drops relative links; `readme_test.dart` checks it.
 - Markdown prose is never hard-wrapped: one line per paragraph and per list item. Do not re-wrap these files to a column.
 - Never use an em-dash. Use a hyphen.
 

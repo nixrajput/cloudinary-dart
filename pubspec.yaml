@@ -3,7 +3,7 @@ description: Complete Cloudinary SDK for Dart and Flutter - upload, admin, searc
 
 version: 2.1.1
 
-homepage: https://pub.dev/packages/cloudinary
+homepage: https://nixrajput.github.io/cloudinary-dart
 repository: https://github.com/nixrajput/cloudinary-dart
 issue_tracker: https://github.com/nixrajput/cloudinary-dart/issues
 

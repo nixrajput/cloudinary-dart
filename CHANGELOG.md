@@ -2,7 +2,10 @@
 
 ## 2.1.1
 
-- **Docs:** the README gains a Contributors section and a contributors badge.
+- **Docs:** the README gains a Contributors section and a contributors badge, and its Contributing section points to Issues, Discussions and SECURITY.md.
+- **Docs:** links to MIGRATION.md, CONTRIBUTING.md and the other repository files are absolute, so they work on pub.dev, which drops relative ones.
+- **Docs:** every Dart block in the README is compiled by the test suite. The webhook example now calls `body` the raw body, which is a `String`, not bytes, and the examples use `const` where the analyzer asks for it.
+- **Chore:** the pubspec homepage is the live demo.
 
 ## 2.1.0
 
@@ -15,7 +18,7 @@
 
 ## 2.0.0
 
-A rewrite. See [MIGRATION.md](MIGRATION.md) for a call-by-call mapping from 1.x.
+A rewrite. See [MIGRATION.md](https://github.com/nixrajput/cloudinary-dart/blob/master/MIGRATION.md) for a call-by-call mapping from 1.x.
 
 ### Added
 
