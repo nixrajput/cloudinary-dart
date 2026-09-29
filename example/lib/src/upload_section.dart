@@ -1,7 +1,6 @@
-import 'dart:typed_data';
-
 import 'package:cloudinary/cloudinary.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'app_theme.dart';
@@ -23,7 +22,10 @@ print(result.secureUrl);''';
 /// A real unsigned upload to the visitor's own cloud. Unsigned presets are
 /// the only safe way to upload straight from a browser.
 class UploadSection extends StatefulWidget {
-  const UploadSection({super.key});
+  const UploadSection({super.key, this.picker});
+
+  /// Replaced in tests; the platform picker otherwise.
+  final ImagePicker? picker;
 
   @override
   State<UploadSection> createState() => _UploadSectionState();
@@ -52,12 +54,23 @@ class _UploadSectionState extends State<UploadSection>
   }
 
   Future<void> _pick() async {
-    final file = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 2400,
-    );
-    if (file == null) return;
-    final bytes = await file.readAsBytes();
+    final XFile? file;
+    final Uint8List bytes;
+    try {
+      file = await (widget.picker ?? ImagePicker()).pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 2400,
+      );
+      if (file == null) return;
+      bytes = await file.readAsBytes();
+    } on PlatformException catch (e) {
+      if (mounted) setState(() => _error = e.message ?? e.code);
+      return;
+    } on Exception catch (e) {
+      if (mounted) setState(() => _error = 'Could not read the image: $e');
+      return;
+    }
+    if (!mounted) return;
     setState(() {
       _file = file;
       _bytes = bytes;

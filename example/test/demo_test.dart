@@ -2,9 +2,12 @@ import 'package:cloudinary/cloudinary.dart';
 import 'package:cloudinary_example/src/config_section.dart';
 import 'package:cloudinary_example/src/errors_section.dart';
 import 'package:cloudinary_example/src/signing_section.dart';
+import 'package:cloudinary_example/src/upload_section.dart';
 import 'package:cloudinary_example/src/url_playground.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image_picker/image_picker.dart';
 
 Future<void> pumpSection(WidgetTester tester, Widget section) async {
   tester.view.devicePixelRatio = 1;
@@ -14,6 +17,22 @@ Future<void> pumpSection(WidgetTester tester, Widget section) async {
     MaterialApp(
       home: Scaffold(body: SingleChildScrollView(child: section)),
     ),
+  );
+}
+
+/// Refuses the way a denied photo permission does.
+class _DeniedPicker extends ImagePicker {
+  @override
+  Future<XFile?> pickImage({
+    required ImageSource source,
+    double? maxWidth,
+    double? maxHeight,
+    int? imageQuality,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
+    bool requestFullMetadata = true,
+  }) async => throw PlatformException(
+    code: 'photo_access_denied',
+    message: 'The user did not allow photo access.',
   );
 }
 
@@ -108,5 +127,14 @@ void main() {
       find.textContaining('CloudinarySignatureException: An auth token'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('a refused photo picker shows why instead of failing silently', (
+    tester,
+  ) async {
+    await pumpSection(tester, UploadSection(picker: _DeniedPicker()));
+    await tester.tap(find.text('Choose an image'));
+    await tester.pump();
+    expect(find.textContaining('did not allow photo access'), findsOneWidget);
   });
 }
