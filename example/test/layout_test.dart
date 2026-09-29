@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloudinary_example/main.dart';
+import 'package:cloudinary_example/src/app_theme.dart';
+import 'package:cloudinary_example/src/preview.dart';
+import 'package:cloudinary_example/src/url_playground.dart';
+import 'package:cloudinary/cloudinary.dart';
 
 /// The preview card's title, which every check below finds it by.
 const previewTitle = 'Preview';
@@ -266,6 +270,60 @@ void main() {
         preview.bottom,
         lessThanOrEqualTo(visibleBottom),
         reason: '$name: the preview is cut off',
+      );
+    });
+  }
+
+  // The roomy preview wraps its URL whole, so its height is budgeted for the
+  // longest URL the menus can build, not only the default.
+  const longest = UrlOptions(
+    publicId: 'samples/landscapes/beach-boat',
+    width: 1600,
+    ratio: '16:9',
+    crop: CropMode.thumb,
+    gravity: Gravity.center,
+    effect: Effect.autoContrast,
+    quality: Quality.autoBest,
+    format: DeliveryFormat.webp,
+    rounded: true,
+    rotated: true,
+    cdnSubdomain: true,
+  );
+  for (final (name, size, bottomInset, textScale) in screens) {
+    if (textScale != 1) continue;
+    testWidgets('the preview fits the longest URL: $name', (tester) async {
+      await pumpAt(tester, size, bottomInset: bottomInset);
+      final maxHeight = tester
+          .renderObject<RenderBox>(previewArea())
+          .constraints
+          .maxHeight;
+      final width = tester.getSize(find.byType(UrlPreview)).width;
+      final page = tester.widget<UrlPreview>(find.byType(UrlPreview));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildTheme(Brightness.light),
+          // Laid out as the page lays it out: in a scroll view, at the
+          // height its content asks for.
+          home: Align(
+            alignment: Alignment.topCenter,
+            child: SingleChildScrollView(
+              child: SizedBox(
+                width: width,
+                child: UrlPreview(
+                  options: longest,
+                  imageHeight: page.imageHeight,
+                  wrapUrl: page.wrapUrl,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSize(find.byType(UrlPreview)).height,
+        lessThanOrEqualTo(maxHeight),
+        reason: '$name, wrapped: ${page.wrapUrl}',
       );
     });
   }
