@@ -11,6 +11,7 @@
   <a href="https://github.com/nixrajput/cloudinary-dart/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/nixrajput/cloudinary-dart/ci.yml?branch=master&label=CI" alt="CI" /></a>
   <a href="https://pub.dev/packages/cloudinary/score"><img src="https://img.shields.io/pub/likes/cloudinary?label=Likes" alt="pub likes" /></a>
   <a href="https://pub.dev/packages/cloudinary/score"><img src="https://img.shields.io/pub/points/cloudinary?label=Points" alt="pub points" /></a>
+  <a href="https://github.com/nixrajput/cloudinary-dart/graphs/contributors"><img src="https://img.shields.io/github/contributors/nixrajput/cloudinary-dart?label=Contributors" alt="contributors" /></a>
   <a href="https://github.com/nixrajput/cloudinary-dart/blob/master/LICENSE"><img src="https://img.shields.io/github/license/nixrajput/cloudinary-dart?label=Licence" alt="licence" /></a>
 </p>
 
@@ -58,6 +59,7 @@
 - [About Cloudinary](#about-cloudinary)
 - [Migrating from 1.x](#migrating-from-1x)
 - [Contributing](#contributing)
+- [Contributors](#contributors)
 - [License](#license)
 - [Support the project](#support-the-project)
 - [Connect](#connect)
@@ -381,6 +383,14 @@ Cloudinary is a media API for websites and mobile apps: it stores, transforms, o
 ## Contributing
 
 Fork the repository, make your changes and open a pull request. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first, and note that every PR must bump the version in `pubspec.yaml` and add a matching `CHANGELOG.md` entry.
+
+## Contributors
+
+Thanks to everyone who has contributed to cloudinary.
+
+<a href="https://github.com/nixrajput/cloudinary-dart/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=nixrajput/cloudinary-dart" alt="Contributors" />
+</a>
 
 ## License
 

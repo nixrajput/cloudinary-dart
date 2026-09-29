@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.1
+
+- **Docs:** the README gains a Contributors section and a contributors badge.
+
 ## 2.1.0
 
 ### Changed

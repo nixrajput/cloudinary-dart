@@ -1,7 +1,7 @@
 name: cloudinary
 description: Complete Cloudinary SDK for Dart and Flutter - upload, admin, search and signed delivery URLs, with no Flutter dependency.
 
-version: 2.1.0
+version: 2.1.1
 
 homepage: https://pub.dev/packages/cloudinary
 repository: https://github.com/nixrajput/cloudinary-dart
