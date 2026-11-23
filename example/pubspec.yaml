@@ -11,14 +11,14 @@ dependencies:
   cloudinary:
     path: ../
   # Signs the sample webhook the way Cloudinary does, so the demo can verify it.
-  crypto: ^3.0.7
+  crypto: 3.0.8
   flutter:
     sdk: flutter
-  image_picker: ^1.2.3
+  image_picker: 1.2.4
 
 dev_dependencies:
-  flutter_launcher_icons: ^0.14.4
-  flutter_lints: ^6.0.0
+  flutter_launcher_icons: 0.14.4
+  flutter_lints: 6.0.0
   flutter_test:
     sdk: flutter
 
