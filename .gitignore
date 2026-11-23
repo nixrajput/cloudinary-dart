@@ -45,6 +45,7 @@ coverage/
 *.pem
 *.key
 *.p12
+*.pfx
 *.jks
 *.keystore
 key.properties

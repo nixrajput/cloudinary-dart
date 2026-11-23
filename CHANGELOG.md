@@ -5,7 +5,7 @@
 - **Fixed:** a `CLOUDINARY_URL` whose credentials are not valid percent-encoded UTF-8 now throws `CloudinaryConfigException`, not a raw `FormatException` that held the secret's bytes.
 - **Chore:** dev and example dependencies are upgraded to their latest releases and pinned to exact versions.
 - **Chore:** CI pins every GitHub Action to a commit SHA and gives each workflow only the permissions it uses.
-- **Chore:** `.gitignore` and `.pubignore` exclude `.env` files, keys and local databases, so a local publish cannot ship them.
+- **Chore:** `.gitignore` and `.pubignore` exclude `.env` files, common private-key files and local databases.
 - **Example:** imports `package:material_ui`, which replaces the deprecated `package:flutter/material.dart`, and builds Android with AGP 9.5.2, Gradle 9.9.2 and Kotlin 2.4.21.
 
 ## 2.1.1

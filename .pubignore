@@ -39,6 +39,7 @@ example/flutter_launcher_icons.yaml
 *.pem
 *.key
 *.p12
+*.pfx
 *.jks
 *.keystore
 key.properties
