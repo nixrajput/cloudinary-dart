@@ -37,3 +37,17 @@ coverage/
 
 # Local agent state
 .superpowers/
+
+# Secrets and local databases
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+key.properties
+*.sqlite
+*.sqlite3
+*.db

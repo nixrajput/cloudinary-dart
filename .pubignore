@@ -31,3 +31,17 @@ example/pubspec.lock
 example/.metadata
 example/assets/
 example/flutter_launcher_icons.yaml
+
+# Secrets and local databases
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+key.properties
+*.sqlite
+*.sqlite3
+*.db
