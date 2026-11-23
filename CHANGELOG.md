@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.2
+
+- **Fixed:** a `CLOUDINARY_URL` whose credentials are not valid percent-encoded UTF-8 now throws `CloudinaryConfigException`, not a raw `FormatException` that held the secret's bytes.
+- **Chore:** dev and example dependencies are upgraded to their latest releases and pinned to exact versions.
+- **Chore:** CI pins every GitHub Action to a commit SHA and gives each workflow only the permissions it uses.
+- **Chore:** `.gitignore` and `.pubignore` exclude `.env` files, keys and local databases, so a local publish cannot ship them.
+
 ## 2.1.1
 
 - **Docs:** the README gains a Contributors section and a contributors badge, and its Contributing section points to Issues, Discussions and SECURITY.md.
