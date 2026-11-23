@@ -4,10 +4,10 @@ import 'package:cloudinary_example/src/errors_section.dart';
 import 'package:cloudinary_example/src/signing_section.dart';
 import 'package:cloudinary_example/src/upload_section.dart';
 import 'package:cloudinary_example/src/url_playground.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:material_ui/material_ui.dart';
 
 Future<void> pumpSection(WidgetTester tester, Widget section) async {
   tester.view.devicePixelRatio = 1;

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloudinary_example/main.dart';
@@ -9,6 +8,7 @@ import 'package:cloudinary_example/src/app_theme.dart';
 import 'package:cloudinary_example/src/preview.dart';
 import 'package:cloudinary_example/src/url_playground.dart';
 import 'package:cloudinary/cloudinary.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// The preview card's title, which every check below finds it by.
 const previewTitle = 'Preview';

@@ -53,11 +53,19 @@ class CloudinaryConfig {
     final key = separator == -1 ? userInfo : userInfo.substring(0, separator);
     final secret = separator == -1 ? '' : userInfo.substring(separator + 1);
 
-    return CloudinaryConfig(
-      cloudName: uri.host,
-      apiKey: Uri.decodeComponent(key),
-      apiSecret: Uri.decodeComponent(secret),
-    );
+    try {
+      return CloudinaryConfig(
+        cloudName: uri.host,
+        apiKey: Uri.decodeComponent(key),
+        apiSecret: Uri.decodeComponent(secret),
+      );
+    } on FormatException {
+      // Nothing from the exception: its source holds the decoded bytes, the
+      // API secret's among them.
+      throw const CloudinaryConfigException(
+        'CLOUDINARY_URL credentials are not valid percent-encoded UTF-8.',
+      );
+    }
   }
 
   /// The product environment (cloud) name.
