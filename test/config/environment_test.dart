@@ -36,6 +36,7 @@ void main() {
       'cloudinary://key:$secret@cloud:port',
       'https://key:$secret@cloud',
       'cloudinary://key:$secret@',
+      'cloudinary://key:$secret%FF@cloud',
     ]) {
       expect(
         () => CloudinaryConfig.parse(url),
